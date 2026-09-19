@@ -1,0 +1,89 @@
+import { useCallback, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { createDrawerNavigator } from '@amazon-devices/react-navigation__drawer';
+import { useNavigation, DrawerActions } from '@amazon-devices/react-navigation__native';
+import { SpatialNavigationRoot } from 'react-tv-space-navigation';
+import { Direction } from '@bam.tech/lrud';
+import { useMenuContext, scaledPixels, SettingsScreen } from '@multi-tv/shared-ui';
+import VegaCustomDrawerContent from '../components/VegaCustomDrawerContent';
+import { DrawerParamList } from './types';
+
+const Drawer = createDrawerNavigator<DrawerParamList>();
+
+function DrawerSyncWrapper() {
+  const { isOpen: isMenuOpen } = useMenuContext();
+  const navigation = useNavigation();
+
+  // Open drawer on mount if menu context says it should be open
+  useEffect(() => {
+    if (isMenuOpen) {
+      navigation.dispatch(DrawerActions.openDrawer());
+    }
+  }, []);
+
+  return null;
+}
+
+export default function VegaDrawerNavigator() {
+  const styles = drawerStyles;
+  const { isOpen: isMenuOpen, toggleMenu } = useMenuContext();
+  const navigation = useNavigation();
+
+  const onDirectionHandledWithoutMovement = useCallback(
+    (movement: Direction) => {
+      if (movement === 'right') {
+        navigation.dispatch(DrawerActions.closeDrawer());
+        toggleMenu(false);
+      }
+    },
+    [toggleMenu, navigation],
+  );
+
+  return (
+    <View style={{ flex: 1 }}>
+      <SpatialNavigationRoot
+        isActive={isMenuOpen}
+        onDirectionHandledWithoutMovement={onDirectionHandledWithoutMovement}
+      >
+        <Drawer.Navigator
+          drawerContent={VegaCustomDrawerContent}
+          initialRouteName="Settings"
+          defaultStatus="closed"
+          screenOptions={{
+            headerShown: false,
+            drawerActiveBackgroundColor: '#3498db',
+            drawerActiveTintColor: '#ffffff',
+            drawerInactiveTintColor: '#bdc3c7',
+            drawerStyle: styles.drawerStyle,
+            drawerLabelStyle: styles.drawerLabelStyle,
+            drawerType: 'front',
+            swipeEnabled: false,
+            animationEnabled: false,
+          }}
+        >
+          <Drawer.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              drawerLabel: 'Settings',
+            }}
+          />
+        </Drawer.Navigator>
+        <DrawerSyncWrapper />
+      </SpatialNavigationRoot>
+    </View>
+  );
+}
+
+const drawerStyles = StyleSheet.create({
+    drawerStyle: {
+      width: scaledPixels(300),
+      backgroundColor: '#2c3e50',
+      paddingTop: scaledPixels(0),
+    },
+    drawerLabelStyle: {
+      fontSize: scaledPixels(18),
+      fontWeight: 'bold',
+      marginLeft: scaledPixels(10),
+    },
+  });

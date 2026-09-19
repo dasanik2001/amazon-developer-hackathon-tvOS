@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family TV Guardian - Parent Viewing Intelligence</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-badge">🛡️ Fire TV Guardian</div>
+        <span class="tagline">AI Viewing Intelligence Layer</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div id="ws-status" class="ws-status-badge">
+          <span class="ws-dot"></span>
+          <span id="ws-status-text">Live TV Socket: Connected</span>
+        </div>
+        <div class="profile-selector">
+          <label for="child-select">Active Profile:</label>
+          <select id="child-select"></select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Live Fire TV OS Emulator Overlay & Ingestion Status -->
+    <section class="simulator-panel">
+      <div class="sim-header">
+        <span class="sim-icon" id="sim-icon">🛡️</span>
+        <div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <strong>Fire TV OS Background Parental Guardian</strong>
+            <span id="monitoring-status-pill" class="badge-status-on">● MONITORING ACTIVE</span>
+          </div>
+          <p style="margin-top:4px;">
+            Active Foreground App: <span id="overlay-active-app" style="color:var(--accent-orange); font-weight:700;">Watching Emulator...</span> • 
+            <span id="monitoring-desc-text">Sampling TV screen metadata every 120s into RAG</span>
+          </p>
+        </div>
+      </div>
+      <div class="sim-actions">
+        <!-- Parent Monitor Trigger Button -->
+        <button id="btn-toggle-monitor" class="btn btn-monitor-active" onclick="toggleParentalMonitoring()">
+          <span id="btn-monitor-icon">🛡️</span>
+          <span id="btn-monitor-text">Monitoring Enabled</span>
+        </button>
+        <button class="btn btn-primary" onclick="refreshDashboard(); loadRecentFrames();">🔄 Refresh Real Data</button>
+        <button class="btn btn-outline" onclick="runScenario('reset')">🗑️ Clear History</button>
+      </div>
+    </section>
+
+    <!-- Main Grid -->
+    <main class="dashboard-grid">
+      <!-- Left Column: Digest & Signals -->
+      <div class="grid-left">
+        <!-- Daily Briefing Card -->
+        <div class="card briefing-card">
+          <div class="card-header">
+            <h2>Today's Briefing</h2>
+            <span class="badge badge-date" id="digest-date">Today</span>
+          </div>
+          <p class="briefing-text" id="briefing-summary">Loading viewing briefing...</p>
+
+          <div class="stats-row">
+            <div class="stat-box">
+              <span class="stat-label">Total Screen Time</span>
+              <span class="stat-value" id="total-time">0 min</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Cartoon Time</span>
+              <span class="stat-value text-purple" id="cartoon-time">0 min</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Educational Time</span>
+              <span class="stat-value text-emerald" id="edu-time">0 min</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Sessions Recorded</span>
+              <span class="stat-value" id="session-count">0</span>
+            </div>
+          </div>
+
+          <!-- Category Progress -->
+          <div class="category-breakdown">
+            <h3>Category Mix</h3>
+            <div class="progress-bar-container" id="category-bars">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Topics Extracted Card (P0) -->
+        <div class="card topics-card">
+          <div class="card-header">
+            <h3>Extracted Learning Themes</h3>
+            <span class="badge badge-ai">Bedrock AI Extracted</span>
+          </div>
+          <p class="section-desc">Key concepts and subjects explored during viewing:</p>
+          <div class="topic-chips" id="topic-chips">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Notable Items & Content Signals (P0) -->
+        <div class="card notable-card">
+          <div class="card-header">
+            <h3>Safety & Content Highlights</h3>
+            <span class="badge badge-evidence">Evidence-First</span>
+          </div>
+          <div id="notable-list" class="notable-list">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Parent Q&A (P0) -->
+      <div class="grid-right">
+        <div class="card qa-card">
+          <div class="card-header">
+            <h2>Parent Q&A Assistant</h2>
+            <span class="badge badge-rag">Grounded RAG</span>
+          </div>
+          <p class="section-desc">Ask anything about what your child watched, learned, or experienced:</p>
+
+          <!-- Suggested Quick Prompts -->
+          <div class="quick-prompts">
+            <button class="prompt-chip" onclick="askQuestion('What did Aarav watch today?')">"What did Aarav watch today?"</button>
+            <button class="prompt-chip" onclick="askQuestion('What cartoons did he watch?')">"What cartoons did he watch?"</button>
+            <button class="prompt-chip" onclick="askQuestion('What did he learn about space?')">"What did he learn about space?"</button>
+            <button class="prompt-chip" onclick="askQuestion('Was anything concerning?')">"Was anything concerning?"</button>
+            <button class="prompt-chip" onclick="askQuestion('What educational content did he watch?')">"What educational content did he watch?"</button>
+          </div>
+
+          <!-- Question Input -->
+          <div class="qa-input-wrapper">
+            <input type="text" id="qa-input" placeholder="Ask a question about today's viewing..." onkeypress="handleKeyPress(event)" />
+            <button class="btn btn-primary" id="btn-ask" onclick="submitQuestion()">Ask AI</button>
+          </div>
+
+          <!-- QA Conversation / Answer Container -->
+          <div class="qa-history" id="qa-history">
+            <div class="qa-empty-state">
+              <div class="ai-avatar">💡</div>
+              <p>Click a suggested prompt above or type a question to inspect your child's viewing details.</p>
+            </div>
+          </div>
+        <!-- Live 2-Min Frame Ingestion Feed -->
+        <div class="card frame-feed-card">
+          <div class="card-header">
+            <h3>Live 2-Min Fire TV Ingestion Feed</h3>
+            <span class="badge badge-ai">RAG Ingestion</span>
+          </div>
+          <p class="section-desc">Sampled screen context from running Fire TV apps (YouTube, Netflix, Prime):</p>
+          <div class="frame-feed-list" id="frame-feed-list" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

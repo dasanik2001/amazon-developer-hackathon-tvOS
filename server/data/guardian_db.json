@@ -1,0 +1,455 @@
+{
+  "children": [
+    {
+      "id": "child_aarav",
+      "household_id": "house_001",
+      "display_name": "Aarav",
+      "age_band": "7-10",
+      "avatar": "👦",
+      "settings": {
+        "daily_limit_minutes": 60,
+        "flag_threshold": "standard"
+      }
+    },
+    {
+      "id": "child_meera",
+      "household_id": "house_001",
+      "display_name": "Meera",
+      "age_band": "4-6",
+      "avatar": "👧",
+      "settings": {
+        "daily_limit_minutes": 45,
+        "flag_threshold": "strict"
+      }
+    }
+  ],
+  "contents": [],
+  "sessions": [
+    {
+      "id": "session_ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k_2026-09-19",
+      "child_id": "child_aarav",
+      "content_id": "ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k",
+      "title": "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K [SmartTube]",
+      "category": "Entertainment",
+      "started_at": "2026-09-19T03:33:43.771Z",
+      "ended_at": "2026-09-19T03:33:43.771Z",
+      "duration_sec": 120,
+      "completed": false,
+      "timestamp": "2026-09-19"
+    },
+    {
+      "id": "session_ext_com.google.android.youtube.tv_recommended_2026-09-19",
+      "child_id": "child_aarav",
+      "content_id": "ext_com.google.android.youtube.tv_recommended",
+      "title": "Recommended [YouTube]",
+      "category": "Cartoon",
+      "started_at": "2026-09-19T03:35:43.788Z",
+      "ended_at": "2026-09-19T03:35:43.788Z",
+      "duration_sec": 120,
+      "completed": false,
+      "timestamp": "2026-09-19"
+    },
+    {
+      "id": "session_ext_org.smarttube.stable_recommended_2026-09-19",
+      "child_id": "child_aarav",
+      "content_id": "ext_org.smarttube.stable_recommended",
+      "title": "Recommended [SmartTube]",
+      "category": "Entertainment",
+      "started_at": "2026-09-19T03:43:03.350Z",
+      "ended_at": "2026-09-19T03:43:43.802Z",
+      "duration_sec": 240,
+      "completed": false,
+      "timestamp": "2026-09-19"
+    },
+    {
+      "id": "session_ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram_2026-09-19",
+      "child_id": "child_aarav",
+      "content_id": "ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram",
+      "title": "Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram [SmartTube]",
+      "category": "Entertainment",
+      "started_at": "2026-09-19T03:45:43.799Z",
+      "ended_at": "2026-09-19T03:45:43.799Z",
+      "duration_sec": 120,
+      "completed": false,
+      "timestamp": "2026-09-19"
+    }
+  ],
+  "analyses": {
+    "ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k": {
+      "content_id": "ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k",
+      "categories": [
+        "Entertainment",
+        "SmartTube"
+      ],
+      "topics": [
+        "SmartTube streaming"
+      ],
+      "educational_score": 30,
+      "age_signal": "All Ages",
+      "violence_signal": "none",
+      "language_signal": "clean",
+      "summary": "Captured SmartTube playback: \"Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K\" featuring SmartTube streaming.",
+      "key_takeaways": [
+        "Observed SmartTube streaming on SmartTube."
+      ],
+      "model_version": "guardian-overlay-vision-engine-v2.0",
+      "analyzed_at": "2026-09-19T05:23:50.107Z"
+    },
+    "ext_com.google.android.youtube.tv_recommended": {
+      "content_id": "ext_com.google.android.youtube.tv_recommended",
+      "categories": [
+        "Cartoon",
+        "Animation"
+      ],
+      "topics": [
+        "action & superheroes",
+        "adventure",
+        "interactive exploration",
+        "bilingual learning",
+        "problem solving",
+        "kids cartoon",
+        "music & rhythm",
+        "cultural arts"
+      ],
+      "educational_score": 85,
+      "age_signal": "7+",
+      "violence_signal": "mild_action",
+      "language_signal": "clean",
+      "summary": "Dora the Explorer animated cartoon episode focusing on interactive exploration and bilingual problem solving.",
+      "key_takeaways": [
+        "Learned basic Spanish phrases and vocabulary.",
+        "Practiced interactive direction following and map reading.",
+        "Solved sequential puzzles with Boots."
+      ],
+      "model_version": "guardian-overlay-vision-engine-v2.0",
+      "analyzed_at": "2026-09-19T05:25:50.107Z"
+    },
+    "ext_org.smarttube.stable_recommended": {
+      "content_id": "ext_org.smarttube.stable_recommended",
+      "categories": [
+        "Entertainment",
+        "SmartTube"
+      ],
+      "topics": [
+        "action & superheroes",
+        "adventure"
+      ],
+      "educational_score": 30,
+      "age_signal": "All Ages",
+      "violence_signal": "none",
+      "language_signal": "clean",
+      "summary": "Captured SmartTube playback: \"Recommended\" featuring action & superheroes, adventure.",
+      "key_takeaways": [
+        "Observed action & superheroes on SmartTube."
+      ],
+      "model_version": "guardian-overlay-vision-engine-v2.0",
+      "analyzed_at": "2026-09-19T05:33:50.121Z"
+    },
+    "ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram": {
+      "content_id": "ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram",
+      "categories": [
+        "Entertainment",
+        "SmartTube"
+      ],
+      "topics": [
+        "music & rhythm",
+        "cultural arts"
+      ],
+      "educational_score": 30,
+      "age_signal": "All Ages",
+      "violence_signal": "none",
+      "language_signal": "clean",
+      "summary": "Captured SmartTube playback: \"Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram\" featuring music & rhythm, cultural arts.",
+      "key_takeaways": [
+        "Observed music & rhythm on SmartTube."
+      ],
+      "model_version": "guardian-overlay-vision-engine-v2.0",
+      "analyzed_at": "2026-09-19T05:35:50.131Z"
+    }
+  },
+  "digests": {
+    "child_aarav_2026-09-19": {
+      "child_id": "child_aarav",
+      "date": "2026-09-19",
+      "total_minutes": 10,
+      "category_minutes": {
+        "Entertainment": 8,
+        "Cartoon": 2
+      },
+      "top_topics": [
+        "action & superheroes",
+        "adventure",
+        "music & rhythm",
+        "cultural arts",
+        "SmartTube streaming"
+      ],
+      "notable_items": [
+        {
+          "title": "Recommended [YouTube]",
+          "reason": "High educational value (85/100) covering action & superheroes, adventure.",
+          "flag_type": "educational_highlight"
+        },
+        {
+          "title": "Recommended [YouTube]",
+          "reason": "Detected mild animated action sequence / laser stunts.",
+          "flag_type": "potential_concern"
+        }
+      ],
+      "generated_summary": "Aarav watched 10 min of content today, primarily focusing on Entertainment. 2 min was spent watching animated cartoons. Themes explored included action & superheroes, adventure, music & rhythm. Notice: Mild animated action was detected in cartoon content."
+    }
+  },
+  "frames": [
+    {
+      "id": "frame_1789796150131_8u55",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T03:45:43.799Z",
+      "app_package": "org.smarttube.stable",
+      "app_name": "SmartTube",
+      "media_title": "Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram",
+      "media_artist": "",
+      "text_snippets": [
+        "Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram",
+        "Aditya Music • 479K views • Published on Sep 14, 2026 • 3.5K 👍 • 14 👎 • 36.8M subscribers",
+        "Pause",
+        "Skip Previous/Rewind to start position",
+        "Looney Tunes | Classic Wile E. Coyote vs Road Runner Full Episodes | Vol. 12 | Warner Classics • Warner Bros. Classics",
+        "Play videos continuously",
+        "Video speed",
+        "Background playback",
+        "Screen dimming",
+        "Chat/Comments",
+        "Search",
+        "4K/60/VP9",
+        "Sat Sep 19 3:45 AM",
+        "Advanced playback settings",
+        "Open channel"
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789796150131",
+        "categories": [
+          "Entertainment",
+          "SmartTube"
+        ],
+        "topics": [
+          "music & rhythm",
+          "cultural arts"
+        ],
+        "educational_score": 30,
+        "age_signal": "All Ages",
+        "violence_signal": "none",
+        "language_signal": "clean",
+        "summary": "Captured SmartTube playback: \"Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram\" featuring music & rhythm, cultural arts.",
+        "key_takeaways": [
+          "Observed music & rhythm on SmartTube."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T05:35:50.131Z"
+      }
+    },
+    {
+      "id": "frame_1789796030121_l1eb",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T03:43:43.802Z",
+      "app_package": "org.smarttube.stable",
+      "app_name": "SmartTube",
+      "media_title": "Recommended",
+      "media_artist": "",
+      "text_snippets": [
+        "Recommended",
+        "13:24",
+        "1st Innings Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
+        "Sports TV • 7.9M views • 1 day ago",
+        "59:46",
+        "Iyer ने क्यों कहा Jethalal  को जेठीलाल ? |TMKOCMovies| Taarak Mehta Ka Ooltah Chashmah|",
+        "Taarak Mehta ka Ooltah Chashmah Movies • 2.3M views • 2 weeks ago",
+        "LIVE",
+        "Jungle Animals 4K HD 🌎 Amazing Wildlife Documentary & Natural Wonders",
+        "Amazon 4K UHD • 202 watching",
+        "10:28",
+        "Coke Studio Season 8| Tajdar-e-Haram| Atif Aslam",
+        "Coke Studio Pakistan • 658M views • 11 years ago",
+        "30:27",
+        "Epic Kung Fu Panda Final Fight Scenes"
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789796030121",
+        "categories": [
+          "Entertainment",
+          "SmartTube"
+        ],
+        "topics": [
+          "action & superheroes",
+          "adventure"
+        ],
+        "educational_score": 30,
+        "age_signal": "All Ages",
+        "violence_signal": "none",
+        "language_signal": "clean",
+        "summary": "Captured SmartTube playback: \"Recommended\" featuring action & superheroes, adventure.",
+        "key_takeaways": [
+          "Observed action & superheroes on SmartTube."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T05:33:50.121Z"
+      }
+    },
+    {
+      "id": "frame_1789795989681_zi4n",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T03:43:03.350Z",
+      "app_package": "org.smarttube.stable",
+      "app_name": "SmartTube",
+      "media_title": "Recommended",
+      "media_artist": "",
+      "text_snippets": [
+        "Recommended",
+        "13:24",
+        "1st Innings Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
+        "Sports TV • 7.9M views • 1 day ago",
+        "59:46",
+        "Iyer ने क्यों कहा Jethalal  को जेठीलाल ? |TMKOCMovies| Taarak Mehta Ka Ooltah Chashmah|",
+        "Taarak Mehta ka Ooltah Chashmah Movies • 2.3M views • 2 weeks ago",
+        "LIVE",
+        "Jungle Animals 4K HD 🌎 Amazing Wildlife Documentary & Natural Wonders",
+        "Amazon 4K UHD • 202 watching",
+        "10:28",
+        "Coke Studio Season 8| Tajdar-e-Haram| Atif Aslam",
+        "Coke Studio Pakistan • 658M views • 11 years ago",
+        "30:27",
+        "Epic Kung Fu Panda Final Fight Scenes"
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789795989681",
+        "categories": [
+          "Entertainment",
+          "SmartTube"
+        ],
+        "topics": [
+          "action & superheroes",
+          "adventure"
+        ],
+        "educational_score": 30,
+        "age_signal": "All Ages",
+        "violence_signal": "none",
+        "language_signal": "clean",
+        "summary": "Captured SmartTube playback: \"Recommended\" featuring action & superheroes, adventure.",
+        "key_takeaways": [
+          "Observed action & superheroes on SmartTube."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T05:33:09.681Z"
+      }
+    },
+    {
+      "id": "frame_1789795550107_9kmq",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T03:35:43.788Z",
+      "app_package": "com.google.android.youtube.tv",
+      "app_name": "YouTube",
+      "media_title": "Recommended",
+      "media_artist": "",
+      "text_snippets": [
+        "Recommended",
+        "1:31:15",
+        "Dora the Explorer Backpack & Map Games! 🗺️ 🎒 90 Minutes | Dora & Friends",
+        "Dora & Friends • 4M views • 2 years ago",
+        "52:05",
+        "🐆⛰️ Zeinab’s Battle with a Leopard in the Zagros Mountains | Surviving Life in Harsh Conditions! 😱🔥",
+        "ROSTA • 62K views • 15 hours ago",
+        "25:41",
+        "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
+        "Sports TV • 8.8M views • 1 day ago",
+        "3:19",
+        "Watch the moment anchors announce death of colleagues in helicopter crash live on air",
+        "ITV News • 3.2M views • 2 days ago",
+        "4:48",
+        "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL ."
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789795550107",
+        "categories": [
+          "Cartoon",
+          "Animation"
+        ],
+        "topics": [
+          "action & superheroes",
+          "adventure",
+          "interactive exploration",
+          "bilingual learning",
+          "problem solving",
+          "kids cartoon",
+          "music & rhythm",
+          "cultural arts"
+        ],
+        "educational_score": 85,
+        "age_signal": "7+",
+        "violence_signal": "mild_action",
+        "language_signal": "clean",
+        "summary": "Dora the Explorer animated cartoon episode focusing on interactive exploration and bilingual problem solving.",
+        "key_takeaways": [
+          "Learned basic Spanish phrases and vocabulary.",
+          "Practiced interactive direction following and map reading.",
+          "Solved sequential puzzles with Boots."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T05:25:50.107Z"
+      }
+    },
+    {
+      "id": "frame_1789795430107_5xhg",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T03:33:43.771Z",
+      "app_package": "org.smarttube.stable",
+      "app_name": "SmartTube",
+      "media_title": "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
+      "media_artist": "",
+      "text_snippets": [
+        "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
+        "Sports TV • 8.8M views • Published on Sep 17, 2026 • 52.6K 👍 • 1.4K 👎 • 2.33M subscribers",
+        "Pause",
+        "Skip Previous/Rewind to start position",
+        "Watch the moment anchors announce death of colleagues in helicopter crash live on air • ITV News",
+        "Play videos continuously",
+        "Video speed",
+        "Background playback",
+        "Screen dimming",
+        "Chat/Comments",
+        "Search",
+        "1080/60/VP9",
+        "Sat Sep 19 3:33 AM",
+        "Advanced playback settings",
+        "Open channel"
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789795430107",
+        "categories": [
+          "Entertainment",
+          "SmartTube"
+        ],
+        "topics": [
+          "SmartTube streaming"
+        ],
+        "educational_score": 30,
+        "age_signal": "All Ages",
+        "violence_signal": "none",
+        "language_signal": "clean",
+        "summary": "Captured SmartTube playback: \"Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K\" featuring SmartTube streaming.",
+        "key_takeaways": [
+          "Observed SmartTube streaming on SmartTube."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T05:23:50.107Z"
+      }
+    }
+  ],
+  "currentApp": {
+    "app_name": "SmartTube",
+    "app_package": "org.smarttube.stable",
+    "timestamp": "2026-09-19T05:35:50.136Z"
+  }
+}

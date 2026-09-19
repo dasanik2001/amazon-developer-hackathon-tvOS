@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Android Build & Cache
+.gradle/
+**/android/.gradle/
+**/android/app/build/
+**/android/build/
+**/android/.idea/
+android/local.properties
+*.apk
+*.aab
+*.iml
+
+# Expo & React Native
+.expo/
+.expo-shared/
+web-build/
+*.jks
+*.keystore
+
+# Node & TypeScript builds
+dist/
+server/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment & local overrides
+.env
+.env.local
+.env.*.local
+
+# Downloads & Temp
+downloads/
+*.log
+
+# macOS & OS artifacts
+.DS_Store
+Thumbs.db
