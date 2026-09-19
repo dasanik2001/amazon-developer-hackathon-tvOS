@@ -89,6 +89,7 @@ export interface FrameContext {
   app_name: string; // e.g. "YouTube", "Amazon Prime Video", "Netflix"
   media_title?: string;
   media_artist?: string;
+  synopsis?: string;
   text_snippets?: string[]; // on-screen titles, subtitles, or UI elements captured from AccessibilityNodeInfo
   frame_base64?: string; // sampled frame thumbnail if available
   analysis?: ContentAnalysis;

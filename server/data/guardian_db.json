@@ -26,430 +26,349 @@
   "contents": [],
   "sessions": [
     {
-      "id": "session_ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k_2026-09-19",
+      "id": "session_ext_com.amazon.amazonvideo.livingroom_the_boys_season_4_2026-09-19",
       "child_id": "child_aarav",
-      "content_id": "ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k",
-      "title": "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K [SmartTube]",
+      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_boys_season_4",
+      "title": "The Boys Season 4 [Prime Video]",
       "category": "Entertainment",
-      "started_at": "2026-09-19T03:33:43.771Z",
-      "ended_at": "2026-09-19T03:33:43.771Z",
-      "duration_sec": 120,
-      "completed": false,
-      "timestamp": "2026-09-19"
-    },
-    {
-      "id": "session_ext_com.google.android.youtube.tv_recommended_2026-09-19",
-      "child_id": "child_aarav",
-      "content_id": "ext_com.google.android.youtube.tv_recommended",
-      "title": "Recommended [YouTube]",
-      "category": "Cartoon",
-      "started_at": "2026-09-19T03:35:43.788Z",
-      "ended_at": "2026-09-19T03:35:43.788Z",
-      "duration_sec": 120,
-      "completed": false,
-      "timestamp": "2026-09-19"
-    },
-    {
-      "id": "session_ext_org.smarttube.stable_recommended_2026-09-19",
-      "child_id": "child_aarav",
-      "content_id": "ext_org.smarttube.stable_recommended",
-      "title": "Recommended [SmartTube]",
-      "category": "Entertainment",
-      "started_at": "2026-09-19T03:43:03.350Z",
-      "ended_at": "2026-09-19T03:43:43.802Z",
+      "started_at": "2026-09-19T19:59:37.948Z",
+      "ended_at": "2026-09-19T19:59:39.906Z",
       "duration_sec": 240,
       "completed": false,
       "timestamp": "2026-09-19"
     },
     {
-      "id": "session_ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram_2026-09-19",
+      "id": "session_ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1_2026-09-19",
       "child_id": "child_aarav",
-      "content_id": "ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram",
-      "title": "Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram [SmartTube]",
+      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1",
+      "title": "The Revolutionaries Season 1 [Prime Video]",
       "category": "Entertainment",
-      "started_at": "2026-09-19T03:45:43.799Z",
-      "ended_at": "2026-09-19T03:45:43.799Z",
-      "duration_sec": 120,
+      "started_at": "2026-09-19T20:00:26.647Z",
+      "ended_at": "2026-09-19T20:02:03.613Z",
+      "duration_sec": 600,
       "completed": false,
       "timestamp": "2026-09-19"
     }
   ],
   "analyses": {
-    "ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k": {
-      "content_id": "ext_org.smarttube.stable_full_match_highlights___afghanistan_vs_india___match_03___t20i_series_2026___acb___m9n1k",
+    "ext_com.amazon.amazonvideo.livingroom_the_boys_season_4": {
+      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_boys_season_4",
       "categories": [
         "Entertainment",
-        "SmartTube"
+        "Prime Video"
       ],
       "topics": [
-        "SmartTube streaming"
+        "Prime Video streaming",
+        "visual storytelling"
       ],
-      "educational_score": 30,
+      "educational_score": 50,
       "age_signal": "All Ages",
       "violence_signal": "none",
       "language_signal": "clean",
-      "summary": "Captured SmartTube playback: \"Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K\" featuring SmartTube streaming.",
+      "summary": "The Boys Season 4 on Prime Video: With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
       "key_takeaways": [
-        "Observed SmartTube streaming on SmartTube."
+        "Explored narrative themes around Prime Video streaming.",
+        "Engaged with visual content streamed via Prime Video."
       ],
       "model_version": "guardian-overlay-vision-engine-v2.0",
-      "analyzed_at": "2026-09-19T05:23:50.107Z"
+      "analyzed_at": "2026-09-19T14:29:39.917Z"
     },
-    "ext_com.google.android.youtube.tv_recommended": {
-      "content_id": "ext_com.google.android.youtube.tv_recommended",
-      "categories": [
-        "Cartoon",
-        "Animation"
-      ],
-      "topics": [
-        "action & superheroes",
-        "adventure",
-        "interactive exploration",
-        "bilingual learning",
-        "problem solving",
-        "kids cartoon",
-        "music & rhythm",
-        "cultural arts"
-      ],
-      "educational_score": 85,
-      "age_signal": "7+",
-      "violence_signal": "mild_action",
-      "language_signal": "clean",
-      "summary": "Dora the Explorer animated cartoon episode focusing on interactive exploration and bilingual problem solving.",
-      "key_takeaways": [
-        "Learned basic Spanish phrases and vocabulary.",
-        "Practiced interactive direction following and map reading.",
-        "Solved sequential puzzles with Boots."
-      ],
-      "model_version": "guardian-overlay-vision-engine-v2.0",
-      "analyzed_at": "2026-09-19T05:25:50.107Z"
-    },
-    "ext_org.smarttube.stable_recommended": {
-      "content_id": "ext_org.smarttube.stable_recommended",
+    "ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1": {
+      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1",
       "categories": [
         "Entertainment",
-        "SmartTube"
+        "Prime Video"
       ],
       "topics": [
-        "action & superheroes",
-        "adventure"
+        "Prime Video streaming",
+        "visual storytelling"
       ],
-      "educational_score": 30,
+      "educational_score": 50,
       "age_signal": "All Ages",
       "violence_signal": "none",
       "language_signal": "clean",
-      "summary": "Captured SmartTube playback: \"Recommended\" featuring action & superheroes, adventure.",
+      "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
       "key_takeaways": [
-        "Observed action & superheroes on SmartTube."
+        "Explored narrative themes around Prime Video streaming.",
+        "Engaged with visual content streamed via Prime Video."
       ],
       "model_version": "guardian-overlay-vision-engine-v2.0",
-      "analyzed_at": "2026-09-19T05:33:50.121Z"
-    },
-    "ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram": {
-      "content_id": "ext_org.smarttube.stable_butta_bomma_video_song_8k___ala_vaikunthapurramuloo___allu_arjun__pooja_hegde___thaman_s___trivikram",
-      "categories": [
-        "Entertainment",
-        "SmartTube"
-      ],
-      "topics": [
-        "music & rhythm",
-        "cultural arts"
-      ],
-      "educational_score": 30,
-      "age_signal": "All Ages",
-      "violence_signal": "none",
-      "language_signal": "clean",
-      "summary": "Captured SmartTube playback: \"Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram\" featuring music & rhythm, cultural arts.",
-      "key_takeaways": [
-        "Observed music & rhythm on SmartTube."
-      ],
-      "model_version": "guardian-overlay-vision-engine-v2.0",
-      "analyzed_at": "2026-09-19T05:35:50.131Z"
+      "analyzed_at": "2026-09-19T14:32:03.622Z"
     }
   },
   "digests": {
     "child_aarav_2026-09-19": {
       "child_id": "child_aarav",
       "date": "2026-09-19",
-      "total_minutes": 10,
+      "total_minutes": 14,
       "category_minutes": {
-        "Entertainment": 8,
-        "Cartoon": 2
+        "Entertainment": 14
       },
       "top_topics": [
-        "action & superheroes",
-        "adventure",
-        "music & rhythm",
-        "cultural arts",
-        "SmartTube streaming"
+        "Prime Video streaming",
+        "visual storytelling"
       ],
-      "notable_items": [
-        {
-          "title": "Recommended [YouTube]",
-          "reason": "High educational value (85/100) covering action & superheroes, adventure.",
-          "flag_type": "educational_highlight"
-        },
-        {
-          "title": "Recommended [YouTube]",
-          "reason": "Detected mild animated action sequence / laser stunts.",
-          "flag_type": "potential_concern"
-        }
-      ],
-      "generated_summary": "Aarav watched 10 min of content today, primarily focusing on Entertainment. 2 min was spent watching animated cartoons. Themes explored included action & superheroes, adventure, music & rhythm. Notice: Mild animated action was detected in cartoon content."
+      "notable_items": [],
+      "generated_summary": "Aarav watched 14 min of content today, primarily focusing on Entertainment. Themes explored included Prime Video streaming, visual storytelling."
     }
   },
   "frames": [
     {
-      "id": "frame_1789796150131_8u55",
+      "id": "frame_1789828323622_dh16",
       "child_id": "child_aarav",
-      "timestamp": "2026-09-19T03:45:43.799Z",
-      "app_package": "org.smarttube.stable",
-      "app_name": "SmartTube",
-      "media_title": "Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram",
-      "media_artist": "",
+      "timestamp": "2026-09-19T20:02:03.613Z",
+      "app_package": "com.amazon.amazonvideo.livingroom",
+      "app_name": "Prime Video",
+      "media_title": "The Revolutionaries Season 1",
+      "media_artist": "Prime Video Featured",
+      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
       "text_snippets": [
-        "Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram",
-        "Aditya Music • 479K views • Published on Sep 14, 2026 • 3.5K 👍 • 14 👎 • 36.8M subscribers",
-        "Pause",
-        "Skip Previous/Rewind to start position",
-        "Looney Tunes | Classic Wile E. Coyote vs Road Runner Full Episodes | Vol. 12 | Warner Classics • Warner Bros. Classics",
-        "Play videos continuously",
-        "Video speed",
-        "Background playback",
-        "Screen dimming",
-        "Chat/Comments",
-        "Search",
-        "4K/60/VP9",
-        "Sat Sep 19 3:45 AM",
-        "Advanced playback settings",
-        "Open channel"
+        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
       ],
       "frame_base64": "",
       "analysis": {
-        "content_id": "ext_1789796150131",
+        "content_id": "ext_1789828323622",
         "categories": [
           "Entertainment",
-          "SmartTube"
+          "Prime Video"
         ],
         "topics": [
-          "music & rhythm",
-          "cultural arts"
+          "Prime Video streaming",
+          "visual storytelling"
         ],
-        "educational_score": 30,
+        "educational_score": 50,
         "age_signal": "All Ages",
         "violence_signal": "none",
         "language_signal": "clean",
-        "summary": "Captured SmartTube playback: \"Butta Bomma Video Song 8K | Ala Vaikunthapurramuloo | Allu Arjun, Pooja Hegde | Thaman S | Trivikram\" featuring music & rhythm, cultural arts.",
+        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
         "key_takeaways": [
-          "Observed music & rhythm on SmartTube."
+          "Explored narrative themes around Prime Video streaming.",
+          "Engaged with visual content streamed via Prime Video."
         ],
         "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T05:35:50.131Z"
+        "analyzed_at": "2026-09-19T14:32:03.622Z"
       }
     },
     {
-      "id": "frame_1789796030121_l1eb",
+      "id": "frame_1789828323330_gndh",
       "child_id": "child_aarav",
-      "timestamp": "2026-09-19T03:43:43.802Z",
-      "app_package": "org.smarttube.stable",
-      "app_name": "SmartTube",
-      "media_title": "Recommended",
-      "media_artist": "",
+      "timestamp": "2026-09-19T20:02:03.314Z",
+      "app_package": "com.amazon.amazonvideo.livingroom",
+      "app_name": "Prime Video",
+      "media_title": "The Revolutionaries Season 1",
+      "media_artist": "Prime Video Featured",
+      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
       "text_snippets": [
-        "Recommended",
-        "13:24",
-        "1st Innings Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
-        "Sports TV • 7.9M views • 1 day ago",
-        "59:46",
-        "Iyer ने क्यों कहा Jethalal  को जेठीलाल ? |TMKOCMovies| Taarak Mehta Ka Ooltah Chashmah|",
-        "Taarak Mehta ka Ooltah Chashmah Movies • 2.3M views • 2 weeks ago",
-        "LIVE",
-        "Jungle Animals 4K HD 🌎 Amazing Wildlife Documentary & Natural Wonders",
-        "Amazon 4K UHD • 202 watching",
-        "10:28",
-        "Coke Studio Season 8| Tajdar-e-Haram| Atif Aslam",
-        "Coke Studio Pakistan • 658M views • 11 years ago",
-        "30:27",
-        "Epic Kung Fu Panda Final Fight Scenes"
+        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
       ],
       "frame_base64": "",
       "analysis": {
-        "content_id": "ext_1789796030121",
+        "content_id": "ext_1789828323330",
         "categories": [
           "Entertainment",
-          "SmartTube"
+          "Prime Video"
         ],
         "topics": [
-          "action & superheroes",
-          "adventure"
+          "Prime Video streaming",
+          "visual storytelling"
         ],
-        "educational_score": 30,
+        "educational_score": 50,
         "age_signal": "All Ages",
         "violence_signal": "none",
         "language_signal": "clean",
-        "summary": "Captured SmartTube playback: \"Recommended\" featuring action & superheroes, adventure.",
+        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
         "key_takeaways": [
-          "Observed action & superheroes on SmartTube."
+          "Explored narrative themes around Prime Video streaming.",
+          "Engaged with visual content streamed via Prime Video."
         ],
         "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T05:33:50.121Z"
+        "analyzed_at": "2026-09-19T14:32:03.330Z"
       }
     },
     {
-      "id": "frame_1789795989681_zi4n",
+      "id": "frame_1789828297377_305r",
       "child_id": "child_aarav",
-      "timestamp": "2026-09-19T03:43:03.350Z",
-      "app_package": "org.smarttube.stable",
-      "app_name": "SmartTube",
-      "media_title": "Recommended",
-      "media_artist": "",
+      "timestamp": "2026-09-19T20:01:37.318Z",
+      "app_package": "com.amazon.amazonvideo.livingroom",
+      "app_name": "Prime Video",
+      "media_title": "The Revolutionaries Season 1",
+      "media_artist": "Prime Video Featured",
+      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
       "text_snippets": [
-        "Recommended",
-        "13:24",
-        "1st Innings Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
-        "Sports TV • 7.9M views • 1 day ago",
-        "59:46",
-        "Iyer ने क्यों कहा Jethalal  को जेठीलाल ? |TMKOCMovies| Taarak Mehta Ka Ooltah Chashmah|",
-        "Taarak Mehta ka Ooltah Chashmah Movies • 2.3M views • 2 weeks ago",
-        "LIVE",
-        "Jungle Animals 4K HD 🌎 Amazing Wildlife Documentary & Natural Wonders",
-        "Amazon 4K UHD • 202 watching",
-        "10:28",
-        "Coke Studio Season 8| Tajdar-e-Haram| Atif Aslam",
-        "Coke Studio Pakistan • 658M views • 11 years ago",
-        "30:27",
-        "Epic Kung Fu Panda Final Fight Scenes"
+        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
       ],
       "frame_base64": "",
       "analysis": {
-        "content_id": "ext_1789795989681",
+        "content_id": "ext_1789828297375",
         "categories": [
           "Entertainment",
-          "SmartTube"
+          "Prime Video"
         ],
         "topics": [
-          "action & superheroes",
-          "adventure"
+          "Prime Video streaming",
+          "visual storytelling"
         ],
-        "educational_score": 30,
+        "educational_score": 50,
         "age_signal": "All Ages",
         "violence_signal": "none",
         "language_signal": "clean",
-        "summary": "Captured SmartTube playback: \"Recommended\" featuring action & superheroes, adventure.",
+        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
         "key_takeaways": [
-          "Observed action & superheroes on SmartTube."
+          "Explored narrative themes around Prime Video streaming.",
+          "Engaged with visual content streamed via Prime Video."
         ],
         "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T05:33:09.681Z"
+        "analyzed_at": "2026-09-19T14:31:37.375Z"
       }
     },
     {
-      "id": "frame_1789795550107_9kmq",
+      "id": "frame_1789828226728_6r28",
       "child_id": "child_aarav",
-      "timestamp": "2026-09-19T03:35:43.788Z",
-      "app_package": "com.google.android.youtube.tv",
-      "app_name": "YouTube",
-      "media_title": "Recommended",
-      "media_artist": "",
+      "timestamp": "2026-09-19T20:00:26.637Z",
+      "app_package": "com.amazon.amazonvideo.livingroom",
+      "app_name": "Prime Video",
+      "media_title": "The Revolutionaries Season 1",
+      "media_artist": "Prime Video Featured",
+      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
       "text_snippets": [
-        "Recommended",
-        "1:31:15",
-        "Dora the Explorer Backpack & Map Games! 🗺️ 🎒 90 Minutes | Dora & Friends",
-        "Dora & Friends • 4M views • 2 years ago",
-        "52:05",
-        "🐆⛰️ Zeinab’s Battle with a Leopard in the Zagros Mountains | Surviving Life in Harsh Conditions! 😱🔥",
-        "ROSTA • 62K views • 15 hours ago",
-        "25:41",
-        "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
-        "Sports TV • 8.8M views • 1 day ago",
-        "3:19",
-        "Watch the moment anchors announce death of colleagues in helicopter crash live on air",
-        "ITV News • 3.2M views • 2 days ago",
-        "4:48",
-        "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL ."
+        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
       ],
       "frame_base64": "",
       "analysis": {
-        "content_id": "ext_1789795550107",
-        "categories": [
-          "Cartoon",
-          "Animation"
-        ],
-        "topics": [
-          "action & superheroes",
-          "adventure",
-          "interactive exploration",
-          "bilingual learning",
-          "problem solving",
-          "kids cartoon",
-          "music & rhythm",
-          "cultural arts"
-        ],
-        "educational_score": 85,
-        "age_signal": "7+",
-        "violence_signal": "mild_action",
-        "language_signal": "clean",
-        "summary": "Dora the Explorer animated cartoon episode focusing on interactive exploration and bilingual problem solving.",
-        "key_takeaways": [
-          "Learned basic Spanish phrases and vocabulary.",
-          "Practiced interactive direction following and map reading.",
-          "Solved sequential puzzles with Boots."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T05:25:50.107Z"
-      }
-    },
-    {
-      "id": "frame_1789795430107_5xhg",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T03:33:43.771Z",
-      "app_package": "org.smarttube.stable",
-      "app_name": "SmartTube",
-      "media_title": "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
-      "media_artist": "",
-      "text_snippets": [
-        "Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K",
-        "Sports TV • 8.8M views • Published on Sep 17, 2026 • 52.6K 👍 • 1.4K 👎 • 2.33M subscribers",
-        "Pause",
-        "Skip Previous/Rewind to start position",
-        "Watch the moment anchors announce death of colleagues in helicopter crash live on air • ITV News",
-        "Play videos continuously",
-        "Video speed",
-        "Background playback",
-        "Screen dimming",
-        "Chat/Comments",
-        "Search",
-        "1080/60/VP9",
-        "Sat Sep 19 3:33 AM",
-        "Advanced playback settings",
-        "Open channel"
-      ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789795430107",
+        "content_id": "ext_1789828226727",
         "categories": [
           "Entertainment",
-          "SmartTube"
+          "Prime Video"
         ],
         "topics": [
-          "SmartTube streaming"
+          "Prime Video streaming",
+          "visual storytelling"
         ],
-        "educational_score": 30,
+        "educational_score": 50,
         "age_signal": "All Ages",
         "violence_signal": "none",
         "language_signal": "clean",
-        "summary": "Captured SmartTube playback: \"Full Match Highlights | Afghanistan vs India | Match 03 | T20I Series 2026 | ACB | M9N1K\" featuring SmartTube streaming.",
+        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
         "key_takeaways": [
-          "Observed SmartTube streaming on SmartTube."
+          "Explored narrative themes around Prime Video streaming.",
+          "Engaged with visual content streamed via Prime Video."
         ],
         "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T05:23:50.107Z"
+        "analyzed_at": "2026-09-19T14:30:26.727Z"
+      }
+    },
+    {
+      "id": "frame_1789828226704_srt5",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T20:00:26.647Z",
+      "app_package": "com.amazon.amazonvideo.livingroom",
+      "app_name": "Prime Video",
+      "media_title": "The Revolutionaries Season 1",
+      "media_artist": "Prime Video Featured",
+      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
+      "text_snippets": [
+        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789828226703",
+        "categories": [
+          "Entertainment",
+          "Prime Video"
+        ],
+        "topics": [
+          "Prime Video streaming",
+          "visual storytelling"
+        ],
+        "educational_score": 50,
+        "age_signal": "All Ages",
+        "violence_signal": "none",
+        "language_signal": "clean",
+        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
+        "key_takeaways": [
+          "Explored narrative themes around Prime Video streaming.",
+          "Engaged with visual content streamed via Prime Video."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T14:30:26.703Z"
+      }
+    },
+    {
+      "id": "frame_1789828179917_f1zr",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T19:59:39.906Z",
+      "app_package": "com.amazon.amazonvideo.livingroom",
+      "app_name": "Prime Video",
+      "media_title": "The Boys Season 4",
+      "media_artist": "Prime Video Featured",
+      "synopsis": "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
+      "text_snippets": [
+        "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late."
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789828179917",
+        "categories": [
+          "Entertainment",
+          "Prime Video"
+        ],
+        "topics": [
+          "Prime Video streaming",
+          "visual storytelling"
+        ],
+        "educational_score": 50,
+        "age_signal": "All Ages",
+        "violence_signal": "none",
+        "language_signal": "clean",
+        "summary": "The Boys Season 4 on Prime Video: With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
+        "key_takeaways": [
+          "Explored narrative themes around Prime Video streaming.",
+          "Engaged with visual content streamed via Prime Video."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T14:29:39.917Z"
+      }
+    },
+    {
+      "id": "frame_1789828177998_waqv",
+      "child_id": "child_aarav",
+      "timestamp": "2026-09-19T19:59:37.948Z",
+      "app_package": "com.amazon.amazonvideo.livingroom",
+      "app_name": "Prime Video",
+      "media_title": "The Boys Season 4",
+      "media_artist": "Prime Video Featured",
+      "synopsis": "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
+      "text_snippets": [
+        "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late."
+      ],
+      "frame_base64": "",
+      "analysis": {
+        "content_id": "ext_1789828177997",
+        "categories": [
+          "Entertainment",
+          "Prime Video"
+        ],
+        "topics": [
+          "Prime Video streaming",
+          "visual storytelling"
+        ],
+        "educational_score": 50,
+        "age_signal": "All Ages",
+        "violence_signal": "none",
+        "language_signal": "clean",
+        "summary": "The Boys Season 4 on Prime Video: With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
+        "key_takeaways": [
+          "Explored narrative themes around Prime Video streaming.",
+          "Engaged with visual content streamed via Prime Video."
+        ],
+        "model_version": "guardian-overlay-vision-engine-v2.0",
+        "analyzed_at": "2026-09-19T14:29:37.998Z"
       }
     }
   ],
   "currentApp": {
-    "app_name": "SmartTube",
-    "app_package": "org.smarttube.stable",
-    "timestamp": "2026-09-19T05:35:50.136Z"
+    "app_name": "Prime Video",
+    "app_package": "com.amazon.amazonvideo.livingroom",
+    "timestamp": "2026-09-19T14:32:03.625Z"
   }
 }

@@ -201,52 +201,64 @@ function hasWordMatch(text: string, keywords: string[]): boolean {
 }
 
 /**
- * Analyze real-time frame/context captured from external video apps (YouTube, Prime, Netflix)
+ * Analyze real-time frame/context captured from external video apps (YouTube, Prime Video, Netflix, Disney+, etc.)
  */
 export async function analyzeFrameContext(
   appName: string,
   appPackage: string,
   mediaTitle: string,
   textSnippets: string[],
+  mediaArtist = '',
+  synopsis = '',
 ): Promise<ContentAnalysis> {
-  const combinedText = `${appName} ${mediaTitle} ${textSnippets.join(' ')}`.toLowerCase();
+  const combinedText = `${appName} ${appPackage} ${mediaTitle} ${mediaArtist} ${synopsis} ${textSnippets.join(' ')}`.toLowerCase();
 
-  // Explicit Cartoon / Animation detection
+  // Comprehensive Cartoon / Animation keywords
   const cartoonKeywords = [
-    'dora', 'dora the explorer', 'cartoon', 'animation', 'animated',
+    'dora', 'dora the explorer', 'cartoon', 'animation', 'animated', 'anime',
     'peppa', 'peppa pig', 'paw patrol', 'cocomelon', 'bluey', 'pokemon',
-    'anime', 'nickelodeon', 'disney jr', 'cartoon network', 'chhota bheem',
-    'motu patlu', 'tom and jerry', 'mickey mouse', 'baby shark'
+    'nickelodeon', 'disney jr', 'cartoon network', 'chhota bheem', 'motu patlu',
+    'tom and jerry', 'mickey mouse', 'baby shark', 'storybots', 'octonauts',
+    'gabby', "gabby's dollhouse", 'tumble leaf', 'pete the cat', 'creative galaxy',
+    'daniel tiger', 'cuphead', 'boss baby', 'camp cretaceous', 'carmen sandiego',
+    'ada twist', 'spidey', 'young jedi', 'phineas', 'gravity falls', 'looney tunes'
   ];
 
   const isCartoon = hasWordMatch(combinedText, cartoonKeywords);
 
   // Topic classification with regex word boundaries
   const topicMap: Record<string, string[]> = {
-    space: ['space', 'telescope', 'jwst', 'nasa', 'astronomy', 'stars', 'planets', 'cosmos', 'galaxy'],
-    marine_biology: ['marine biology', 'ocean wildlife', 'blue whale', 'whale', 'coral reef', 'deep sea', 'dolphin', 'underwater life'],
-    stem_robotics: ['robot', 'coding', 'algorithm', 'sensor', 'machines', 'minecraft', 'scratch', 'engineering', 'programming'],
-    action_superhero: ['battle', 'fight', 'action', 'laser blast', 'clash', 'gun', 'ninja', 'explosion', 'stunt', 'warrior'],
-    cartoon_adventure: ['dora', 'dora the explorer', 'adventure', 'map', 'backpack', 'boots', 'swiper', 'bilingual', 'spanish', 'exploration'],
-    music_arts: ['music video', 'shreya ghoshal', 'song', 'singing', 'melody', 'lyrics', 'soundtrack', 'musical']
+    space: ['space', 'telescope', 'jwst', 'nasa', 'astronomy', 'stars', 'planets', 'cosmos', 'galaxy', 'solar system', 'astronaut'],
+    marine_biology: ['marine biology', 'ocean wildlife', 'blue whale', 'whale', 'coral reef', 'deep sea', 'dolphin', 'underwater life', 'octonauts', 'sharks'],
+    stem_science: ['robot', 'coding', 'algorithm', 'sensor', 'machines', 'minecraft', 'scratch', 'engineering', 'programming', 'ada twist', 'experiment', 'science inquiry', 'inventor'],
+    nature_wildlife: ['wildlife', 'jungle animals', 'leopard', 'tiger', 'lion', 'our planet', 'safari', 'animals', 'ecosystem', 'nature documentary', 'national geographic'],
+    action_superhero: ['battle', 'fight', 'action', 'laser blast', 'clash', 'ninja', 'explosion', 'stunt', 'warrior', 'superheroes', 'spidey', 'avengers', 'rings of power', 'reacher', 'invincible'],
+    cartoon_adventure: ['dora', 'dora the explorer', 'adventure', 'map', 'backpack', 'boots', 'swiper', 'bilingual', 'spanish', 'exploration', 'paw patrol', 'rescue'],
+    early_learning: ['cocomelon', 'nursery rhymes', 'abc', 'numbers', 'daniel tiger', 'preschool', 'emotions', 'sharing', 'friendship', 'kindness', 'tumble leaf', 'creative galaxy'],
+    music_arts: ['music video', 'shreya ghoshal', 'song', 'singing', 'melody', 'lyrics', 'soundtrack', 'musical', 'rhythm', 'dance', 'performance']
   };
 
   const detectedTopics: string[] = [];
   if (topicMap.space.some((kw) => hasWordMatch(combinedText, [kw]))) {
-    detectedTopics.push('space exploration', 'astronomy', 'stars');
+    detectedTopics.push('space exploration', 'astronomy & stars');
   }
   if (topicMap.marine_biology.some((kw) => hasWordMatch(combinedText, [kw]))) {
-    detectedTopics.push('marine biology', 'ocean wildlife');
+    detectedTopics.push('marine biology', 'ocean wildlife ecosystems');
   }
-  if (topicMap.stem_robotics.some((kw) => hasWordMatch(combinedText, [kw]))) {
-    detectedTopics.push('STEM robotics', 'computer programming');
+  if (topicMap.stem_science.some((kw) => hasWordMatch(combinedText, [kw]))) {
+    detectedTopics.push('STEM & scientific inquiry', 'problem-solving technology');
+  }
+  if (topicMap.nature_wildlife.some((kw) => hasWordMatch(combinedText, [kw]))) {
+    detectedTopics.push('wildlife & ecosystems', 'animal habitats');
   }
   if (topicMap.action_superhero.some((kw) => hasWordMatch(combinedText, [kw]))) {
-    detectedTopics.push('action & superheroes', 'adventure');
+    detectedTopics.push('action & superheroes', 'heroic adventure');
   }
   if (isCartoon || topicMap.cartoon_adventure.some((kw) => hasWordMatch(combinedText, [kw]))) {
     if (combinedText.includes('dora')) {
       detectedTopics.push('interactive exploration', 'bilingual learning', 'problem solving', 'kids cartoon');
+    } else if (combinedText.includes('cocomelon') || combinedText.includes('daniel tiger') || combinedText.includes('tumble leaf')) {
+      detectedTopics.push('social-emotional development', 'early childhood learning', 'creative curiosity');
     } else {
       detectedTopics.push('kids animation', 'creative storytelling');
     }
@@ -256,48 +268,91 @@ export async function analyzeFrameContext(
   }
 
   // Educational score: Cartoons like Dora or educational STEM topics have high scores
-  let educationalScore = 30;
-  if (combinedText.includes('dora')) {
+  let educationalScore = 50;
+  if (combinedText.includes('dora') || combinedText.includes('ada twist') || combinedText.includes('storybots') || combinedText.includes('octonauts')) {
     educationalScore = 85;
-  } else if (detectedTopics.includes('space exploration') || detectedTopics.includes('marine biology') || detectedTopics.includes('STEM robotics')) {
-    educationalScore = 85;
+  } else if (detectedTopics.includes('space exploration') || detectedTopics.includes('marine biology') || detectedTopics.includes('STEM & scientific inquiry')) {
+    educationalScore = 90;
+  } else if (detectedTopics.includes('wildlife & ecosystems') || detectedTopics.includes('social-emotional development')) {
+    educationalScore = 80;
   } else if (isCartoon) {
-    educationalScore = 65;
+    educationalScore = 70;
+  } else if (detectedTopics.includes('action & superheroes')) {
+    educationalScore = 45;
   }
 
   let violenceSignal: 'none' | 'mild_action' | 'intense' = 'none';
-  if (hasWordMatch(combinedText, ['explosion', 'battle', 'war', 'violent fight'])) {
+  if (hasWordMatch(combinedText, ['intense violence', 'brutal', 'horror', 'gore'])) {
+    violenceSignal = 'intense';
+  } else if (hasWordMatch(combinedText, ['explosion', 'battle', 'war', 'violent fight', 'laser blast', 'superheroes', 'rings of power'])) {
     violenceSignal = 'mild_action';
   }
 
+  // Age signals
+  let ageSignal = 'All Ages';
+  if (violenceSignal === 'intense') {
+    ageSignal = '13+';
+  } else if (violenceSignal === 'mild_action') {
+    ageSignal = '7+';
+  } else if (isCartoon && (combinedText.includes('cocomelon') || combinedText.includes('peppa') || combinedText.includes('bluey') || combinedText.includes('daniel tiger'))) {
+    ageSignal = '4-7';
+  }
+
   // Primary Category Segregation:
-  // Segregation prioritizes 'Cartoon' for animated shows like Dora the Explorer,
-  // 'Educational' for pure science/STEM/documentaries, and 'Entertainment' for music/general.
   let category: string;
   if (isCartoon) {
     category = 'Cartoon';
-  } else if (educationalScore >= 60) {
+  } else if (educationalScore >= 75) {
     category = 'Educational';
   } else {
     category = 'Entertainment';
   }
 
-  const finalTopics = detectedTopics.length > 0 ? detectedTopics : [`${appName} streaming`];
+  const finalTopics = detectedTopics.length > 0 ? detectedTopics : [`${appName} streaming`, 'visual storytelling'];
+
+  const cleanTitle = mediaTitle.replace(/\[.*\]$/, '').trim();
+
+  let summary: string;
+  let keyTakeaways: string[];
+
+  if (isCartoon && combinedText.includes('dora')) {
+    summary = `Dora the Explorer animated cartoon episode focusing on interactive exploration and bilingual problem solving.`;
+    keyTakeaways = [
+      'Learned basic Spanish phrases and vocabulary.',
+      'Practiced interactive direction following and map reading.',
+      'Solved sequential puzzles with Boots.'
+    ];
+  } else if (isCartoon && (combinedText.includes('cocomelon') || combinedText.includes('bluey') || combinedText.includes('peppa'))) {
+    summary = `${cleanTitle} animated preschool episode fostering positive social interaction, sharing, and creative play.`;
+    keyTakeaways = [
+      'Reinforced positive social-emotional behavior and patience.',
+      'Practiced verbal rhythm and nursery melodies.',
+      'Observed constructive family and peer problem-solving.'
+    ];
+  } else if (synopsis.length > 20) {
+    summary = `${cleanTitle} on ${appName}: ${synopsis.slice(0, 160)}${synopsis.length > 160 ? '...' : ''}`;
+    keyTakeaways = [
+      `Explored narrative themes around ${finalTopics[0] || 'the storyline'}.`,
+      `Engaged with visual content streamed via ${appName}.`
+    ];
+  } else {
+    summary = `Streaming "${cleanTitle}" on ${appName} featuring ${finalTopics.slice(0, 2).join(' and ')}.`;
+    keyTakeaways = [
+      `Observed ${finalTopics[0] || 'visual presentation'} on ${appName}.`,
+      `Followed narrative developments in ${cleanTitle}.`
+    ];
+  }
 
   return {
     content_id: `ext_${Date.now()}`,
     categories: [category, isCartoon ? 'Animation' : appName],
     topics: finalTopics,
     educational_score: educationalScore,
-    age_signal: violenceSignal === 'mild_action' ? '7+' : 'All Ages',
+    age_signal: ageSignal,
     violence_signal: violenceSignal,
     language_signal: 'clean',
-    summary: isCartoon && combinedText.includes('dora')
-      ? `Dora the Explorer animated cartoon episode focusing on interactive exploration and bilingual problem solving.`
-      : `Captured ${appName} playback: "${mediaTitle || 'Video content'}" featuring ${finalTopics.join(', ')}.`,
-    key_takeaways: isCartoon && combinedText.includes('dora')
-      ? ['Learned basic Spanish phrases and vocabulary.', 'Practiced interactive direction following and map reading.', 'Solved sequential puzzles with Boots.']
-      : [`Observed ${finalTopics[0] || 'visual presentation'} on ${appName}.`],
+    summary,
+    key_takeaways: keyTakeaways,
     model_version: 'guardian-overlay-vision-engine-v2.0',
     analyzed_at: new Date().toISOString(),
   };

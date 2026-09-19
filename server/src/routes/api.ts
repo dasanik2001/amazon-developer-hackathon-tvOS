@@ -142,6 +142,7 @@ router.post('/overlay/ingest-frame', async (req: Request, res: Response) => {
       app_name,
       media_title,
       media_artist,
+      synopsis,
       text_snippets,
       frame_base64,
       timestamp,
@@ -178,14 +179,43 @@ router.post('/overlay/ingest-frame', async (req: Request, res: Response) => {
         : app_package.includes('disney') || app_package.includes('hotstar')
         ? 'Disney+'
         : 'Streaming App');
-    const resolvedTitle = media_title || `${resolvedAppName} Media Stream`;
+
+    const rawTitle = (media_title || '').trim();
+    const snippets = Array.isArray(text_snippets) ? text_snippets : [];
+    
+    // Intelligent title resolution:
+    // If media_title is generic (e.g. "Prime Video Stream", "Netflix Stream", "Streaming App", empty),
+    // search text_snippets for candidate titles (first non-generic, non-URL string with good length)
+    let resolvedTitle = rawTitle;
+    const isGenericTitle = !rawTitle || 
+      rawTitle.endsWith(' Stream') || 
+      rawTitle.endsWith(' Media Stream') || 
+      rawTitle.toLowerCase().includes('streaming app') ||
+      rawTitle.toLowerCase() === resolvedAppName.toLowerCase();
+
+    if (isGenericTitle && snippets.length > 0) {
+      const blacklist = ['home', 'store', 'live tv', 'categories', 'my stuff', 'settings', 'search', 'profiles', 'recommended', 'prime video', 'netflix', 'youtube', 'disney+', 'trending', 'explore', 'channels', 'live'];
+      const candidate = snippets.find((s: string) => {
+        const lower = s.toLowerCase().trim();
+        return s.length >= 3 && s.length <= 90 && !blacklist.includes(lower) && !s.startsWith('http') && !s.match(/^[0-9:.]+$/);
+      });
+      if (candidate) {
+        resolvedTitle = candidate;
+      }
+    }
+
+    if (!resolvedTitle || resolvedTitle.endsWith(' Stream')) {
+      resolvedTitle = `${resolvedAppName} Presentation`;
+    }
 
     // Run AI analysis on captured frame/text context
     const analysis = await analyzeFrameContext(
       resolvedAppName,
       app_package,
       resolvedTitle,
-      Array.isArray(text_snippets) ? text_snippets : [],
+      snippets,
+      media_artist || '',
+      synopsis || '',
     );
 
     const frameContext: FrameContext = {
@@ -196,7 +226,8 @@ router.post('/overlay/ingest-frame', async (req: Request, res: Response) => {
       app_name: resolvedAppName,
       media_title: resolvedTitle,
       media_artist: media_artist || '',
-      text_snippets: text_snippets || [],
+      synopsis: synopsis || '',
+      text_snippets: snippets,
       frame_base64: frame_base64 || '',
       analysis,
     };
