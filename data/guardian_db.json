@@ -1,0 +1,31 @@
+{
+  "children": [
+    {
+      "id": "child_aarav",
+      "household_id": "house_001",
+      "display_name": "Aarav",
+      "age_band": "7-10",
+      "avatar": "👦",
+      "settings": {
+        "daily_limit_minutes": 60,
+        "flag_threshold": "standard"
+      }
+    },
+    {
+      "id": "child_meera",
+      "household_id": "house_001",
+      "display_name": "Meera",
+      "age_band": "4-6",
+      "avatar": "👧",
+      "settings": {
+        "daily_limit_minutes": 45,
+        "flag_threshold": "strict"
+      }
+    }
+  ],
+  "contents": [],
+  "sessions": [],
+  "analyses": {},
+  "digests": {},
+  "frames": []
+}

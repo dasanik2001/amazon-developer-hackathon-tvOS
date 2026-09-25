@@ -1,8 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from './types';
-import DrawerNavigator from './DrawerNavigator';
+import GuardianLoginScreen from '../screens/GuardianLoginScreen';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
   return (
@@ -11,7 +10,7 @@ export default function RootNavigator() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+      <Stack.Screen name="Login" component={GuardianLoginScreen} />
     </Stack.Navigator>
   );
 }

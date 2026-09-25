@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import QRCode from 'qrcode';
 import { db } from '../db/database.js';
 import { analyzeContent, analyzeFrameContext, preheatContentCatalog } from '../services/aiPipeline.js';
 import { getOrCreateDailyDigest } from '../services/digestService.js';
@@ -450,6 +451,212 @@ router.post('/demo/simulate', async (req: Request, res: Response) => {
   }
 
   res.status(400).json({ success: false, error: 'Unknown scenario. Available: space_day, action_cartoon, full_day, reset' });
+});
+
+// ==========================================
+// Dynamic TV Device Pairing & Authentication
+// ==========================================
+
+// Create or refresh pairing session for Fire TV
+router.post('/pairing/session', async (req: Request, res: Response) => {
+  try {
+    const { device_id, device_name, host } = req.body;
+    const deviceId = device_id || 'tv_fire_livingroom';
+    const deviceName = device_name || 'Fire TV Living Room';
+
+    // Check if device is already linked
+    const existingAccount = db.getDeviceAccount(deviceId);
+    if (existingAccount) {
+      res.json({
+        success: true,
+        already_linked: true,
+        data: {
+          deviceId,
+          email: existingAccount.email,
+          deviceName: existingAccount.deviceName,
+          linkedAt: existingAccount.linkedAt,
+        },
+      });
+      return;
+    }
+
+    const session = db.createPairingSession(deviceId, deviceName);
+    
+    // Determine public WiFi host IP for phone scanner
+    const resolvedHost = host || process.env.LOCAL_IP || '192.168.0.4';
+    const port = process.env.PORT || 3001;
+    const qrPayload = `http://${resolvedHost}:${port}/pair?session=${session.sessionId}&code=${session.pairingCode}`;
+
+    // Generate dynamic QR Code Data URL (PNG base64) with high error correction and crisp margin
+    const qrDataUrl = await QRCode.toDataURL(qrPayload, {
+      errorCorrectionLevel: 'H',
+      type: 'image/png',
+      margin: 1,
+      width: 512,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF',
+      },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        sessionId: session.sessionId,
+        pairingCode: session.pairingCode,
+        expiresAt: session.expiresAt,
+        qrPayload,
+        qrDataUrl,
+        deviceId,
+        deviceName,
+      },
+    });
+  } catch (err: any) {
+    console.error('Error generating pairing session:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Render dynamic QR Code directly as PNG image
+router.get('/pairing/qr/:sessionId.png', async (req: Request, res: Response) => {
+  try {
+    const sessionId = req.params.sessionId;
+    const session = db.getPairingSession(sessionId);
+    if (!session) {
+      res.status(404).send('Session not found');
+      return;
+    }
+
+    const host = (req.query.host as string) || process.env.LOCAL_IP || '192.168.0.4';
+    const port = process.env.PORT || 3001;
+    const qrPayload = `http://${host}:${port}/pair?session=${session.sessionId}&code=${session.pairingCode}`;
+
+    const pngBuffer = await QRCode.toBuffer(qrPayload, {
+      errorCorrectionLevel: 'H',
+      type: 'png',
+      margin: 1,
+      width: 512,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF',
+      },
+    });
+
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.send(pngBuffer);
+  } catch (err: any) {
+    console.error('Error rendering QR image:', err);
+    res.status(500).send('Error generating QR code');
+  }
+});
+
+// Check pairing status for active TV session
+router.get('/pairing/session/:sessionId/status', (req: Request, res: Response) => {
+  const sessionId = req.params.sessionId;
+  const session = db.getPairingSession(sessionId);
+
+  if (!session) {
+    res.status(404).json({ success: false, error: 'Session not found' });
+    return;
+  }
+
+  // Check expiration
+  if (session.status === 'pending' && new Date() > new Date(session.expiresAt)) {
+    session.status = 'expired';
+  }
+
+  res.json({
+    success: true,
+    data: {
+      sessionId: session.sessionId,
+      pairingCode: session.pairingCode,
+      status: session.status,
+      linkedEmail: session.linkedEmail || null,
+      deviceId: session.deviceId,
+      deviceName: session.deviceName,
+      expiresAt: session.expiresAt,
+    },
+  });
+});
+
+// Mobile App / Web Companion scan confirmation
+// Links TV to the parent account email
+router.post('/pairing/confirm', (req: Request, res: Response) => {
+  try {
+    const { sessionId, pairingCode, email, userId } = req.body;
+
+    if (!email || !email.includes('@')) {
+      res.status(400).json({ success: false, error: 'Valid email address is required' });
+      return;
+    }
+
+    const targetKey = sessionId || pairingCode;
+    if (!targetKey) {
+      res.status(400).json({ success: false, error: 'sessionId or pairingCode is required' });
+      return;
+    }
+
+    const updatedSession = db.confirmPairing(targetKey, email, userId);
+    if (!updatedSession) {
+      res.status(404).json({ success: false, error: 'Pairing session not found or invalid' });
+      return;
+    }
+
+    console.log(`[Device Pairing] TV linked to email "${email}" (Session: ${updatedSession.sessionId})`);
+
+    // Broadcast instant pairing success over WebSocket to TV
+    socketService.broadcast('pairing:linked', {
+      sessionId: updatedSession.sessionId,
+      pairingCode: updatedSession.pairingCode,
+      email: updatedSession.linkedEmail,
+      deviceId: updatedSession.deviceId,
+      deviceName: updatedSession.deviceName,
+      linkedAt: new Date().toISOString(),
+    });
+
+    res.json({
+      success: true,
+      message: `Device successfully linked to ${updatedSession.linkedEmail}`,
+      data: {
+        sessionId: updatedSession.sessionId,
+        pairingCode: updatedSession.pairingCode,
+        email: updatedSession.linkedEmail,
+        deviceId: updatedSession.deviceId,
+      },
+    });
+  } catch (err: any) {
+    console.error('Error confirming pairing:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Check device link status
+router.get('/pairing/device/:deviceId/status', (req: Request, res: Response) => {
+  const deviceId = req.params.deviceId;
+  const account = db.getDeviceAccount(deviceId);
+  res.json({
+    success: true,
+    linked: !!account,
+    data: account || null,
+  });
+});
+
+// Unlink TV device
+router.post('/pairing/unlink', (req: Request, res: Response) => {
+  const { device_id, deviceId } = req.body;
+  const targetId = device_id || deviceId || 'tv_fire_livingroom';
+  db.unlinkDevice(targetId);
+
+  socketService.broadcast('pairing:unlinked', {
+    deviceId: targetId,
+    timestamp: new Date().toISOString(),
+  });
+
+  res.json({
+    success: true,
+    message: `Device ${targetId} unlinked successfully`,
+  });
 });
 
 export default router;

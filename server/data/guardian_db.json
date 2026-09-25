@@ -370,5 +370,197 @@
     "app_name": "Prime Video",
     "app_package": "com.amazon.amazonvideo.livingroom",
     "timestamp": "2026-09-19T14:32:03.625Z"
-  }
+  },
+  "pairingSessions": {
+    "gdn_yfeywerd": {
+      "sessionId": "gdn_yfeywerd",
+      "pairingCode": "TV-9868",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:01:00.094Z",
+      "expiresAt": "2026-09-25T15:16:00.094Z",
+      "deviceId": "tv_test_01",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "anik.parent@example.com",
+      "linkedUserId": "usr_anik_parent_example_com"
+    },
+    "gdn_fru6abhc": {
+      "sessionId": "gdn_fru6abhc",
+      "pairingCode": "TV-2122",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:04:21.684Z",
+      "expiresAt": "2026-09-25T15:19:21.684Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "anik.parent@guardian.com",
+      "linkedUserId": "usr_anik_parent_guardian_com"
+    },
+    "gdn_x1u84ufh": {
+      "sessionId": "gdn_x1u84ufh",
+      "pairingCode": "TV-4169",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:06:10.296Z",
+      "expiresAt": "2026-09-25T15:21:10.296Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_f7wcy4ew": {
+      "sessionId": "gdn_f7wcy4ew",
+      "pairingCode": "TV-6072",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:06:10.320Z",
+      "expiresAt": "2026-09-25T15:21:10.320Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_2tsve4dv": {
+      "sessionId": "gdn_2tsve4dv",
+      "pairingCode": "TV-8138",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:07:13.369Z",
+      "expiresAt": "2026-09-25T15:22:13.369Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_vbevgqml": {
+      "sessionId": "gdn_vbevgqml",
+      "pairingCode": "TV-1038",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:08:31.718Z",
+      "expiresAt": "2026-09-25T15:23:31.718Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_gay1bh8r": {
+      "sessionId": "gdn_gay1bh8r",
+      "pairingCode": "TV-3122",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:11:39.893Z",
+      "expiresAt": "2026-09-25T15:26:39.893Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent@guardian.family",
+      "linkedUserId": "usr_parent_guardian_family"
+    },
+    "gdn_gzjpt91s": {
+      "sessionId": "gdn_gzjpt91s",
+      "pairingCode": "TV-1896",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:13:03.922Z",
+      "expiresAt": "2026-09-25T15:28:03.922Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_y90w4l7o": {
+      "sessionId": "gdn_y90w4l7o",
+      "pairingCode": "TV-6791",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:15:42.094Z",
+      "expiresAt": "2026-09-25T15:30:42.094Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_yksun5eo": {
+      "sessionId": "gdn_yksun5eo",
+      "pairingCode": "TV-4357",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:15:42.130Z",
+      "expiresAt": "2026-09-25T15:30:42.130Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_7ynm84mr": {
+      "sessionId": "gdn_7ynm84mr",
+      "pairingCode": "TV-3528",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:18:13.767Z",
+      "expiresAt": "2026-09-25T15:33:13.767Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent@guardian.family",
+      "linkedUserId": "usr_parent_guardian_family"
+    },
+    "gdn_kv6obgt0": {
+      "sessionId": "gdn_kv6obgt0",
+      "pairingCode": "TV-8697",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:18:22.172Z",
+      "expiresAt": "2026-09-25T15:33:22.172Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent@guardian.family",
+      "linkedUserId": "usr_parent_guardian_family"
+    },
+    "gdn_47rsgfkx": {
+      "sessionId": "gdn_47rsgfkx",
+      "pairingCode": "TV-7230",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:18:26.038Z",
+      "expiresAt": "2026-09-25T15:33:26.038Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent@guardian.family",
+      "linkedUserId": "usr_parent_guardian_family"
+    },
+    "gdn_mewn828v": {
+      "sessionId": "gdn_mewn828v",
+      "pairingCode": "TV-9616",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:18:38.321Z",
+      "expiresAt": "2026-09-25T15:33:38.321Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent@guardian.family",
+      "linkedUserId": "usr_parent_guardian_family"
+    },
+    "gdn_5bqygz0f": {
+      "sessionId": "gdn_5bqygz0f",
+      "pairingCode": "TV-6222",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:19:51.889Z",
+      "expiresAt": "2026-09-25T15:34:51.889Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent@guardian.family",
+      "linkedUserId": "usr_parent_guardian_family"
+    },
+    "gdn_qavwq4bi": {
+      "sessionId": "gdn_qavwq4bi",
+      "pairingCode": "TV-9172",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:21:01.423Z",
+      "expiresAt": "2026-09-25T15:36:01.423Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_2vnn1xqr": {
+      "sessionId": "gdn_2vnn1xqr",
+      "pairingCode": "TV-2452",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:25:01.978Z",
+      "expiresAt": "2026-09-25T15:40:01.978Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_5t14am1q": {
+      "sessionId": "gdn_5t14am1q",
+      "pairingCode": "TV-4998",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:26:47.533Z",
+      "expiresAt": "2026-09-25T15:41:47.533Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent@guardian.family",
+      "linkedUserId": "usr_parent_guardian_family"
+    },
+    "gdn_mmvrpjnl": {
+      "sessionId": "gdn_mmvrpjnl",
+      "pairingCode": "TV-3055",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:28:15.707Z",
+      "expiresAt": "2026-09-25T15:43:15.707Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    }
+  },
+  "devices": {}
 }

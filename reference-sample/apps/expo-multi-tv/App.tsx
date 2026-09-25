@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { NativeModules, LogBox } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
+import { AppNavigator } from '@multi-tv/shared-ui';
 
 SplashScreen.hideAsync();
 
@@ -23,6 +24,5 @@ export default function App() {
     }
   }, []);
 
-  // Return completely empty UI - pure background overlay daemon
-  return null;
+  return <AppNavigator />;
 }

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { ChildProfile, ContentItem, ViewingSession, ContentAnalysis, DailyDigest, FrameContext } from '../types.js';
+import { ChildProfile, ContentItem, ViewingSession, ContentAnalysis, DailyDigest, FrameContext, PairingSession } from '../types.js';
 
 interface DatabaseSchema {
   children: ChildProfile[];
@@ -9,6 +9,8 @@ interface DatabaseSchema {
   analyses: Record<string, ContentAnalysis>;
   digests: Record<string, DailyDigest>; // key: `${child_id}_${date}`
   frames: FrameContext[];
+  pairingSessions?: Record<string, PairingSession>;
+  devices?: Record<string, { email: string; deviceName: string; linkedAt: string }>;
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -48,6 +50,8 @@ class Database {
       try {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         this.data = JSON.parse(raw);
+        if (!this.data.pairingSessions) this.data.pairingSessions = {};
+        if (!this.data.devices) this.data.devices = {};
       } catch (err) {
         console.warn('Failed to parse existing DB file, reinitializing', err);
         this.data = this.getDefaultData();
@@ -67,6 +71,8 @@ class Database {
       analyses: {},
       digests: {},
       frames: [],
+      pairingSessions: {},
+      devices: {},
     };
   }
 
@@ -186,6 +192,77 @@ class Database {
       app_package,
       timestamp: new Date().toISOString(),
     };
+    this.save();
+  }
+
+  // Pairing & Auth Sessions
+  public createPairingSession(deviceId = 'tv_fire_01', deviceName = 'Fire TV Living Room'): PairingSession {
+    if (!this.data.pairingSessions) this.data.pairingSessions = {};
+    const hex = Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 4);
+    const sessionId = `gdn_${hex}`;
+    const codeNum = Math.floor(1000 + Math.random() * 9000);
+    const pairingCode = `TV-${codeNum}`;
+    const now = new Date();
+    const expires = new Date(now.getTime() + 15 * 60 * 1000); // 15 mins
+
+    const session: PairingSession = {
+      sessionId,
+      pairingCode,
+      status: 'pending',
+      createdAt: now.toISOString(),
+      expiresAt: expires.toISOString(),
+      deviceId,
+      deviceName,
+    };
+
+    this.data.pairingSessions[sessionId] = session;
+    this.save();
+    return session;
+  }
+
+  public getPairingSession(sessionId: string): PairingSession | undefined {
+    return this.data.pairingSessions?.[sessionId];
+  }
+
+  public getPairingSessionByCode(code: string): PairingSession | undefined {
+    const list = Object.values(this.data.pairingSessions || {});
+    return list.find((s) => s.pairingCode.toUpperCase() === code.trim().toUpperCase());
+  }
+
+  public confirmPairing(sessionIdOrCode: string, email: string, userId?: string): PairingSession | null {
+    let session = this.getPairingSession(sessionIdOrCode) || this.getPairingSessionByCode(sessionIdOrCode);
+    if (!session) return null;
+
+    session.status = 'linked';
+    session.linkedEmail = email.trim().toLowerCase();
+    session.linkedUserId = userId || `usr_${session.linkedEmail.replace(/[^a-z0-9]/g, '_')}`;
+
+    if (session.deviceId) {
+      if (!this.data.devices) this.data.devices = {};
+      this.data.devices[session.deviceId] = {
+        email: session.linkedEmail,
+        deviceName: session.deviceName || 'Fire TV',
+        linkedAt: new Date().toISOString(),
+      };
+    }
+
+    this.save();
+    return session;
+  }
+
+  public getDeviceAccount(deviceId: string): { email: string; deviceName: string; linkedAt: string } | null {
+    return this.data.devices?.[deviceId] || null;
+  }
+
+  public unlinkDevice(deviceId: string): void {
+    if (this.data.devices?.[deviceId]) {
+      delete this.data.devices[deviceId];
+    }
+    for (const s of Object.values(this.data.pairingSessions || {})) {
+      if (s.deviceId === deviceId && s.status === 'linked') {
+        s.status = 'expired';
+      }
+    }
     this.save();
   }
 

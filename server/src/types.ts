@@ -94,3 +94,15 @@ export interface FrameContext {
   frame_base64?: string; // sampled frame thumbnail if available
   analysis?: ContentAnalysis;
 }
+
+export interface PairingSession {
+  sessionId: string;
+  pairingCode: string;
+  status: 'pending' | 'linked' | 'expired';
+  createdAt: string;
+  expiresAt: string;
+  linkedEmail?: string;
+  linkedUserId?: string;
+  deviceId?: string;
+  deviceName?: string;
+}

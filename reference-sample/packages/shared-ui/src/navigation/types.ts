@@ -1,5 +1,6 @@
 export type RootStackParamList = {
-  DrawerNavigator: undefined;
+  Login: undefined;
+  DrawerNavigator?: undefined;
 };
 
 

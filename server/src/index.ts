@@ -27,6 +27,228 @@ app.use('/dashboard', express.static(webDashboardPath));
 // API routes
 app.use('/api', apiRouter);
 
+// Mobile App / QR Companion Pairing Screen
+app.get('/pair', (req, res) => {
+  const sessionId = (req.query.session as string) || '';
+  const code = (req.query.code as string) || '';
+
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Guardian • Link Fire TV</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background-color: #070A11;
+      color: #F8FAFC;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .card {
+      background: #0E1626;
+      border: 1px solid rgba(255, 153, 0, 0.25);
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      text-align: center;
+    }
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: rgba(255, 153, 0, 0.1);
+      border: 1px solid rgba(255, 153, 0, 0.3);
+    }
+    .logo svg {
+      width: 36px;
+      height: 36px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #94A3B8;
+      margin-bottom: 24px;
+    }
+    .code-badge {
+      display: inline-block;
+      background: rgba(255, 153, 0, 0.12);
+      border: 1px solid #FF9900;
+      color: #FF9900;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 8px 18px;
+      border-radius: 12px;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94A3B8;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      background: #141E33;
+      border: 1px solid #2A3B5C;
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #FFFFFF;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: #FF9900;
+      box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.2);
+    }
+    .btn {
+      width: 100%;
+      background: linear-gradient(135deg, #FF9900, #E68A00);
+      border: none;
+      border-radius: 12px;
+      color: #070A11;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 16px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(255, 153, 0, 0.35);
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+    .success-box {
+      display: none;
+      padding: 24px 12px;
+    }
+    .success-icon {
+      font-size: 52px;
+      margin-bottom: 12px;
+    }
+    .success-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #38BDF8;
+      margin-bottom: 8px;
+    }
+    .success-desc {
+      font-size: 14px;
+      color: #94A3B8;
+      line-height: 1.5;
+    }
+    .footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="pairForm">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#FF9900" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <h1>Link Fire TV</h1>
+      <p class="subtitle">Guardian Companion Authentication</p>
+      
+      <div class="code-badge" id="codeDisplay">${code || 'SCAN-ACTIVE'}</div>
+
+      <div class="form-group">
+        <label for="emailInput">Guardian Account Email</label>
+        <input type="email" id="emailInput" value="parent@guardian.family" placeholder="Enter your parent email" required />
+      </div>
+
+      <button class="btn" id="confirmBtn" onclick="confirmLink()">Approve &amp; Link TV</button>
+    </div>
+
+    <div class="success-box" id="successBox">
+      <div class="success-icon">🛡️</div>
+      <div class="success-title">TV Linked Successfully!</div>
+      <p class="success-desc">
+        Your Fire TV is now connected with <br><strong style="color: #FF9900;" id="confirmedEmail"></strong>.
+        <br><br>Look at your TV screen &mdash; it has automatically logged in.
+      </p>
+    </div>
+  </div>
+
+  <p class="footer">guardian [tv] &bull; Family Media Intelligence</p>
+
+  <script>
+    const sessionId = "${sessionId}";
+    const pairingCode = "${code}";
+
+    async function confirmLink() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+
+      const btn = document.getElementById('confirmBtn');
+      btn.disabled = true;
+      btn.textContent = 'Linking TV...';
+
+      try {
+        const res = await fetch('/api/pairing/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: sessionId || undefined,
+            pairingCode: pairingCode || undefined,
+            email: email
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('pairForm').style.display = 'none';
+          document.getElementById('confirmedEmail').textContent = email;
+          document.getElementById('successBox').style.display = 'block';
+        } else {
+          alert('Linking failed: ' + (data.error || 'Invalid session'));
+          btn.disabled = false;
+          btn.textContent = 'Approve & Link TV';
+        }
+      } catch (err) {
+        alert('Network error connecting to Guardian server: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Approve & Link TV';
+      }
+    }
+  </script>
+</body>
+</html>`);
+});
+
 // Healthcheck & Root redirect
 app.get('/', (_req, res) => {
   res.redirect('/dashboard');

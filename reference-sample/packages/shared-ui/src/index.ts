@@ -15,6 +15,7 @@ export { default as CustomDrawerContent } from './components/CustomDrawerContent
 export { default as SettingsScreen } from './screens/SettingsScreen';
 export { default as GuardianDashboardScreen } from './screens/GuardianDashboardScreen';
 export { default as GuardianQAScreen } from './screens/GuardianQAScreen';
+export { default as GuardianLoginScreen } from './screens/GuardianLoginScreen';
 
 // Guardian Services
 export * from './services/guardianApi';
