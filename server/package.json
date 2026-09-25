@@ -9,8 +9,7 @@
     "start": "tsx src/index.ts",
     "test:real-life": "tsx test/realLifeScenario.test.ts",
     "test:overlay": "tsx test/overlayIngestTest.ts",
-    "test:tv-pairing": "tsx test/tvPairingFlow.test.ts",
-    "test:auth-bypass": "tsx test/demoBypass.test.ts"
+    "test:tv-pairing": "tsx test/tvPairingFlow.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.750.0",
@@ -18,8 +17,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.3",
-    "qrcode": "^1.5.4",
     "ws": "^8.21.3"
   },
   "devDependencies": {
