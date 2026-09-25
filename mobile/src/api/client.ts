@@ -1,10 +1,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeModules, Platform } from 'react-native';
 
 // ─── Dynamic Server Configuration ──────────────────────────────────────
 const CUSTOM_SERVER_KEY = 'guardian_custom_server_url';
 export const DEFAULT_SERVER_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.102:3001';
 
-/** Resolve dynamic server URL: Custom override -> EXPO_PUBLIC_API_URL -> Emulator fallback */
+/**
+ * Detect host IP dynamically from Metro bundler's scriptURL in Expo Go / React Native.
+ * If Metro is loading from "http://192.168.0.102:8081/index.bundle...", this extracts "192.168.0.102".
+ */
+function getMetroHostIp(): string | null {
+  try {
+    const scriptURL = (NativeModules as any)?.SourceCode?.scriptURL;
+    if (typeof scriptURL === 'string') {
+      const match = scriptURL.match(/^https?:\/\/([^/:]+)/);
+      if (match && match[1] && match[1] !== 'localhost' && match[1] !== '127.0.0.1') {
+        return match[1];
+      }
+    }
+  } catch {}
+  return null;
+}
+
+/** Resolve dynamic server URL: Custom override -> EXPO_PUBLIC_API_URL -> Metro Host IP -> LAN IP */
 export async function getBaseUrl(): Promise<string> {
   try {
     const custom = await AsyncStorage.getItem(CUSTOM_SERVER_KEY);
@@ -17,7 +35,13 @@ export async function getBaseUrl(): Promise<string> {
     return process.env.EXPO_PUBLIC_API_URL.replace(/\/+$/, '');
   }
 
-  return __DEV__ ? 'http://10.0.2.2:3001' : 'http://192.168.0.102:3001';
+  const metroIp = getMetroHostIp();
+  if (metroIp) {
+    return `http://${metroIp}:3001`;
+  }
+
+  // Fallback to PC's LAN IP
+  return 'http://192.168.0.102:3001';
 }
 
 /** Set a custom server host (e.g. http://192.168.0.102:3001 or https://my-tunnel.ngrok.io) */
@@ -89,7 +113,7 @@ export async function clearTokens(): Promise<void> {
   await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_KEY, CACHED_USER_KEY]);
 }
 
-// ─── HTTP Helper ────────────────────────────────────────────────────────
+// ─── HTTP Helper with Timeout Guard ──────────────────────────────────────
 
 async function request<T>(
   pathOrUrl: string,
@@ -111,37 +135,62 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(fullUrl, {
-    ...options,
-    headers,
-  });
+  // 5-second abort controller to prevent infinite buffering
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-  const data = await response.json();
+  try {
+    const response = await fetch(fullUrl, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
 
-  // Auto-refresh on 401
-  if (response.status === 401 && token) {
-    const refreshToken = await getRefreshToken();
-    if (refreshToken) {
-      const refreshResult = await fetch(`${baseUrl}/api/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      });
+    const data = await response.json();
 
-      if (refreshResult.ok) {
-        const refreshData = await refreshResult.json();
-        if (refreshData.access_token) {
-          await AsyncStorage.setItem(TOKEN_KEY, refreshData.access_token);
-          // Retry original request with new token
-          headers['Authorization'] = `Bearer ${refreshData.access_token}`;
-          const retryResponse = await fetch(fullUrl, { ...options, headers });
-          return retryResponse.json();
-        }
+    // Auto-refresh on 401
+    if (response.status === 401 && token) {
+      const refreshToken = await getRefreshToken();
+      if (refreshToken) {
+        try {
+          const refreshCtrl = new AbortController();
+          const refreshTimeout = setTimeout(() => refreshCtrl.abort(), 4000);
+          const refreshResult = await fetch(`${baseUrl}/api/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+            signal: refreshCtrl.signal,
+          });
+          clearTimeout(refreshTimeout);
+
+          if (refreshResult.ok) {
+            const refreshData = await refreshResult.json();
+            if (refreshData.access_token) {
+              await AsyncStorage.setItem(TOKEN_KEY, refreshData.access_token);
+              headers['Authorization'] = `Bearer ${refreshData.access_token}`;
+              const retryResponse = await fetch(fullUrl, { ...options, headers });
+              return retryResponse.json();
+            }
+          }
+        } catch {}
       }
     }
-  }
 
-  return data;
+    return data;
+  } catch (fetchErr: any) {
+    clearTimeout(timeoutId);
+    if (fetchErr.name === 'AbortError') {
+      return {
+        success: false,
+        error: 'Server connection timed out (5s). Check your Wi-Fi or server status.',
+      } as unknown as T;
+    }
+    return {
+      success: false,
+      error: fetchErr.message || 'Cannot reach server',
+    } as unknown as T;
+  }
 }
 
 // ─── Auth API ───────────────────────────────────────────────────────────

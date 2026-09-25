@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
@@ -16,11 +17,10 @@ import BrandEmblem from '../../components/BrandEmblem';
 
 interface RegisterScreenProps {
   onNavigateLogin: () => void;
-  onNavigateOtp: (challengeId: string, otpHint?: string, identifier?: string) => void;
 }
 
-export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: RegisterScreenProps) {
-  const { register, login } = useAuth();
+export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps) {
+  const { register } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -29,6 +29,15 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+    ]).start();
+  }, []);
 
   const getPasswordStrength = (pw: string) => {
     let score = 0;
@@ -41,7 +50,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
 
   const strength = getPasswordStrength(password);
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
-  const strengthColors = ['#F87171', '#FBBF24', '#38BDF8', '#34D399'];
+  const strengthColors = ['#EF4444', '#F59E0B', '#38BDF8', '#10B981'];
 
   const handleRegister = async () => {
     setError('');
@@ -54,15 +63,12 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
 
     setIsLoading(true);
     try {
+      // register() now auto-logs in after successful registration
       const result = await register(identifier.trim(), password, displayName.trim());
-      if (result.success) {
-        const loginResult = await login(identifier.trim(), password);
-        if (loginResult.success && loginResult.challenge_id) {
-          onNavigateOtp(loginResult.challenge_id, loginResult.otp_hint, identifier.trim());
-        }
-      } else {
+      if (!result.success) {
         setError(result.error || 'Registration failed');
       }
+      // On success, AuthContext sets user → App.tsx auto-navigates to MainNavigator
     } catch {
       setError('Network error. Please check your connection.');
     } finally {
@@ -81,11 +87,11 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
         showsVerticalScrollIndicator={false}
       >
         {/* Header Hero */}
-        <View style={styles.header}>
-          <BrandEmblem size={76} />
+        <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+          <BrandEmblem size={72} />
           <Text style={styles.title}>CREATE ACCOUNT</Text>
-          <Text style={styles.subtitle}>Set up your Family TV Guardian parent profile</Text>
-        </View>
+          <Text style={styles.subtitle}>Set up your Family TV Guardian profile</Text>
+        </Animated.View>
 
         <View style={styles.formContainer}>
           {/* Display Name Capsule */}
@@ -96,7 +102,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
               placeholder="Your Full Name"
               placeholderTextColor={Colors.textPlaceholder}
               value={displayName}
-              onChangeText={setDisplayName}
+              onChangeText={(t) => { setDisplayName(t); setError(''); }}
               autoCapitalize="words"
             />
           </View>
@@ -125,7 +131,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
               placeholder={isPhoneMode ? '+1 555 123 4567' : 'parent@example.com'}
               placeholderTextColor={Colors.textPlaceholder}
               value={identifier}
-              onChangeText={setIdentifier}
+              onChangeText={(t) => { setIdentifier(t); setError(''); }}
               keyboardType={isPhoneMode ? 'phone-pad' : 'email-address'}
               autoCapitalize="none"
             />
@@ -139,7 +145,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
               placeholder="Min 8 chars, uppercase, digit, symbol"
               placeholderTextColor={Colors.textPlaceholder}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(t) => { setPassword(t); setError(''); }}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
             />
@@ -155,12 +161,12 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
           {password.length > 0 && (
             <View style={styles.strengthContainer}>
               <View style={styles.strengthBarBg}>
-                <View
+                <Animated.View
                   style={[
                     styles.strengthBarFill,
                     {
                       width: `${(strength / 4) * 100}%`,
-                      backgroundColor: strengthColors[strength - 1] || Colors.danger,
+                      backgroundColor: strengthColors[strength - 1] || '#EF4444',
                     },
                   ]}
                 />
@@ -168,7 +174,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
               <Text
                 style={[
                   styles.strengthLabel,
-                  { color: strengthColors[strength - 1] || Colors.danger },
+                  { color: strengthColors[strength - 1] || '#EF4444' },
                 ]}
               >
                 {strengthLabels[strength - 1] || 'Very Weak'}
@@ -184,9 +190,11 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
               placeholder="Confirm Password"
               placeholderTextColor={Colors.textPlaceholder}
               value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              onChangeText={(t) => { setConfirmPassword(t); setError(''); }}
               secureTextEntry
               autoCapitalize="none"
+              onSubmitEditing={handleRegister}
+              returnKeyType="go"
             />
           </View>
 
@@ -210,7 +218,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.heroPinkBtnText}>Complete Sign Up</Text>
+              <Text style={styles.heroPinkBtnText}>Create Account</Text>
             )}
           </TouchableOpacity>
 
@@ -229,7 +237,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#351B68',
+    backgroundColor: '#1A0A35',
   },
   scrollContent: {
     flexGrow: 1,
@@ -242,16 +250,16 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   title: {
-    fontSize: FontSizes.headline,
+    fontSize: 28,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: 3,
+    letterSpacing: 4,
     marginTop: Spacing.md,
   },
   subtitle: {
     fontSize: FontSizes.body,
-    color: Colors.textSecondary,
-    marginTop: 4,
+    color: 'rgba(209, 196, 233, 0.8)',
+    marginTop: 6,
     textAlign: 'center',
   },
   formContainer: {
@@ -260,12 +268,12 @@ const styles = StyleSheet.create({
   capsuleInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: BorderRadius.pill,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     paddingHorizontal: Spacing.md,
-    height: 52,
+    height: 54,
     marginBottom: Spacing.md,
   },
   inputPrefixIcon: {
@@ -287,16 +295,16 @@ const styles = StyleSheet.create({
   },
   segmentedControl: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: BorderRadius.pill,
     padding: 3,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   segmentBtn: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
     borderRadius: BorderRadius.pill,
   },
@@ -305,7 +313,7 @@ const styles = StyleSheet.create({
   },
   segmentText: {
     fontSize: FontSizes.body,
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
     fontWeight: '700',
   },
   segmentTextActive: {
@@ -314,7 +322,7 @@ const styles = StyleSheet.create({
   strengthContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: -4,
+    marginTop: -8,
     marginBottom: Spacing.md,
     gap: 8,
     paddingHorizontal: Spacing.sm,
@@ -322,7 +330,7 @@ const styles = StyleSheet.create({
   strengthBarBg: {
     flex: 1,
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -335,29 +343,29 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   mismatchText: {
-    color: '#FFA8A8',
+    color: '#FCA5A5',
     fontSize: FontSizes.caption,
     marginTop: -8,
     marginBottom: Spacing.md,
     paddingHorizontal: Spacing.sm,
   },
   errorBox: {
-    backgroundColor: 'rgba(248, 113, 113, 0.2)',
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
     borderRadius: BorderRadius.sm,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.danger,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   errorText: {
-    color: '#FFA8A8',
+    color: '#FCA5A5',
     fontSize: FontSizes.body,
     textAlign: 'center',
   },
   heroPinkBtn: {
     backgroundColor: '#FA2E67',
     borderRadius: BorderRadius.pill,
-    height: 54,
+    height: 56,
     justifyContent: 'center',
     alignItems: 'center',
     ...Shadows.pinkGlow,
@@ -365,13 +373,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   btnDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   heroPinkBtnText: {
     color: '#FFFFFF',
-    fontSize: FontSizes.bodyLarge,
+    fontSize: 17,
     fontWeight: '800',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   registerRow: {
     flexDirection: 'row',
@@ -379,7 +387,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerPrompt: {
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
     fontSize: FontSizes.body,
   },
   registerLink: {

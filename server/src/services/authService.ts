@@ -123,16 +123,16 @@ export async function registerParent(params: {
   };
 }
 
-// ─── Login (Step 1: Credential Check) ───────────────────────────────────
+// ─── Login (Direct Token Issue — No 2FA) ────────────────────────────────
 
 export async function loginParent(params: {
   identifier: string;
   password: string;
 }): Promise<{
   success: boolean;
-  requires_2fa?: boolean;
-  challenge_id?: string;
-  otp_hint?: string; // For dev/demo only: the OTP code
+  access_token?: string;
+  refresh_token?: string;
+  user?: Partial<ParentUser>;
   error?: string;
 }> {
   const { identifier, password } = params;
@@ -147,28 +147,35 @@ export async function loginParent(params: {
     return { success: false, error: 'Incorrect password' };
   }
 
-  // Generate OTP challenge for 2FA
-  const otpCode = generateOtpCode();
-  const challenge: OtpChallenge = {
-    id: `otp_${generateToken().substring(0, 16)}`,
+  // Directly issue tokens — no 2FA step
+  const accessPayload: AuthTokenPayload = {
     user_id: user.id,
-    otp_code: otpCode,
-    purpose: 'login_2fa',
-    identifier,
-    expires_at: Date.now() + OTP_EXPIRY_MS,
-    attempts: 0,
-    created_at: new Date().toISOString(),
+    household_id: user.household_id,
+    type: 'access',
+  };
+  const refreshPayload: AuthTokenPayload = {
+    user_id: user.id,
+    household_id: user.household_id,
+    type: 'refresh',
   };
 
-  db.createOtpChallenge(challenge);
+  const access_token = jwt.sign(accessPayload, JWT_SECRET, { expiresIn: JWT_ACCESS_EXPIRY });
+  const refresh_token = jwt.sign(refreshPayload, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRY });
 
-  console.log(`[Auth] Login OTP for ${identifier}: ${otpCode} (challenge: ${challenge.id})`);
+  console.log(`[Auth] ✅ Direct login successful for: ${user.display_name} (${identifier})`);
 
   return {
     success: true,
-    requires_2fa: true,
-    challenge_id: challenge.id,
-    otp_hint: otpCode, // In production, this would be sent via SMS/email instead
+    access_token,
+    refresh_token,
+    user: {
+      id: user.id,
+      household_id: user.household_id,
+      display_name: user.display_name,
+      email: user.email,
+      phone: user.phone,
+      linked_children: user.linked_children,
+    },
   };
 }
 

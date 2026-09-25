@@ -94,7 +94,106 @@
     }
   ],
   "sessions": [],
-  "analyses": {},
+  "analyses": {
+    "content_jwst_space": {
+      "content_id": "content_jwst_space",
+      "categories": [
+        "Science & Documentary",
+        "Science",
+        "Documentary",
+        "Space"
+      ],
+      "topics": [
+        "space",
+        "astronomy",
+        "deep cosmos"
+      ],
+      "educational_score": 40,
+      "age_signal": "All Ages",
+      "violence_signal": "none",
+      "language_signal": "clean",
+      "summary": "JWST: Unfolding the Universe explains space and astronomy in an engaging format for children.",
+      "key_takeaways": [
+        "Gained insights into space.",
+        "Observed practical examples of astronomy."
+      ],
+      "model_version": "guardian-intelligence-engine-v1.0",
+      "analyzed_at": "2026-09-25T18:26:24.268Z"
+    },
+    "content_kids_coding": {
+      "content_id": "content_kids_coding",
+      "categories": [
+        "Educational",
+        "STEM",
+        "Technology"
+      ],
+      "topics": [
+        "computer science",
+        "robotics",
+        "algorithms"
+      ],
+      "educational_score": 90,
+      "age_signal": "7-11",
+      "violence_signal": "none",
+      "language_signal": "clean",
+      "summary": "RoboKids: Learn to Code explains computer science and robotics in an engaging format for children.",
+      "key_takeaways": [
+        "Gained insights into computer science.",
+        "Observed practical examples of robotics."
+      ],
+      "model_version": "guardian-intelligence-engine-v1.0",
+      "analyzed_at": "2026-09-25T18:26:24.269Z"
+    },
+    "content_funny_cartoons": {
+      "content_id": "content_funny_cartoons",
+      "categories": [
+        "Animation",
+        "Comedy",
+        "Cartoons"
+      ],
+      "topics": [
+        "general entertainment"
+      ],
+      "educational_score": 20,
+      "age_signal": "All Ages",
+      "violence_signal": "none",
+      "language_signal": "clean",
+      "summary": "Looney Adventures explains  in an engaging format for children.",
+      "key_takeaways": [
+        "Gained insights into the story.",
+        "Observed practical examples of creativity."
+      ],
+      "model_version": "guardian-intelligence-engine-v1.0",
+      "analyzed_at": "2026-09-25T18:26:24.269Z"
+    },
+    "content_city_rescue_action": {
+      "content_id": "content_city_rescue_action",
+      "categories": [
+        "Action",
+        "Animation",
+        "Superheroes"
+      ],
+      "topics": [
+        "computer science",
+        "robotics",
+        "algorithms",
+        "superheroes",
+        "rescue missions",
+        "problem solving"
+      ],
+      "educational_score": 20,
+      "age_signal": "7+",
+      "violence_signal": "mild_action",
+      "language_signal": "clean",
+      "summary": "Turbo Squad: City Rescue explains computer science and robotics in an engaging format for children.",
+      "key_takeaways": [
+        "Gained insights into computer science.",
+        "Observed practical examples of robotics."
+      ],
+      "model_version": "guardian-intelligence-engine-v1.0",
+      "analyzed_at": "2026-09-25T18:26:24.269Z"
+    }
+  },
   "digests": {},
   "frames": [],
   "pairingSessions": {},
@@ -105,14 +204,42 @@
       "household_id": "house_1790356907651",
       "display_name": "David Miller",
       "email": "parent.test@guardian.family",
-      "password_hash": "$2b$10$n6y4oUyDo9QI.kgDCzkeMOJ..JjIYuGIhD7pyasBxLG.skIjBKSvm",
+      "password_hash": "$2b$10$RbICw37102FvllBonl3.c./9FAZwwtEPKF2EMip/jeAiqug3DCQsO",
       "two_fa_enabled": true,
       "linked_children": [
         "child_aarav",
         "child_meera"
       ],
       "created_at": "2026-09-25T17:21:47.649Z",
-      "updated_at": "2026-09-25T17:21:47.649Z"
+      "updated_at": "2026-09-25T18:39:36.206Z"
+    },
+    {
+      "id": "parent_1790360904980_f0f95f35",
+      "household_id": "house_1790360904981",
+      "display_name": "Demo Parent (Phone)",
+      "phone": "+15551234567",
+      "password_hash": "$2b$10$RbICw37102FvllBonl3.c./9FAZwwtEPKF2EMip/jeAiqug3DCQsO",
+      "two_fa_enabled": true,
+      "linked_children": [
+        "child_aarav",
+        "child_meera"
+      ],
+      "created_at": "2026-09-25T18:28:24.980Z",
+      "updated_at": "2026-09-25T18:39:36.207Z"
+    },
+    {
+      "id": "parent_1790361055079_b138d721",
+      "household_id": "house_1790361055079",
+      "display_name": "Test User",
+      "email": "test@test.com",
+      "password_hash": "$2b$10$jhJoMq/3ofAVzo7fSxhv6OKg5Xh/HE2Npounpj43b5Vtqu0r6klRq",
+      "two_fa_enabled": true,
+      "linked_children": [
+        "child_aarav",
+        "child_meera"
+      ],
+      "created_at": "2026-09-25T18:30:55.079Z",
+      "updated_at": "2026-09-25T18:30:55.079Z"
     }
   ],
   "otp_challenges": [],

@@ -296,5 +296,50 @@ server.listen(PORT, async () => {
   } catch (err) {
     console.warn('Catalog preheat warning:', err);
   }
+
+  // Seed demo parent user for testing
+  try {
+    const { registerParent } = await import('./services/authService.js');
+    const { db } = await import('./db/database.js');
+    const bcrypt = await import('bcryptjs');
+
+    const DEMO_PASSWORD = 'Password123!';
+    const demoHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+
+    // Check if demo user already exists
+    const existingEmail = db.getParentByEmail('parent.test@guardian.family');
+    const existingPhone = db.getParentByPhone('+15551234567');
+
+    if (existingEmail) {
+      // Ensure password matches known demo password
+      db.updateParentUser(existingEmail.id, { password_hash: demoHash });
+      console.log('✅ Demo email user password reset: parent.test@guardian.family / Password123!');
+    } else {
+      const emailResult = await registerParent({
+        identifier: 'parent.test@guardian.family',
+        password: DEMO_PASSWORD,
+        display_name: 'Demo Parent',
+      });
+      if (emailResult.success) {
+        console.log('✅ Demo email user seeded: parent.test@guardian.family / Password123!');
+      }
+    }
+
+    if (existingPhone) {
+      db.updateParentUser(existingPhone.id, { password_hash: demoHash });
+      console.log('✅ Demo phone user password reset: +15551234567 / Password123!');
+    } else {
+      const phoneResult = await registerParent({
+        identifier: '+15551234567',
+        password: DEMO_PASSWORD,
+        display_name: 'Demo Parent (Phone)',
+      });
+      if (phoneResult.success) {
+        console.log('✅ Demo phone user seeded: +15551234567 / Password123!');
+      }
+    }
+  } catch (err) {
+    console.warn('Demo user seeding warning:', err);
+  }
 });
 

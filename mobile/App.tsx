@@ -11,7 +11,6 @@ import { Colors } from './src/theme/colors';
 // Auth Screens
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
-import OtpVerificationScreen from './src/screens/auth/OtpVerificationScreen';
 import ForgotPasswordScreen from './src/screens/auth/ForgotPasswordScreen';
 
 // Main Screens
@@ -22,18 +21,10 @@ import ProfileScreen from './src/screens/main/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-// ─── Auth Flow Navigator ────────────────────────────────────────────────
+// ─── Auth Flow Navigator (No OTP Screen) ────────────────────────────────
 
 function AuthNavigator() {
-  const [screen, setScreen] = useState<'login' | 'register' | 'otp' | 'forgot'>('login');
-  const [otpData, setOtpData] = useState<{ challengeId: string; otpHint?: string; identifier?: string }>({
-    challengeId: '',
-  });
-
-  const handleNavigateOtp = (challengeId: string, otpHint?: string, identifier?: string) => {
-    setOtpData({ challengeId, otpHint, identifier });
-    setScreen('otp');
-  };
+  const [screen, setScreen] = useState<'login' | 'register' | 'forgot'>('login');
 
   switch (screen) {
     case 'login':
@@ -41,24 +32,12 @@ function AuthNavigator() {
         <LoginScreen
           onNavigateRegister={() => setScreen('register')}
           onNavigateForgot={() => setScreen('forgot')}
-          onNavigateOtp={handleNavigateOtp}
         />
       );
     case 'register':
       return (
         <RegisterScreen
           onNavigateLogin={() => setScreen('login')}
-          onNavigateOtp={handleNavigateOtp}
-        />
-      );
-    case 'otp':
-      return (
-        <OtpVerificationScreen
-          challengeId={otpData.challengeId}
-          otpHint={otpData.otpHint}
-          identifier={otpData.identifier}
-          onVerified={() => {}}  // Auth context will auto-detect authenticated state
-          onBack={() => setScreen('login')}
         />
       );
     case 'forgot':
@@ -79,27 +58,27 @@ function MainNavigator() {
     <Tab.Navigator
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: Colors.bgCard,
-          borderTopColor: Colors.border,
+          backgroundColor: '#1A0A35',
+          borderTopColor: 'rgba(255, 255, 255, 0.08)',
           borderTopWidth: 1,
           paddingTop: 6,
           paddingBottom: 8,
           height: 65,
         },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarActiveTintColor: '#FA2E67',
+        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.35)',
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
         },
         headerStyle: {
-          backgroundColor: Colors.bgDark,
+          backgroundColor: '#1A0A35',
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 1,
-          borderBottomColor: Colors.border,
+          borderBottomColor: 'rgba(255, 255, 255, 0.08)',
         },
-        headerTintColor: Colors.textPrimary,
+        headerTintColor: '#FFFFFF',
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 18,
@@ -156,7 +135,7 @@ function RootNavigator() {
       <View style={styles.loadingScreen}>
         <Text style={styles.loadingLogo}>🛡️</Text>
         <Text style={styles.loadingTitle}>Family TV Guardian</Text>
-        <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 20 }} />
+        <ActivityIndicator size="large" color="#FA2E67" style={{ marginTop: 20 }} />
       </View>
     );
   }
@@ -184,7 +163,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.bgDark,
+    backgroundColor: '#1A0A35',
   },
   loadingLogo: {
     fontSize: 72,
@@ -193,6 +172,6 @@ const styles = StyleSheet.create({
   loadingTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: Colors.textPrimary,
+    color: '#FFFFFF',
   },
 });

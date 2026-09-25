@@ -120,6 +120,9 @@ class Database {
         this.data = JSON.parse(raw);
         if (!this.data.pairingSessions) this.data.pairingSessions = {};
         if (!this.data.devices) this.data.devices = {};
+        if (!this.data.parent_users) this.data.parent_users = [];
+        if (!this.data.otp_challenges) this.data.otp_challenges = [];
+        if (!this.data.tv_pair_sessions) this.data.tv_pair_sessions = [];
       } catch (err) {
         console.warn('Failed to parse existing DB file, reinitializing', err);
         this.data = this.getDefaultData();

@@ -25,19 +25,21 @@ import BrandEmblem from '../../components/BrandEmblem';
 interface LoginScreenProps {
   onNavigateRegister: () => void;
   onNavigateForgot: () => void;
-  onNavigateOtp: (challengeId: string, otpHint?: string, identifier?: string) => void;
 }
 
-export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNavigateOtp }: LoginScreenProps) {
+export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: LoginScreenProps) {
   const { login, demoLogin } = useAuth();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isBypassing, setIsBypassing] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isPhoneMode, setIsPhoneMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
 
   // Server Network Modal State
   const [serverUrl, setServerUrl] = useState('');
@@ -48,6 +50,11 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
 
   useEffect(() => {
     loadServerConfig();
+    // Entry animation
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+    ]).start();
   }, []);
 
   const loadServerConfig = async () => {
@@ -71,8 +78,10 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
     ]).start();
   };
 
+  // ─── Direct Sign In (No 2FA) ──────────────────────────────────────────
   const handleLogin = async () => {
     setError('');
+    setSuccessMsg('');
     if (!identifier.trim() || !password.trim()) {
       setError('Please enter your credentials');
       shake();
@@ -82,8 +91,9 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
     setIsLoading(true);
     try {
       const result = await login(identifier.trim(), password);
-      if (result.success && result.challenge_id) {
-        onNavigateOtp(result.challenge_id, result.otp_hint, identifier.trim());
+      if (result.success) {
+        setSuccessMsg('Welcome back! Signing you in…');
+        // AuthContext sets user → App.tsx auto-navigates to MainNavigator
       } else {
         setError(result.error || 'Login failed');
         shake();
@@ -96,13 +106,16 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
     }
   };
 
-  // ⚡ 1-Tap Auth Bypass: Instantly logs in directly without 2FA
+  // ⚡ 1-Tap Auth Bypass: Instantly logs in directly
   const handleInstantBypass = async (targetId?: string) => {
     setError('');
+    setSuccessMsg('');
     setIsBypassing(true);
     try {
       const result = await demoLogin(targetId || identifier.trim() || undefined);
-      if (!result.success) {
+      if (result.success) {
+        setSuccessMsg('⚡ Instant access granted!');
+      } else {
         setError(result.error || 'Auth bypass failed. Check server connection.');
         shake();
       }
@@ -119,6 +132,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
     setIdentifier('parent.test@guardian.family');
     setPassword('Password123!');
     setError('');
+    setSuccessMsg('');
   };
 
   const handleFillTestPhone = () => {
@@ -126,6 +140,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
     setIdentifier('+15551234567');
     setPassword('Password123!');
     setError('');
+    setSuccessMsg('');
   };
 
   const handleTestPing = async () => {
@@ -177,14 +192,14 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
           <Text style={styles.serverGearIcon}>⚙️</Text>
         </TouchableOpacity>
 
-        {/* Hero Geometric Emblem (From Reference Image) */}
-        <View style={styles.brandHero}>
+        {/* Hero Geometric Emblem */}
+        <Animated.View style={[styles.brandHero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <BrandEmblem size={88} />
           <Text style={styles.brandTitle}>GUARDIAN</Text>
           <Text style={styles.brandSubtitle}>AI Parental Intelligence for Fire TV</Text>
-        </View>
+        </Animated.View>
 
-        {/* 🧪 Testing & Demo Hub (Reference-style outline pills) */}
+        {/* 🧪 Testing & Demo Hub */}
         <View style={styles.demoCard}>
           <View style={styles.demoHeader}>
             <Text style={styles.demoTitle}>⚡ QUICK TEST & BYPASS</Text>
@@ -193,7 +208,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
             </View>
           </View>
 
-          {/* Quick-fill Outline Pills (matches Screen 3 "Connect with...") */}
+          {/* Quick-fill Outline Pills */}
           <View style={styles.pillRow}>
             <TouchableOpacity
               style={styles.outlinePill}
@@ -224,7 +239,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
             {isBypassing ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.instantBypassText}>⚡ 1-Tap Instant Sign-In (Skip 2FA)</Text>
+              <Text style={styles.instantBypassText}>⚡ 1-Tap Instant Sign-In</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -247,7 +262,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
             </TouchableOpacity>
           </View>
 
-          {/* Identifier Input (Capsule shape like Reference) */}
+          {/* Identifier Input (Capsule) */}
           <View style={styles.capsuleInputWrapper}>
             <Text style={styles.inputPrefixIcon}>{isPhoneMode ? '📱' : '📧'}</Text>
             <TextInput
@@ -255,24 +270,26 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
               placeholder={isPhoneMode ? '+15551234567' : 'parent.test@guardian.family'}
               placeholderTextColor={Colors.textPlaceholder}
               value={identifier}
-              onChangeText={setIdentifier}
+              onChangeText={(t) => { setIdentifier(t); setError(''); }}
               keyboardType={isPhoneMode ? 'phone-pad' : 'email-address'}
               autoCapitalize="none"
               autoComplete={isPhoneMode ? 'tel' : 'email'}
             />
           </View>
 
-          {/* Password Input (Capsule shape like Reference) */}
+          {/* Password Input (Capsule) */}
           <View style={styles.capsuleInputWrapper}>
             <Text style={styles.inputPrefixIcon}>🔒</Text>
             <TextInput
               style={[styles.capsuleInput, styles.passwordCapsuleInput]}
-              placeholder="Password123!"
+              placeholder="Password"
               placeholderTextColor={Colors.textPlaceholder}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(t) => { setPassword(t); setError(''); }}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              onSubmitEditing={handleLogin}
+              returnKeyType="go"
             />
             <TouchableOpacity
               style={styles.capsuleEyeBtn}
@@ -287,6 +304,13 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
+          {/* Success Banner */}
+          {successMsg ? (
+            <View style={styles.successBox}>
+              <Text style={styles.successText}>✅ {successMsg}</Text>
+            </View>
+          ) : null}
+
           {/* Error Banner */}
           {error ? (
             <View style={styles.errorBox}>
@@ -294,9 +318,9 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
             </View>
           ) : null}
 
-          {/* Radiant Hot Pink CTA Button (Like Reference "Touch" / "Next") */}
+          {/* Radiant Hot Pink CTA Button — Direct Sign In */}
           <TouchableOpacity
-            style={[styles.heroPinkBtn, isLoading && styles.btnDisabled]}
+            style={[styles.heroPinkBtn, (isLoading || isBypassing) && styles.btnDisabled]}
             onPress={handleLogin}
             disabled={isLoading || isBypassing}
             activeOpacity={0.85}
@@ -304,12 +328,13 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.heroPinkBtnText}>Sign In with 2FA</Text>
+              <Text style={styles.heroPinkBtnText}>Sign In</Text>
             )}
           </TouchableOpacity>
 
-          <Text style={styles.masterOtpPrompt}>
-            Master 2FA code: <Text style={styles.codeText}>123456</Text> (accepted anywhere)
+          {/* Demo credentials hint */}
+          <Text style={styles.demoHint}>
+            Test: <Text style={styles.codeText}>parent.test@guardian.family</Text> / <Text style={styles.codeText}>Password123!</Text>
           </Text>
 
           {/* Bottom Link */}
@@ -323,7 +348,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
 
         {/* Security & 30-Day Persistence Note */}
         <Text style={styles.footerNote}>
-          🔒 30-Day Persistent JWT • Session stays signed in across restarts
+          🔒 30-Day Persistent Session • No 2FA Required
         </Text>
       </ScrollView>
 
@@ -338,7 +363,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>🌐 Backend Host Settings</Text>
             <Text style={styles.modalSubtitle}>
-              Connect over local Wi-Fi or cloud tunnel without hardcoded localhost:
+              Connect over local Wi-Fi or cloud tunnel:
             </Text>
 
             <TextInput
@@ -394,7 +419,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNa
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#351B68', // Deep Royal Violet from reference
+    backgroundColor: '#1A0A35', // Deeper, richer Royal Violet
   },
   scrollContent: {
     flexGrow: 1,
@@ -406,9 +431,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     paddingHorizontal: Spacing.md,
     paddingVertical: 6,
     borderRadius: BorderRadius.full,
@@ -422,13 +447,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.warning,
   },
   statusDotGreen: {
-    backgroundColor: Colors.success,
+    backgroundColor: '#10B981',
   },
   statusDotRed: {
-    backgroundColor: Colors.danger,
+    backgroundColor: '#EF4444',
   },
   serverPillText: {
-    color: '#FFFFFF',
+    color: 'rgba(255, 255, 255, 0.7)',
     fontSize: FontSizes.caption,
     fontWeight: '600',
     maxWidth: 220,
@@ -441,27 +466,27 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   brandTitle: {
-    fontSize: FontSizes.headline,
+    fontSize: 32,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: 4,
+    letterSpacing: 6,
     marginTop: Spacing.md,
   },
   brandSubtitle: {
     fontSize: FontSizes.body,
-    color: Colors.textSecondary,
-    marginTop: 4,
+    color: 'rgba(209, 196, 233, 0.8)',
+    marginTop: 6,
     textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
 
-  // 🧪 Quick Test & Demo Hub (Reference-style outline pills)
+  // 🧪 Quick Test & Demo Hub
   demoCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: Spacing.lg,
   },
   demoHeader: {
@@ -473,20 +498,20 @@ const styles = StyleSheet.create({
   demoTitle: {
     fontSize: FontSizes.caption,
     fontWeight: '800',
-    color: Colors.textSecondary,
-    letterSpacing: 1,
+    color: 'rgba(255, 255, 255, 0.5)',
+    letterSpacing: 1.2,
   },
   demoBadge: {
     backgroundColor: '#FA2E67',
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: 6,
   },
   demoBadgeText: {
     color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '900',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   pillRow: {
     flexDirection: 'row',
@@ -498,9 +523,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     paddingVertical: 10,
     borderRadius: BorderRadius.pill,
     gap: 6,
@@ -509,21 +534,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   outlinePillText: {
-    color: '#FFFFFF',
+    color: 'rgba(255, 255, 255, 0.85)',
     fontSize: FontSizes.caption,
     fontWeight: '700',
   },
   instantBypassPill: {
-    backgroundColor: 'rgba(250, 46, 103, 0.25)',
+    backgroundColor: 'rgba(250, 46, 103, 0.15)',
     borderWidth: 1.5,
-    borderColor: '#FA2E67',
+    borderColor: 'rgba(250, 46, 103, 0.5)',
     borderRadius: BorderRadius.pill,
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   instantBypassText: {
-    color: '#FFFFFF',
+    color: '#FF6B9D',
     fontSize: FontSizes.body,
     fontWeight: '800',
     letterSpacing: 0.3,
@@ -535,16 +560,16 @@ const styles = StyleSheet.create({
   },
   segmentedControl: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: BorderRadius.pill,
     padding: 3,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   segmentBtn: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
     borderRadius: BorderRadius.pill,
   },
@@ -553,23 +578,23 @@ const styles = StyleSheet.create({
   },
   segmentText: {
     fontSize: FontSizes.body,
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
     fontWeight: '700',
   },
   segmentTextActive: {
     color: '#FFFFFF',
   },
 
-  // Capsule Inputs from Reference
+  // Capsule Inputs
   capsuleInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: BorderRadius.pill,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     paddingHorizontal: Spacing.md,
-    height: 52,
+    height: 54,
     marginBottom: Spacing.md,
   },
   inputPrefixIcon: {
@@ -598,53 +623,67 @@ const styles = StyleSheet.create({
     paddingRight: Spacing.xs,
   },
   forgotText: {
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.45)',
     fontSize: FontSizes.caption,
     fontWeight: '600',
   },
-  errorBox: {
-    backgroundColor: 'rgba(248, 113, 113, 0.2)',
+  successBox: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderRadius: BorderRadius.sm,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.danger,
+    borderColor: 'rgba(16, 185, 129, 0.4)',
+  },
+  successText: {
+    color: '#6EE7B7',
+    fontSize: FontSizes.body,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  errorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderRadius: BorderRadius.sm,
+    padding: Spacing.sm + 2,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   errorText: {
-    color: '#FFA8A8',
+    color: '#FCA5A5',
     fontSize: FontSizes.body,
     textAlign: 'center',
   },
 
-  // Radiant Hot Pink Hero Button (matches "Touch" / "Next" from Reference)
+  // Radiant Hot Pink Hero Button
   heroPinkBtn: {
     backgroundColor: '#FA2E67',
     borderRadius: BorderRadius.pill,
-    height: 54,
+    height: 56,
     justifyContent: 'center',
     alignItems: 'center',
     ...Shadows.pinkGlow,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.sm,
   },
   btnDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   heroPinkBtnText: {
     color: '#FFFFFF',
-    fontSize: FontSizes.bodyLarge,
+    fontSize: 17,
     fontWeight: '800',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
-  masterOtpPrompt: {
-    fontSize: FontSizes.caption,
-    color: Colors.textSecondary,
+  demoHint: {
+    fontSize: FontSizes.caption - 1,
+    color: 'rgba(255, 255, 255, 0.35)',
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 4,
     marginBottom: Spacing.lg,
   },
   codeText: {
     color: '#FBBF24',
-    fontWeight: '800',
+    fontWeight: '700',
   },
   registerRow: {
     flexDirection: 'row',
@@ -652,7 +691,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerPrompt: {
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
     fontSize: FontSizes.body,
   },
   registerLink: {
@@ -661,7 +700,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   footerNote: {
-    color: Colors.textMuted,
+    color: 'rgba(255, 255, 255, 0.25)',
     fontSize: 11,
     textAlign: 'center',
     marginTop: Spacing.md,
@@ -670,17 +709,17 @@ const styles = StyleSheet.create({
   // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 6, 32, 0.88)',
+    backgroundColor: 'rgba(10, 4, 22, 0.92)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
   },
   modalCard: {
-    backgroundColor: '#351B68',
+    backgroundColor: '#2A1254',
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     width: '100%',
     maxWidth: 400,
   },
@@ -692,23 +731,23 @@ const styles = StyleSheet.create({
   },
   modalSubtitle: {
     fontSize: FontSizes.caption,
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
     marginBottom: Spacing.md,
     lineHeight: 18,
   },
   modalInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: BorderRadius.pill,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm + 4,
     fontSize: FontSizes.body,
     color: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     marginBottom: Spacing.sm,
   },
   testBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: BorderRadius.pill,
     paddingVertical: 10,
     alignItems: 'center',
@@ -720,7 +759,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   modalErrorText: {
-    color: '#FFA8A8',
+    color: '#FCA5A5',
     fontSize: FontSizes.caption,
     marginBottom: Spacing.sm,
   },
@@ -734,10 +773,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   modalSecondaryBtnText: {
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
     fontSize: FontSizes.body,
   },
   modalPrimaryBtn: {

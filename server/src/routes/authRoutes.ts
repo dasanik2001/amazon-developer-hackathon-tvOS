@@ -89,6 +89,7 @@ router.post('/login', async (req: Request, res: Response) => {
       return;
     }
 
+    // Returns { success, access_token, refresh_token, user }
     res.json(result);
   } catch (err: any) {
     console.error('[Auth] Login error:', err);
