@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
 import apiRouter from './routes/api.js';
+import authRouter from './routes/authRoutes.js';
 import { preheatContentCatalog } from './services/aiPipeline.js';
 import { socketService } from './services/socketService.js';
 
@@ -26,6 +27,7 @@ app.use('/dashboard', express.static(webDashboardPath));
 
 // API routes
 app.use('/api', apiRouter);
+app.use('/api/auth', authRouter);
 
 // Mobile App / QR Companion Pairing Screen
 app.get('/pair', (req, res) => {
@@ -283,7 +285,9 @@ server.listen(PORT, async () => {
   console.log(`=================================================`);
   console.log(`🛡️  Family TV Guardian Backend is running on port ${PORT}`);
   console.log(`📡  API: http://localhost:${PORT}/api`);
+  console.log(`🔐  Auth API: http://localhost:${PORT}/api/auth`);
   console.log(`💻  Parent Dashboard: http://localhost:${PORT}/dashboard`);
+  console.log(`📱  Mobile App API: http://localhost:${PORT}/api/auth/*`);
   console.log(`=================================================`);
 
   try {
@@ -293,3 +297,4 @@ server.listen(PORT, async () => {
     console.warn('Catalog preheat warning:', err);
   }
 });
+

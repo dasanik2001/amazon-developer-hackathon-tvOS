@@ -159,7 +159,7 @@ function analyzeLocally(content: ContentItem): ContentAnalysis {
 
   // Safety / Violence signals (PRD requirement: Responsible AI / evidence first)
   let violenceSignal: 'none' | 'mild_action' | 'intense' = 'none';
-  if (text.includes('explodes') || text.includes('clash') || text.includes('laser beams')) {
+  if (text.includes('explodes') || text.includes('clash') || text.includes('laser') || text.includes('blast') || text.includes('battle')) {
     violenceSignal = 'mild_action';
   }
 
@@ -175,7 +175,7 @@ function analyzeLocally(content: ContentItem): ContentAnalysis {
 
   return {
     content_id: content.id,
-    categories: [content.category, ...content.genres].filter((v, i, a) => a.indexOf(v) === i),
+    categories: [content.category, ...(content.genres || [])].filter((v, i, a) => a.indexOf(v) === i),
     topics: detectedTopics.length > 0 ? detectedTopics : ['general entertainment'],
     educational_score: educationalScore,
     age_signal: ageSignal,

@@ -520,7 +520,7 @@ router.post('/pairing/session', async (req: Request, res: Response) => {
 // Render dynamic QR Code directly as PNG image
 router.get('/pairing/qr/:sessionId.png', async (req: Request, res: Response) => {
   try {
-    const sessionId = req.params.sessionId;
+    const sessionId = req.params.sessionId as string;
     const session = db.getPairingSession(sessionId);
     if (!session) {
       res.status(404).send('Session not found');
@@ -553,7 +553,7 @@ router.get('/pairing/qr/:sessionId.png', async (req: Request, res: Response) => 
 
 // Check pairing status for active TV session
 router.get('/pairing/session/:sessionId/status', (req: Request, res: Response) => {
-  const sessionId = req.params.sessionId;
+  const sessionId = req.params.sessionId as string;
   const session = db.getPairingSession(sessionId);
 
   if (!session) {
@@ -633,7 +633,7 @@ router.post('/pairing/confirm', (req: Request, res: Response) => {
 
 // Check device link status
 router.get('/pairing/device/:deviceId/status', (req: Request, res: Response) => {
-  const deviceId = req.params.deviceId;
+  const deviceId = req.params.deviceId as string;
   const account = db.getDeviceAccount(deviceId);
   res.json({
     success: true,

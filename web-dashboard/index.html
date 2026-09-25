@@ -55,6 +55,123 @@
       </div>
     </section>
 
+    <!-- Fire TV Screen & Mobile Pairing Station -->
+    <section class="tv-pairing-station" id="tv-pairing-station">
+      <div class="tv-screen-frame">
+        <div class="tv-screen-header">
+          <div class="tv-brand">
+            <span class="fire-flame">🔥</span>
+            <span class="tv-brand-title">fire tv</span>
+            <span class="tv-brand-divider">|</span>
+            <span class="tv-app-title">Family TV Guardian</span>
+          </div>
+          <div class="tv-screen-status" id="tv-screen-status">
+            <span class="tv-status-dot pulsing" id="tv-status-dot"></span>
+            <span id="tv-status-label">Pairing Mode Active</span>
+          </div>
+        </div>
+
+        <div class="tv-screen-body">
+          <!-- State A: QR Code Pairing View (when not linked) -->
+          <div class="tv-pairing-view" id="tv-pairing-view">
+            <div class="tv-qr-box">
+              <div class="qr-target-corner qr-tl"></div>
+              <div class="qr-target-corner qr-tr"></div>
+              <div class="qr-target-corner qr-bl"></div>
+              <div class="qr-target-corner qr-br"></div>
+              <div class="qr-image-wrapper">
+                <img id="tv-qr-image" src="" alt="Fire TV Pairing QR Code" />
+                <div class="qr-radar-sweep"></div>
+              </div>
+              <div class="qr-short-code-label">PAIRING CODE</div>
+              <div class="qr-short-code" id="tv-short-code">Loading...</div>
+            </div>
+
+            <div class="tv-pairing-instructions">
+              <div class="tv-pair-badge">📱 Connect Mobile App</div>
+              <h2 class="tv-pair-heading">Scan with Guardian Mobile App to Link TV</h2>
+              <p class="tv-pair-subheading">
+                Sign in on your phone, then scan this QR code with the Guardian mobile app. Your Fire TV will authenticate automatically!
+              </p>
+
+              <div class="tv-pair-steps">
+                <div class="tv-step">
+                  <div class="step-num-badge">1</div>
+                  <div class="step-text">
+                    <strong>Open Guardian Mobile App</strong>
+                    <span>Sign in or register parent account with email/phone & 2FA</span>
+                  </div>
+                </div>
+                <div class="tv-step">
+                  <div class="step-num-badge">2</div>
+                  <div class="step-text">
+                    <strong>Scan This TV QR Code</strong>
+                    <span>Tap <em>"📷 Scan TV QR"</em> on Dashboard or Controls</span>
+                  </div>
+                </div>
+                <div class="tv-step">
+                  <div class="step-num-badge">3</div>
+                  <div class="step-text">
+                    <strong>Instant TV Sign-In</strong>
+                    <span>TV logs in with encrypted device token & household sync</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tv-pair-footer">
+                <div class="tv-expiry-badge">
+                  ⏱️ Code expires in: <span id="tv-expiry-timer">10:00</span>
+                </div>
+                <div class="tv-pair-actions">
+                  <button class="btn btn-secondary-tv" onclick="initiateTvPairing(true)">🔄 New Code</button>
+                  <button class="btn btn-demo-pair" onclick="simulateMobileScan()">⚡ Simulate Mobile Scan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- State B: Connected & Logged In View (when approved by mobile) -->
+          <div class="tv-connected-view" id="tv-connected-view" style="display: none;">
+            <div class="tv-auth-card">
+              <div class="tv-celebrate-badge">🎉</div>
+              <h2 class="tv-welcome-title">Welcome to Family TV Guardian!</h2>
+              <p class="tv-welcome-sub">Fire TV is now authenticated and linked to your parent account.</p>
+
+              <div class="tv-account-info-grid">
+                <div class="tv-info-pill">
+                  <span class="info-label">Parent Account</span>
+                  <strong class="info-val" id="tv-parent-name">Sarah Jenkins</strong>
+                </div>
+                <div class="tv-info-pill">
+                  <span class="info-label">Household ID</span>
+                  <strong class="info-val" id="tv-household-id">hh_guardian_01</strong>
+                </div>
+                <div class="tv-info-pill">
+                  <span class="info-label">Active Child Profile</span>
+                  <strong class="info-val" id="tv-active-child">Aarav (Age 8)</strong>
+                </div>
+                <div class="tv-info-pill">
+                  <span class="info-label">Remote Control</span>
+                  <strong class="info-val text-emerald">● CONNECTED</strong>
+                </div>
+              </div>
+
+              <!-- Remote Command Live Alert Banner on TV Screen -->
+              <div class="tv-command-banner" id="tv-command-banner" style="display: none;">
+                <span id="tv-command-icon" style="font-size: 24px;">⏸️</span>
+                <span id="tv-command-text" style="font-weight: 700;">Parent paused TV from phone</span>
+              </div>
+
+              <div class="tv-connected-footer">
+                <span class="tv-security-badge">🔒 Encrypted JWT Device Token Active</span>
+                <button class="btn btn-outline-danger" onclick="unlinkTvDevice()">Unlink / Sign Out TV</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Main Grid -->
     <main class="dashboard-grid">
       <!-- Left Column: Digest & Signals -->

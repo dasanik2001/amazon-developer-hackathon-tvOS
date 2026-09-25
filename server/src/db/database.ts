@@ -1,6 +1,17 @@
 import fs from 'fs';
 import path from 'path';
-import { ChildProfile, ContentItem, ViewingSession, ContentAnalysis, DailyDigest, FrameContext, PairingSession } from '../types.js';
+import {
+  ChildProfile,
+  ContentItem,
+  ViewingSession,
+  ContentAnalysis,
+  DailyDigest,
+  FrameContext,
+  PairingSession,
+  ParentUser,
+  OtpChallenge,
+  TvPairSession,
+} from '../types.js';
 
 interface DatabaseSchema {
   children: ChildProfile[];
@@ -11,6 +22,10 @@ interface DatabaseSchema {
   frames: FrameContext[];
   pairingSessions?: Record<string, PairingSession>;
   devices?: Record<string, { email: string; deviceName: string; linkedAt: string }>;
+  // Auth & Pairing
+  parent_users: ParentUser[];
+  otp_challenges: OtpChallenge[];
+  tv_pair_sessions: TvPairSession[];
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -36,7 +51,60 @@ const INITIAL_CHILDREN: ChildProfile[] = [
   },
 ];
 
-const INITIAL_CONTENTS: ContentItem[] = [];
+const INITIAL_CONTENTS: ContentItem[] = [
+  {
+    id: 'content_jwst_space',
+    title: 'JWST: Unfolding the Universe',
+    provider: 'NASA TV / Prime Video',
+    category: 'Science & Documentary',
+    genres: ['Science', 'Documentary', 'Space'],
+    duration_sec: 1800,
+    description: 'A deep space documentary exploring the James Webb Space Telescope, exoplanets, nebulae, and early galaxy formation.',
+    transcript: 'The James Webb Space Telescope has deployed its golden mirrors in deep space. Astronomers can now observe infrared wavelengths to study early galaxies, exoplanet atmospheres, and stellar nurseries.',
+    poster_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600',
+    video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    content_rating: 'TV-G',
+  },
+  {
+    id: 'content_kids_coding',
+    title: 'RoboKids: Learn to Code',
+    provider: 'STEM Kids Learning',
+    category: 'Educational',
+    genres: ['Educational', 'STEM', 'Technology'],
+    duration_sec: 1200,
+    description: 'An interactive STEM show teaching algorithms, loops, and logic through fun robot adventures.',
+    transcript: 'Today on RoboKids we learn about loops and if-then conditionals. Watch Byte the Robot solve the maze using logical algorithms and sequencing.',
+    poster_url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600',
+    video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    content_rating: 'TV-Y7',
+  },
+  {
+    id: 'content_funny_cartoons',
+    title: 'Looney Adventures',
+    provider: 'ToonTime Animation',
+    category: 'Animation',
+    genres: ['Animation', 'Comedy', 'Cartoons'],
+    duration_sec: 600,
+    description: 'Classic slapstick animated cartoons with comedic chases and humorous situations.',
+    transcript: 'The rabbit outsmarts the duck in another humorous chase through the forest. Lots of silly slapstick laughs and playful antics.',
+    poster_url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
+    video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    content_rating: 'TV-Y',
+  },
+  {
+    id: 'content_city_rescue_action',
+    title: 'Turbo Squad: City Rescue',
+    provider: 'ActionToons Network',
+    category: 'Action',
+    genres: ['Animation', 'Action', 'Superheroes'],
+    duration_sec: 900,
+    description: 'Superhero cartoon where vehicles transform to stop runaway robots and save the city.',
+    transcript: 'Alert! Robots have escaped the factory. The Turbo Squad transforms their rescue vehicles, deploying laser shields and sonic nets to safely capture the robots and defend the city.',
+    poster_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600',
+    video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    content_rating: 'TV-Y7',
+  },
+];
 
 class Database {
   private data: DatabaseSchema;
@@ -73,6 +141,9 @@ class Database {
       frames: [],
       pairingSessions: {},
       devices: {},
+      parent_users: [],
+      otp_challenges: [],
+      tv_pair_sessions: [],
     };
   }
 
@@ -269,6 +340,130 @@ class Database {
   public resetAll(): void {
     this.data = this.getDefaultData();
     this.save();
+  }
+
+  // ─── Parent Users ─────────────────────────────────────────────────────
+
+  public createParentUser(user: ParentUser): void {
+    if (!this.data.parent_users) this.data.parent_users = [];
+    this.data.parent_users.push(user);
+    this.save();
+  }
+
+  public getParentById(id: string): ParentUser | undefined {
+    if (!this.data.parent_users) return undefined;
+    return this.data.parent_users.find((u) => u.id === id);
+  }
+
+  public getParentByEmail(email: string): ParentUser | undefined {
+    if (!this.data.parent_users) return undefined;
+    return this.data.parent_users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+  }
+
+  public getParentByPhone(phone: string): ParentUser | undefined {
+    if (!this.data.parent_users) return undefined;
+    return this.data.parent_users.find((u) => u.phone === phone);
+  }
+
+  public getParentByIdentifier(identifier: string): ParentUser | undefined {
+    return identifier.startsWith('+')
+      ? this.getParentByPhone(identifier)
+      : this.getParentByEmail(identifier);
+  }
+
+  public updateParentUser(id: string, updates: Partial<ParentUser>): ParentUser | undefined {
+    if (!this.data.parent_users) return undefined;
+    const idx = this.data.parent_users.findIndex((u) => u.id === id);
+    if (idx < 0) return undefined;
+    this.data.parent_users[idx] = { ...this.data.parent_users[idx], ...updates, updated_at: new Date().toISOString() };
+    this.save();
+    return this.data.parent_users[idx];
+  }
+
+  // ─── OTP Challenges ───────────────────────────────────────────────────
+
+  public createOtpChallenge(challenge: OtpChallenge): void {
+    if (!this.data.otp_challenges) this.data.otp_challenges = [];
+    // Remove any existing challenges for same user + purpose
+    this.data.otp_challenges = this.data.otp_challenges.filter(
+      (c) => !(c.user_id === challenge.user_id && c.purpose === challenge.purpose)
+    );
+    this.data.otp_challenges.push(challenge);
+    this.save();
+  }
+
+  public getOtpChallenge(challengeId: string): OtpChallenge | undefined {
+    if (!this.data.otp_challenges) return undefined;
+    return this.data.otp_challenges.find((c) => c.id === challengeId);
+  }
+
+  public updateOtpChallenge(challengeId: string, updates: Partial<OtpChallenge>): void {
+    if (!this.data.otp_challenges) return;
+    const idx = this.data.otp_challenges.findIndex((c) => c.id === challengeId);
+    if (idx >= 0) {
+      this.data.otp_challenges[idx] = { ...this.data.otp_challenges[idx], ...updates };
+      this.save();
+    }
+  }
+
+  public deleteOtpChallenge(challengeId: string): void {
+    if (!this.data.otp_challenges) return;
+    this.data.otp_challenges = this.data.otp_challenges.filter((c) => c.id !== challengeId);
+    this.save();
+  }
+
+  // Cleanup expired challenges
+  public cleanupExpiredOtps(): void {
+    if (!this.data.otp_challenges) return;
+    const now = Date.now();
+    const before = this.data.otp_challenges.length;
+    this.data.otp_challenges = this.data.otp_challenges.filter((c) => c.expires_at > now);
+    if (this.data.otp_challenges.length !== before) this.save();
+  }
+
+  // ─── TV Pair Sessions ─────────────────────────────────────────────────
+
+  public createTvPairSession(session: TvPairSession): void {
+    if (!this.data.tv_pair_sessions) this.data.tv_pair_sessions = [];
+    this.data.tv_pair_sessions.push(session);
+    this.save();
+  }
+
+  public getTvPairSession(pairToken: string): TvPairSession | undefined {
+    if (!this.data.tv_pair_sessions) return undefined;
+    return this.data.tv_pair_sessions.find((s) => s.id === pairToken);
+  }
+
+  public getTvPairSessionByCode(shortCode: string): TvPairSession | undefined {
+    if (!this.data.tv_pair_sessions) return undefined;
+    return this.data.tv_pair_sessions.find((s) => s.short_code === shortCode && s.status === 'pending');
+  }
+
+  public updateTvPairSession(pairToken: string, updates: Partial<TvPairSession>): TvPairSession | undefined {
+    if (!this.data.tv_pair_sessions) return undefined;
+    const idx = this.data.tv_pair_sessions.findIndex((s) => s.id === pairToken);
+    if (idx < 0) return undefined;
+    this.data.tv_pair_sessions[idx] = { ...this.data.tv_pair_sessions[idx], ...updates };
+    this.save();
+    return this.data.tv_pair_sessions[idx];
+  }
+
+  // Expire stale pairing sessions (older than 10 mins)
+  public cleanupExpiredPairSessions(): void {
+    if (!this.data.tv_pair_sessions) return;
+    const now = Date.now();
+    this.data.tv_pair_sessions = this.data.tv_pair_sessions.map((s) => {
+      if (s.status === 'pending' && s.expires_at < now) {
+        return { ...s, status: 'expired' as const };
+      }
+      return s;
+    });
+    this.save();
+  }
+
+  public getLinkedTvDevices(householdId: string): TvPairSession[] {
+    if (!this.data.tv_pair_sessions) return [];
+    return this.data.tv_pair_sessions.filter((s) => s.status === 'approved' && s.household_id === householdId);
   }
 }
 

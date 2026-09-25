@@ -23,623 +23,113 @@
       }
     }
   ],
-  "contents": [],
-  "sessions": [
+  "contents": [
     {
-      "id": "session_ext_com.amazon.amazonvideo.livingroom_the_boys_season_4_2026-09-19",
-      "child_id": "child_aarav",
-      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_boys_season_4",
-      "title": "The Boys Season 4 [Prime Video]",
-      "category": "Entertainment",
-      "started_at": "2026-09-19T19:59:37.948Z",
-      "ended_at": "2026-09-19T19:59:39.906Z",
-      "duration_sec": 240,
-      "completed": false,
-      "timestamp": "2026-09-19"
+      "id": "content_jwst_space",
+      "title": "JWST: Unfolding the Universe",
+      "provider": "NASA TV / Prime Video",
+      "category": "Science & Documentary",
+      "genres": [
+        "Science",
+        "Documentary",
+        "Space"
+      ],
+      "duration_sec": 1800,
+      "description": "A deep space documentary exploring the James Webb Space Telescope, exoplanets, nebulae, and early galaxy formation.",
+      "transcript": "The James Webb Space Telescope has deployed its golden mirrors in deep space. Astronomers can now observe infrared wavelengths to study early galaxies, exoplanet atmospheres, and stellar nurseries.",
+      "poster_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
+      "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      "content_rating": "TV-G"
     },
     {
-      "id": "session_ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1_2026-09-19",
-      "child_id": "child_aarav",
-      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1",
-      "title": "The Revolutionaries Season 1 [Prime Video]",
-      "category": "Entertainment",
-      "started_at": "2026-09-19T20:00:26.647Z",
-      "ended_at": "2026-09-19T20:02:03.613Z",
+      "id": "content_kids_coding",
+      "title": "RoboKids: Learn to Code",
+      "provider": "STEM Kids Learning",
+      "category": "Educational",
+      "genres": [
+        "Educational",
+        "STEM",
+        "Technology"
+      ],
+      "duration_sec": 1200,
+      "description": "An interactive STEM show teaching algorithms, loops, and logic through fun robot adventures.",
+      "transcript": "Today on RoboKids we learn about loops and if-then conditionals. Watch Byte the Robot solve the maze using logical algorithms and sequencing.",
+      "poster_url": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600",
+      "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      "content_rating": "TV-Y7"
+    },
+    {
+      "id": "content_funny_cartoons",
+      "title": "Looney Adventures",
+      "provider": "ToonTime Animation",
+      "category": "Animation",
+      "genres": [
+        "Animation",
+        "Comedy",
+        "Cartoons"
+      ],
       "duration_sec": 600,
-      "completed": false,
-      "timestamp": "2026-09-19"
+      "description": "Classic slapstick animated cartoons with comedic chases and humorous situations.",
+      "transcript": "The rabbit outsmarts the duck in another humorous chase through the forest. Lots of silly slapstick laughs and playful antics.",
+      "poster_url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
+      "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "content_rating": "TV-Y"
+    },
+    {
+      "id": "content_city_rescue_action",
+      "title": "Turbo Squad: City Rescue",
+      "provider": "ActionToons Network",
+      "category": "Action",
+      "genres": [
+        "Animation",
+        "Action",
+        "Superheroes"
+      ],
+      "duration_sec": 900,
+      "description": "Superhero cartoon where vehicles transform to stop runaway robots and save the city.",
+      "transcript": "Alert! Robots have escaped the factory. The Turbo Squad transforms their rescue vehicles, deploying laser shields and sonic nets to safely capture the robots and defend the city.",
+      "poster_url": "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600",
+      "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+      "content_rating": "TV-Y7"
     }
   ],
-  "analyses": {
-    "ext_com.amazon.amazonvideo.livingroom_the_boys_season_4": {
-      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_boys_season_4",
-      "categories": [
-        "Entertainment",
-        "Prime Video"
-      ],
-      "topics": [
-        "Prime Video streaming",
-        "visual storytelling"
-      ],
-      "educational_score": 50,
-      "age_signal": "All Ages",
-      "violence_signal": "none",
-      "language_signal": "clean",
-      "summary": "The Boys Season 4 on Prime Video: With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
-      "key_takeaways": [
-        "Explored narrative themes around Prime Video streaming.",
-        "Engaged with visual content streamed via Prime Video."
-      ],
-      "model_version": "guardian-overlay-vision-engine-v2.0",
-      "analyzed_at": "2026-09-19T14:29:39.917Z"
-    },
-    "ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1": {
-      "content_id": "ext_com.amazon.amazonvideo.livingroom_the_revolutionaries_season_1",
-      "categories": [
-        "Entertainment",
-        "Prime Video"
-      ],
-      "topics": [
-        "Prime Video streaming",
-        "visual storytelling"
-      ],
-      "educational_score": 50,
-      "age_signal": "All Ages",
-      "violence_signal": "none",
-      "language_signal": "clean",
-      "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
-      "key_takeaways": [
-        "Explored narrative themes around Prime Video streaming.",
-        "Engaged with visual content streamed via Prime Video."
-      ],
-      "model_version": "guardian-overlay-vision-engine-v2.0",
-      "analyzed_at": "2026-09-19T14:32:03.622Z"
-    }
-  },
-  "digests": {
-    "child_aarav_2026-09-19": {
-      "child_id": "child_aarav",
-      "date": "2026-09-19",
-      "total_minutes": 14,
-      "category_minutes": {
-        "Entertainment": 14
-      },
-      "top_topics": [
-        "Prime Video streaming",
-        "visual storytelling"
-      ],
-      "notable_items": [],
-      "generated_summary": "Aarav watched 14 min of content today, primarily focusing on Entertainment. Themes explored included Prime Video streaming, visual storytelling."
-    },
-    "child_aarav_2026-09-25": {
-      "child_id": "child_aarav",
-      "date": "2026-09-25",
-      "total_minutes": 14,
-      "category_minutes": {
-        "Entertainment": 14
-      },
-      "top_topics": [
-        "Prime Video streaming",
-        "visual storytelling"
-      ],
-      "notable_items": [],
-      "generated_summary": "Aarav watched 14 min of content today, primarily focusing on Entertainment. Themes explored included Prime Video streaming, visual storytelling."
-    }
-  },
-  "frames": [
+  "sessions": [],
+  "analyses": {},
+  "digests": {},
+  "frames": [],
+  "pairingSessions": {},
+  "devices": {},
+  "parent_users": [
     {
-      "id": "frame_1789828323622_dh16",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T20:02:03.613Z",
-      "app_package": "com.amazon.amazonvideo.livingroom",
-      "app_name": "Prime Video",
-      "media_title": "The Revolutionaries Season 1",
-      "media_artist": "Prime Video Featured",
-      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
-      "text_snippets": [
-        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
+      "id": "parent_1790354422287_b910917b",
+      "household_id": "house_1790354422287",
+      "display_name": "David Miller",
+      "email": "parent.test@guardian.family",
+      "password_hash": "$2b$10$QF/fu3wP71CU/MKiEyf9UOFRB/KKIqQRoF4D7oUx1nzwosq6GgUg2",
+      "two_fa_enabled": true,
+      "linked_children": [
+        "child_aarav",
+        "child_meera"
       ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789828323622",
-        "categories": [
-          "Entertainment",
-          "Prime Video"
-        ],
-        "topics": [
-          "Prime Video streaming",
-          "visual storytelling"
-        ],
-        "educational_score": 50,
-        "age_signal": "All Ages",
-        "violence_signal": "none",
-        "language_signal": "clean",
-        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
-        "key_takeaways": [
-          "Explored narrative themes around Prime Video streaming.",
-          "Engaged with visual content streamed via Prime Video."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T14:32:03.622Z"
-      }
-    },
-    {
-      "id": "frame_1789828323330_gndh",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T20:02:03.314Z",
-      "app_package": "com.amazon.amazonvideo.livingroom",
-      "app_name": "Prime Video",
-      "media_title": "The Revolutionaries Season 1",
-      "media_artist": "Prime Video Featured",
-      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
-      "text_snippets": [
-        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
-      ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789828323330",
-        "categories": [
-          "Entertainment",
-          "Prime Video"
-        ],
-        "topics": [
-          "Prime Video streaming",
-          "visual storytelling"
-        ],
-        "educational_score": 50,
-        "age_signal": "All Ages",
-        "violence_signal": "none",
-        "language_signal": "clean",
-        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
-        "key_takeaways": [
-          "Explored narrative themes around Prime Video streaming.",
-          "Engaged with visual content streamed via Prime Video."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T14:32:03.330Z"
-      }
-    },
-    {
-      "id": "frame_1789828297377_305r",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T20:01:37.318Z",
-      "app_package": "com.amazon.amazonvideo.livingroom",
-      "app_name": "Prime Video",
-      "media_title": "The Revolutionaries Season 1",
-      "media_artist": "Prime Video Featured",
-      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
-      "text_snippets": [
-        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
-      ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789828297375",
-        "categories": [
-          "Entertainment",
-          "Prime Video"
-        ],
-        "topics": [
-          "Prime Video streaming",
-          "visual storytelling"
-        ],
-        "educational_score": 50,
-        "age_signal": "All Ages",
-        "violence_signal": "none",
-        "language_signal": "clean",
-        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
-        "key_takeaways": [
-          "Explored narrative themes around Prime Video streaming.",
-          "Engaged with visual content streamed via Prime Video."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T14:31:37.375Z"
-      }
-    },
-    {
-      "id": "frame_1789828226728_6r28",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T20:00:26.637Z",
-      "app_package": "com.amazon.amazonvideo.livingroom",
-      "app_name": "Prime Video",
-      "media_title": "The Revolutionaries Season 1",
-      "media_artist": "Prime Video Featured",
-      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
-      "text_snippets": [
-        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
-      ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789828226727",
-        "categories": [
-          "Entertainment",
-          "Prime Video"
-        ],
-        "topics": [
-          "Prime Video streaming",
-          "visual storytelling"
-        ],
-        "educational_score": 50,
-        "age_signal": "All Ages",
-        "violence_signal": "none",
-        "language_signal": "clean",
-        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
-        "key_takeaways": [
-          "Explored narrative themes around Prime Video streaming.",
-          "Engaged with visual content streamed via Prime Video."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T14:30:26.727Z"
-      }
-    },
-    {
-      "id": "frame_1789828226704_srt5",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T20:00:26.647Z",
-      "app_package": "com.amazon.amazonvideo.livingroom",
-      "app_name": "Prime Video",
-      "media_title": "The Revolutionaries Season 1",
-      "media_artist": "Prime Video Featured",
-      "synopsis": "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom.",
-      "text_snippets": [
-        "1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupied India. Two British officers vow to crush the armed rebellion, determined to reassert imperial power and crush a generation of young Indians willing to die for freedom."
-      ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789828226703",
-        "categories": [
-          "Entertainment",
-          "Prime Video"
-        ],
-        "topics": [
-          "Prime Video streaming",
-          "visual storytelling"
-        ],
-        "educational_score": 50,
-        "age_signal": "All Ages",
-        "violence_signal": "none",
-        "language_signal": "clean",
-        "summary": "The Revolutionaries Season 1 on Prime Video: 1912. Four young revolutionaries, Rash Behari Bose, Bagha Jatin, Sachindranath Sanyal, and Pratibha Lahiri, rise against the illegitimate Raj in British-occupie...",
-        "key_takeaways": [
-          "Explored narrative themes around Prime Video streaming.",
-          "Engaged with visual content streamed via Prime Video."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T14:30:26.703Z"
-      }
-    },
-    {
-      "id": "frame_1789828179917_f1zr",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T19:59:39.906Z",
-      "app_package": "com.amazon.amazonvideo.livingroom",
-      "app_name": "Prime Video",
-      "media_title": "The Boys Season 4",
-      "media_artist": "Prime Video Featured",
-      "synopsis": "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
-      "text_snippets": [
-        "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late."
-      ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789828179917",
-        "categories": [
-          "Entertainment",
-          "Prime Video"
-        ],
-        "topics": [
-          "Prime Video streaming",
-          "visual storytelling"
-        ],
-        "educational_score": 50,
-        "age_signal": "All Ages",
-        "violence_signal": "none",
-        "language_signal": "clean",
-        "summary": "The Boys Season 4 on Prime Video: With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
-        "key_takeaways": [
-          "Explored narrative themes around Prime Video streaming.",
-          "Engaged with visual content streamed via Prime Video."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T14:29:39.917Z"
-      }
-    },
-    {
-      "id": "frame_1789828177998_waqv",
-      "child_id": "child_aarav",
-      "timestamp": "2026-09-19T19:59:37.948Z",
-      "app_package": "com.amazon.amazonvideo.livingroom",
-      "app_name": "Prime Video",
-      "media_title": "The Boys Season 4",
-      "media_artist": "Prime Video Featured",
-      "synopsis": "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
-      "text_snippets": [
-        "With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late."
-      ],
-      "frame_base64": "",
-      "analysis": {
-        "content_id": "ext_1789828177997",
-        "categories": [
-          "Entertainment",
-          "Prime Video"
-        ],
-        "topics": [
-          "Prime Video streaming",
-          "visual storytelling"
-        ],
-        "educational_score": 50,
-        "age_signal": "All Ages",
-        "violence_signal": "none",
-        "language_signal": "clean",
-        "summary": "The Boys Season 4 on Prime Video: With the world on the brink and Homelander ready to seize absolute power, The Boys must come together and find a way to stop him before it's too late.",
-        "key_takeaways": [
-          "Explored narrative themes around Prime Video streaming.",
-          "Engaged with visual content streamed via Prime Video."
-        ],
-        "model_version": "guardian-overlay-vision-engine-v2.0",
-        "analyzed_at": "2026-09-19T14:29:37.998Z"
-      }
+      "created_at": "2026-09-25T16:40:22.287Z",
+      "updated_at": "2026-09-25T16:40:22.287Z"
     }
   ],
-  "currentApp": {
-    "app_name": "Prime Video",
-    "app_package": "com.amazon.amazonvideo.livingroom",
-    "timestamp": "2026-09-19T14:32:03.625Z"
-  },
-  "pairingSessions": {
-    "gdn_yfeywerd": {
-      "sessionId": "gdn_yfeywerd",
-      "pairingCode": "TV-9868",
+  "otp_challenges": [],
+  "tv_pair_sessions": [
+    {
+      "id": "tv_pair_30bbeef56e58414f5dd56e65d55404fb",
+      "short_code": "GARD-162",
+      "qr_payload": "{\"type\":\"guardian_tv_pair\",\"pair_token\":\"tv_pair_30bbeef56e58414f5dd56e65d55404fb\",\"short_code\":\"GARD-162\",\"server\":\"http://localhost:3001\"}",
+      "qr_data_url": "data:image/png;base64,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",
       "status": "expired",
-      "createdAt": "2026-09-25T15:01:00.094Z",
-      "expiresAt": "2026-09-25T15:16:00.094Z",
-      "deviceId": "tv_test_01",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "anik.parent@example.com",
-      "linkedUserId": "usr_anik_parent_example_com"
-    },
-    "gdn_fru6abhc": {
-      "sessionId": "gdn_fru6abhc",
-      "pairingCode": "TV-2122",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:04:21.684Z",
-      "expiresAt": "2026-09-25T15:19:21.684Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "anik.parent@guardian.com",
-      "linkedUserId": "usr_anik_parent_guardian_com"
-    },
-    "gdn_x1u84ufh": {
-      "sessionId": "gdn_x1u84ufh",
-      "pairingCode": "TV-4169",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:06:10.296Z",
-      "expiresAt": "2026-09-25T15:21:10.296Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_f7wcy4ew": {
-      "sessionId": "gdn_f7wcy4ew",
-      "pairingCode": "TV-6072",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:06:10.320Z",
-      "expiresAt": "2026-09-25T15:21:10.320Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_2tsve4dv": {
-      "sessionId": "gdn_2tsve4dv",
-      "pairingCode": "TV-8138",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:07:13.369Z",
-      "expiresAt": "2026-09-25T15:22:13.369Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_vbevgqml": {
-      "sessionId": "gdn_vbevgqml",
-      "pairingCode": "TV-1038",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:08:31.718Z",
-      "expiresAt": "2026-09-25T15:23:31.718Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_gay1bh8r": {
-      "sessionId": "gdn_gay1bh8r",
-      "pairingCode": "TV-3122",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:11:39.893Z",
-      "expiresAt": "2026-09-25T15:26:39.893Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "parent@guardian.family",
-      "linkedUserId": "usr_parent_guardian_family"
-    },
-    "gdn_gzjpt91s": {
-      "sessionId": "gdn_gzjpt91s",
-      "pairingCode": "TV-1896",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:13:03.922Z",
-      "expiresAt": "2026-09-25T15:28:03.922Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_y90w4l7o": {
-      "sessionId": "gdn_y90w4l7o",
-      "pairingCode": "TV-6791",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:15:42.094Z",
-      "expiresAt": "2026-09-25T15:30:42.094Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_yksun5eo": {
-      "sessionId": "gdn_yksun5eo",
-      "pairingCode": "TV-4357",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:15:42.130Z",
-      "expiresAt": "2026-09-25T15:30:42.130Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_7ynm84mr": {
-      "sessionId": "gdn_7ynm84mr",
-      "pairingCode": "TV-3528",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:18:13.767Z",
-      "expiresAt": "2026-09-25T15:33:13.767Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "parent@guardian.family",
-      "linkedUserId": "usr_parent_guardian_family"
-    },
-    "gdn_kv6obgt0": {
-      "sessionId": "gdn_kv6obgt0",
-      "pairingCode": "TV-8697",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:18:22.172Z",
-      "expiresAt": "2026-09-25T15:33:22.172Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "parent@guardian.family",
-      "linkedUserId": "usr_parent_guardian_family"
-    },
-    "gdn_47rsgfkx": {
-      "sessionId": "gdn_47rsgfkx",
-      "pairingCode": "TV-7230",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:18:26.038Z",
-      "expiresAt": "2026-09-25T15:33:26.038Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "parent@guardian.family",
-      "linkedUserId": "usr_parent_guardian_family"
-    },
-    "gdn_mewn828v": {
-      "sessionId": "gdn_mewn828v",
-      "pairingCode": "TV-9616",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:18:38.321Z",
-      "expiresAt": "2026-09-25T15:33:38.321Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "parent@guardian.family",
-      "linkedUserId": "usr_parent_guardian_family"
-    },
-    "gdn_5bqygz0f": {
-      "sessionId": "gdn_5bqygz0f",
-      "pairingCode": "TV-6222",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:19:51.889Z",
-      "expiresAt": "2026-09-25T15:34:51.889Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "parent@guardian.family",
-      "linkedUserId": "usr_parent_guardian_family"
-    },
-    "gdn_qavwq4bi": {
-      "sessionId": "gdn_qavwq4bi",
-      "pairingCode": "TV-9172",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:21:01.423Z",
-      "expiresAt": "2026-09-25T15:36:01.423Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_2vnn1xqr": {
-      "sessionId": "gdn_2vnn1xqr",
-      "pairingCode": "TV-2452",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:25:01.978Z",
-      "expiresAt": "2026-09-25T15:40:01.978Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_5t14am1q": {
-      "sessionId": "gdn_5t14am1q",
-      "pairingCode": "TV-4998",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:26:47.533Z",
-      "expiresAt": "2026-09-25T15:41:47.533Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "parent@guardian.family",
-      "linkedUserId": "usr_parent_guardian_family"
-    },
-    "gdn_mmvrpjnl": {
-      "sessionId": "gdn_mmvrpjnl",
-      "pairingCode": "TV-3055",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:28:15.707Z",
-      "expiresAt": "2026-09-25T15:43:15.707Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_pcm5ffpz": {
-      "sessionId": "gdn_pcm5ffpz",
-      "pairingCode": "TV-1645",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:43:29.488Z",
-      "expiresAt": "2026-09-25T15:58:29.488Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_45et54qp": {
-      "sessionId": "gdn_45et54qp",
-      "pairingCode": "TV-2934",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:44:16.264Z",
-      "expiresAt": "2026-09-25T15:59:16.264Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_kpcl4axj": {
-      "sessionId": "gdn_kpcl4axj",
-      "pairingCode": "TV-3260",
-      "status": "expired",
-      "createdAt": "2026-09-25T15:44:37.963Z",
-      "expiresAt": "2026-09-25T15:59:37.963Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room",
-      "linkedEmail": "anikdas.2113@gmail.com",
-      "linkedUserId": "usr_anikdas_2113_gmail_com"
-    },
-    "gdn_tn93bw01": {
-      "sessionId": "gdn_tn93bw01",
-      "pairingCode": "TV-1100",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:46:26.084Z",
-      "expiresAt": "2026-09-25T16:01:26.084Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_5jly7dh2": {
-      "sessionId": "gdn_5jly7dh2",
-      "pairingCode": "TV-2582",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:56:23.769Z",
-      "expiresAt": "2026-09-25T16:11:23.769Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_f356z8hc": {
-      "sessionId": "gdn_f356z8hc",
-      "pairingCode": "TV-9443",
-      "status": "pending",
-      "createdAt": "2026-09-25T15:57:51.340Z",
-      "expiresAt": "2026-09-25T16:12:51.340Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
-    },
-    "gdn_6iwo5qgo": {
-      "sessionId": "gdn_6iwo5qgo",
-      "pairingCode": "TV-8606",
-      "status": "pending",
-      "createdAt": "2026-09-25T16:19:36.793Z",
-      "expiresAt": "2026-09-25T16:34:36.793Z",
-      "deviceId": "tv_fire_livingroom",
-      "deviceName": "Fire TV Living Room"
+      "device_name": "Living Room Fire TV Stick 4K",
+      "created_at": "2026-09-25T16:40:22.384Z",
+      "expires_at": 1790355022384,
+      "household_id": "house_1790354422287",
+      "approved_by": "parent_1790354422287_b910917b",
+      "device_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidHZfZGV2aWNlX2hvdXNlXzE3OTAzNTQ0MjIyODciLCJob3VzZWhvbGRfaWQiOiJob3VzZV8xNzkwMzU0NDIyMjg3IiwidHlwZSI6InR2X2RldmljZSIsImlhdCI6MTc5MDM1NDQyMiwiZXhwIjoxODIxODkwNDIyfQ.DGxgOgIMzJ1QYh8IpycMbwJ_RdWvZU7CP2QhRTBK184",
+      "approved_at": "2026-09-25T16:40:22.385Z"
     }
-  },
-  "devices": {}
+  ]
 }

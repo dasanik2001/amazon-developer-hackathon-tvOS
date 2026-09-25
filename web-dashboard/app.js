@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initWebSocket();
   await loadProfiles();
   await loadMonitoringControlState();
+  await initTvPairing();
   await refreshDashboard();
   await loadRecentFrames();
 
@@ -101,6 +102,12 @@ function handleLiveSocketEvent(msg) {
     } else {
       refreshDashboard();
     }
+  } else if (type === 'tv:authorized') {
+    handleTvAuthorized(data);
+  } else if (type === 'tv:unpaired') {
+    handleTvUnpaired();
+  } else if (type === 'remote:command') {
+    handleRemoteCommandOnTv(data);
   }
 }
 
@@ -608,3 +615,244 @@ async function loadRecentFrames() {
     console.error('Failed to load frames:', err);
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FIRE TV QR CODE PAIRING & AUTHENTICATION CONTROLLER
+// ═══════════════════════════════════════════════════════════════════════════
+
+let currentTvPairSession = null;
+let tvCountdownInterval = null;
+
+async function initTvPairing() {
+  try {
+    const res = await fetch(`${API_BASE}/auth/tv-pair/active`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.data && json.data.status === 'approved') {
+        renderTvConnected(json.data);
+        return;
+      }
+    }
+    await initiateTvPairing();
+  } catch (err) {
+    console.warn('[TV Pair] Init error:', err);
+    await initiateTvPairing();
+  }
+}
+
+async function initiateTvPairing(forceNew = false) {
+  try {
+    const res = await fetch(`${API_BASE}/auth/tv-pair/initiate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ device_name: 'Living Room Fire TV' })
+    });
+    const json = await res.json();
+    if (json.success && json.data) {
+      currentTvPairSession = json.data;
+      renderTvPairingMode(json.data);
+    }
+  } catch (err) {
+    console.error('[TV Pair] Initiate error:', err);
+  }
+}
+
+function renderTvPairingMode(session) {
+  const pairingView = document.getElementById('tv-pairing-view');
+  const connectedView = document.getElementById('tv-connected-view');
+  const statusLabel = document.getElementById('tv-status-label');
+  const statusDot = document.getElementById('tv-status-dot');
+  const qrImg = document.getElementById('tv-qr-image');
+  const shortCode = document.getElementById('tv-short-code');
+
+  if (pairingView) pairingView.style.display = 'flex';
+  if (connectedView) connectedView.style.display = 'none';
+  if (statusLabel) statusLabel.textContent = 'Pairing Mode Active';
+  if (statusDot) {
+    statusDot.className = 'tv-status-dot pulsing';
+    statusDot.style.background = 'var(--accent-orange)';
+  }
+
+  if (qrImg) {
+    qrImg.src = session.qr_data_url || `${API_BASE}/auth/tv-pair/qr/${session.pair_token}`;
+  }
+  if (shortCode) {
+    shortCode.textContent = session.short_code || 'GARD-892';
+  }
+
+  startTvExpiryTimer(session.expires_in_seconds || 600);
+}
+
+function renderTvConnected(data) {
+  if (tvCountdownInterval) clearInterval(tvCountdownInterval);
+
+  const pairingView = document.getElementById('tv-pairing-view');
+  const connectedView = document.getElementById('tv-connected-view');
+  const statusLabel = document.getElementById('tv-status-label');
+  const statusDot = document.getElementById('tv-status-dot');
+  const parentName = document.getElementById('tv-parent-name');
+  const householdId = document.getElementById('tv-household-id');
+  const activeChild = document.getElementById('tv-active-child');
+
+  if (pairingView) pairingView.style.display = 'none';
+  if (connectedView) connectedView.style.display = 'block';
+  if (statusLabel) statusLabel.textContent = '● Authenticated & Active';
+  if (statusDot) {
+    statusDot.className = 'tv-status-dot';
+    statusDot.style.background = 'var(--accent-emerald)';
+  }
+
+  if (parentName) parentName.textContent = data.parent_name || 'Sarah Jenkins (Parent)';
+  if (householdId) householdId.textContent = data.household_id || 'hh_guardian_01';
+  if (activeChild) {
+    const childName = (data.children && data.children[0]?.display_name) || 'Aarav (Age 8)';
+    activeChild.textContent = childName;
+  }
+}
+
+function handleTvAuthorized(data) {
+  console.log('🎉 [TV] Authorized by mobile device!', data);
+  currentTvPairSession = data;
+  renderTvConnected(data);
+}
+
+function handleTvUnpaired() {
+  console.log('[TV] Unpaired by parent');
+  currentTvPairSession = null;
+  initiateTvPairing(true);
+}
+
+function handleRemoteCommandOnTv(cmd) {
+  const banner = document.getElementById('tv-command-banner');
+  const icon = document.getElementById('tv-command-icon');
+  const text = document.getElementById('tv-command-text');
+  if (!banner || !icon || !text) return;
+
+  const commandMap = {
+    pause: { icon: '⏸️', text: 'Parent PAUSED Fire TV viewing from mobile app' },
+    resume: { icon: '▶️', text: 'Parent RESUMED Fire TV viewing from mobile app' },
+    bedtime: { icon: '🌙', text: 'BEDTIME LOCK activated by parent — Screen is locked!' },
+    extend_time: { icon: '⏱️', text: 'Parent granted +15 minutes of additional screen time!' },
+    lock: { icon: '🔒', text: 'Screen Locked by Parent Guardian' },
+  };
+
+  const info = commandMap[cmd.command] || { icon: '🎮', text: `Command: ${cmd.command}` };
+  icon.textContent = info.icon;
+  text.textContent = info.text;
+
+  banner.style.display = 'inline-flex';
+
+  setTimeout(() => {
+    banner.style.display = 'none';
+  }, 6000);
+}
+
+function startTvExpiryTimer(seconds) {
+  if (tvCountdownInterval) clearInterval(tvCountdownInterval);
+  let remaining = seconds;
+  const timerEl = document.getElementById('tv-expiry-timer');
+
+  const update = () => {
+    if (!timerEl) return;
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    timerEl.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    if (remaining <= 0) {
+      clearInterval(tvCountdownInterval);
+      timerEl.textContent = 'Expired';
+      initiateTvPairing(true);
+    }
+    remaining--;
+  };
+
+  update();
+  tvCountdownInterval = setInterval(update, 1000);
+}
+
+// 1-Click Simulator Demo for Mobile Scan & TV Login
+async function simulateMobileScan() {
+  if (!currentTvPairSession) {
+    await initiateTvPairing();
+  }
+
+  try {
+    // 1. Sign up / login a parent on behalf of the mobile test
+    const loginRes = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier: 'sarah@guardian.family', password: 'Password123!' })
+    });
+
+    let token = '';
+    if (loginRes.ok) {
+      const loginData = await loginRes.json();
+      if (loginData.challenge_id) {
+        // Complete 2FA
+        const otp = loginData.dev_otp || '123456';
+        const verifyRes = await fetch(`${API_BASE}/auth/verify-2fa`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ challenge_id: loginData.challenge_id, otp_code: otp })
+        });
+        const verifyData = await verifyRes.json();
+        token = verifyData.tokens?.access_token;
+      }
+    }
+
+    if (!token) {
+      // Register new parent if not exists
+      const regRes = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: `parent_${Date.now()}@guardian.family`,
+          password: 'Password123!',
+          display_name: 'Sarah Jenkins'
+        })
+      });
+      const regData = await regRes.json();
+      const otp = regData.dev_otp || '123456';
+      const verifyRes = await fetch(`${API_BASE}/auth/verify-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challenge_id: regData.challenge_id, otp_code: otp })
+      });
+      const verifyData = await verifyRes.json();
+      token = verifyData.tokens?.access_token;
+    }
+
+    // 2. Approve pairing with token
+    const approveRes = await fetch(`${API_BASE}/auth/tv-pair/approve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        pair_token: currentTvPairSession.pair_token,
+        short_code: currentTvPairSession.short_code
+      })
+    });
+
+    const approveData = await approveRes.json();
+    if (approveData.success) {
+      console.log('✅ [Simulate] Mobile scan successful!');
+    }
+  } catch (err) {
+    console.error('[Simulate] Scan error:', err);
+  }
+}
+
+async function unlinkTvDevice() {
+  if (currentTvPairSession && currentTvPairSession.pair_token) {
+    try {
+      await fetch(`${API_BASE}/auth/tv-pair/disconnect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pair_token: currentTvPairSession.pair_token })
+      });
+    } catch {}
+  }
+  handleTvUnpaired();
+}
+
