@@ -180,7 +180,15 @@ app.get('/pair', (req, res) => {
       <h1>Link Fire TV</h1>
       <p class="subtitle">Guardian Companion Authentication</p>
       
-      <div class="code-badge" id="codeDisplay">${code || 'SCAN-ACTIVE'}</div>
+      ${code ? `
+      <div class="code-badge" id="codeDisplay">${code}</div>
+      <input type="hidden" id="pairingCodeInput" value="${code}" />
+      ` : `
+      <div class="form-group">
+        <label for="pairingCodeInput">TV Pairing Code</label>
+        <input type="text" id="pairingCodeInput" placeholder="Enter code shown on TV (e.g. TV-8821)" style="text-transform: uppercase; font-weight: 700; letter-spacing: 2px;" required />
+      </div>
+      `}
 
       <div class="form-group">
         <label for="emailInput">Guardian Account Email</label>
@@ -204,10 +212,18 @@ app.get('/pair', (req, res) => {
 
   <script>
     const sessionId = "${sessionId}";
-    const pairingCode = "${code}";
+    let pairingCode = "${code}";
 
     async function confirmLink() {
+      const codeInput = document.getElementById('pairingCodeInput');
+      const targetCode = (codeInput ? codeInput.value.trim() : '') || pairingCode;
       const email = document.getElementById('emailInput').value.trim();
+
+      if (!targetCode) {
+        alert('Please enter the pairing code displayed on your TV');
+        return;
+      }
+
       if (!email || !email.includes('@')) {
         alert('Please enter a valid email address');
         return;
@@ -223,7 +239,7 @@ app.get('/pair', (req, res) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             sessionId: sessionId || undefined,
-            pairingCode: pairingCode || undefined,
+            pairingCode: targetCode,
             email: email
           })
         });
@@ -249,9 +265,9 @@ app.get('/pair', (req, res) => {
 </html>`);
 });
 
-// Healthcheck & Root redirect
+// Healthcheck & Root redirect -> redirect to /pair for QR scanner
 app.get('/', (_req, res) => {
-  res.redirect('/dashboard');
+  res.redirect('/pair');
 });
 
 app.get('/health', (_req, res) => {

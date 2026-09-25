@@ -110,6 +110,20 @@
       ],
       "notable_items": [],
       "generated_summary": "Aarav watched 14 min of content today, primarily focusing on Entertainment. Themes explored included Prime Video streaming, visual storytelling."
+    },
+    "child_aarav_2026-09-25": {
+      "child_id": "child_aarav",
+      "date": "2026-09-25",
+      "total_minutes": 14,
+      "category_minutes": {
+        "Entertainment": 14
+      },
+      "top_topics": [
+        "Prime Video streaming",
+        "visual storytelling"
+      ],
+      "notable_items": [],
+      "generated_summary": "Aarav watched 14 min of content today, primarily focusing on Entertainment. Themes explored included Prime Video streaming, visual storytelling."
     }
   },
   "frames": [
@@ -614,6 +628,15 @@
       "status": "pending",
       "createdAt": "2026-09-25T15:57:51.340Z",
       "expiresAt": "2026-09-25T16:12:51.340Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_6iwo5qgo": {
+      "sessionId": "gdn_6iwo5qgo",
+      "pairingCode": "TV-8606",
+      "status": "pending",
+      "createdAt": "2026-09-25T16:19:36.793Z",
+      "expiresAt": "2026-09-25T16:34:36.793Z",
       "deviceId": "tv_fire_livingroom",
       "deviceName": "Fire TV Living Room"
     }

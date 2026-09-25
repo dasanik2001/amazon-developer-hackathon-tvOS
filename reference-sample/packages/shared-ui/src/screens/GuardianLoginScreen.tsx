@@ -51,9 +51,9 @@ async function apiRequest(path: string, options: RequestInit = {}) {
 export default function GuardianLoginScreen() {
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState('');
-  const [pairingCode, setPairingCode] = useState('TV-8821');
+  const [pairingCode, setPairingCode] = useState('...');
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const [qrPayload, setQrPayload] = useState('http://192.168.0.4:3001/dashboard');
+  const [qrPayload, setQrPayload] = useState('http://192.168.0.4:3001/pair');
   const [isLinked, setIsLinked] = useState(false);
   const [linkedEmail, setLinkedEmail] = useState<string | null>(null);
 
@@ -62,7 +62,6 @@ export default function GuardianLoginScreen() {
 
   // Initialize dynamic pairing session
   const initPairingSession = async () => {
-    setLoading(true);
     try {
       // 1. Check if device is already linked
       const checkRes = await apiRequest(`/api/pairing/device/${DEVICE_ID}/status`);
@@ -94,9 +93,13 @@ export default function GuardianLoginScreen() {
           setQrPayload(sessRes.data.qrPayload);
           setIsLinked(false);
         }
+      } else {
+        // Retry in 3 seconds if not successful
+        setTimeout(initPairingSession, 3000);
       }
     } catch (e) {
       console.warn('[GuardianLogin] Error creating pairing session:', e);
+      setTimeout(initPairingSession, 3000);
     } finally {
       setLoading(false);
     }
