@@ -13,6 +13,7 @@ import {
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { guardianApi } from '../../api/client';
+import Icon from '../../components/Icon';
 
 interface Message {
   id: string;
@@ -101,21 +102,24 @@ export default function GuardianAiScreen() {
         {/* Welcome State */}
         {messages.length === 0 && (
           <View style={styles.welcomeContainer}>
-            <Text style={styles.welcomeIcon}>💡</Text>
+            <View style={styles.welcomeBadge}>
+              <Icon name="sparkles" size={32} color={Colors.primary} />
+            </View>
             <Text style={styles.welcomeTitle}>Guardian AI Assistant</Text>
             <Text style={styles.welcomeDesc}>
-              Ask anything about your child's viewing activity. I use verified evidence from today's sessions to give grounded answers.
+              Ask anything about your child's viewing activity. Answers are grounded in verified evidence from today's sessions.
             </Text>
 
-            <Text style={styles.promptsLabel}>Suggested Questions:</Text>
+            <Text style={styles.promptsLabel}>SUGGESTED QUESTIONS</Text>
             <View style={styles.promptsGrid}>
               {QUICK_PROMPTS.map((prompt, i) => (
                 <TouchableOpacity
                   key={i}
                   style={styles.promptChip}
                   onPress={() => askQuestion(prompt)}
+                  accessibilityRole="button"
                 >
-                  <Text style={styles.promptText}>"{prompt}"</Text>
+                  <Text style={styles.promptText}>{prompt}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -125,7 +129,11 @@ export default function GuardianAiScreen() {
         {/* Chat Messages */}
         {messages.map((msg) => (
           <View key={msg.id} style={[styles.msgBubble, msg.type === 'user' ? styles.userBubble : styles.aiBubble]}>
-            {msg.type === 'ai' && <Text style={styles.aiAvatar}>🛡️</Text>}
+            {msg.type === 'ai' && (
+              <View style={[styles.avatar, styles.aiAvatar]}>
+                <Icon name="shield-checkmark" size={14} color="#FFFFFF" />
+              </View>
+            )}
             <View style={[styles.msgContent, msg.type === 'user' ? styles.userContent : styles.aiContent]}>
               <Text style={[styles.msgText, msg.type === 'user' ? styles.userText : styles.aiText]}>
                 {msg.text}
@@ -134,7 +142,10 @@ export default function GuardianAiScreen() {
               {/* Evidence Cards */}
               {msg.evidence && msg.evidence.length > 0 && (
                 <View style={styles.evidenceContainer}>
-                  <Text style={styles.evidenceLabel}>📋 Evidence Sources:</Text>
+                  <View style={styles.evidenceLabelRow}>
+                    <Icon name="document-text" size={12} color={Colors.textMuted} />
+                    <Text style={styles.evidenceLabel}>Evidence Sources</Text>
+                  </View>
                   {msg.evidence.map((ev, i) => (
                     <View key={i} style={styles.evidenceCard}>
                       <Text style={styles.evidenceTitle}>{ev.title}</Text>
@@ -162,18 +173,24 @@ export default function GuardianAiScreen() {
                 </Text>
               )}
             </View>
-            {msg.type === 'user' && <Text style={styles.userAvatar}>👤</Text>}
+            {msg.type === 'user' && (
+              <View style={[styles.avatar, styles.userAvatar]}>
+                <Icon name="person" size={14} color="#FFFFFF" />
+              </View>
+            )}
           </View>
         ))}
 
         {/* Typing Indicator */}
         {isLoading && (
           <View style={[styles.msgBubble, styles.aiBubble]}>
-            <Text style={styles.aiAvatar}>🛡️</Text>
+            <View style={[styles.avatar, styles.aiAvatar]}>
+              <Icon name="shield-checkmark" size={14} color="#FFFFFF" />
+            </View>
             <View style={[styles.msgContent, styles.aiContent]}>
               <View style={styles.typingRow}>
                 <ActivityIndicator size="small" color={Colors.primary} />
-                <Text style={styles.typingText}>Guardian AI is thinking...</Text>
+                <Text style={styles.typingText}>Guardian AI is thinking</Text>
               </View>
             </View>
           </View>
@@ -185,7 +202,7 @@ export default function GuardianAiScreen() {
         {messages.length > 0 && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.inlinePrompts}>
             {QUICK_PROMPTS.slice(0, 3).map((p, i) => (
-              <TouchableOpacity key={i} style={styles.inlineChip} onPress={() => askQuestion(p)}>
+              <TouchableOpacity key={i} style={styles.inlineChip} onPress={() => askQuestion(p)} accessibilityRole="button">
                 <Text style={styles.inlineChipText}>{p}</Text>
               </TouchableOpacity>
             ))}
@@ -195,19 +212,22 @@ export default function GuardianAiScreen() {
           <TextInput
             style={styles.input}
             placeholder="Ask about today's viewing..."
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={Colors.textPlaceholder}
             value={inputText}
             onChangeText={setInputText}
             onSubmitEditing={() => askQuestion(inputText)}
             returnKeyType="send"
             multiline={false}
+            accessibilityLabel="Message"
           />
           <TouchableOpacity
             style={[styles.sendBtn, (!inputText.trim() || isLoading) && styles.sendBtnDisabled]}
             onPress={() => askQuestion(inputText)}
             disabled={!inputText.trim() || isLoading}
+            accessibilityRole="button"
+            accessibilityLabel="Send message"
           >
-            <Text style={styles.sendText}>↑</Text>
+            <Icon name="arrow-up" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
@@ -221,48 +241,156 @@ const styles = StyleSheet.create({
   chatContent: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.md, paddingBottom: 20 },
 
   welcomeContainer: { alignItems: 'center', paddingTop: Spacing.xxl },
-  welcomeIcon: { fontSize: 64, marginBottom: Spacing.md },
+  welcomeBadge: {
+    width: 76,
+    height: 76,
+    borderRadius: 24,
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1.5,
+    borderColor: Colors.tintBlueStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+    ...Shadows.card,
+  },
   welcomeTitle: { fontSize: FontSizes.title, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.sm },
-  welcomeDesc: { fontSize: FontSizes.body, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, paddingHorizontal: Spacing.md, marginBottom: Spacing.xl },
-  promptsLabel: { fontSize: FontSizes.caption, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md, fontWeight: '600' },
+  welcomeDesc: {
+    fontSize: FontSizes.body,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 21,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.xl,
+  },
+  promptsLabel: {
+    fontSize: FontSizes.caption,
+    color: Colors.textMuted,
+    letterSpacing: 1,
+    marginBottom: Spacing.md,
+    fontWeight: '700',
+  },
   promptsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, justifyContent: 'center' },
-  promptChip: { backgroundColor: Colors.bgCard, borderRadius: BorderRadius.full, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm + 2, borderWidth: 1, borderColor: Colors.border },
-  promptText: { fontSize: FontSizes.body, color: Colors.accent, fontWeight: '500' },
+  promptChip: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 11,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    minHeight: 42,
+    justifyContent: 'center',
+    ...Shadows.card,
+  },
+  promptText: { fontSize: FontSizes.body, color: Colors.primary, fontWeight: '600' },
 
   msgBubble: { flexDirection: 'row', marginBottom: Spacing.md, alignItems: 'flex-start', gap: Spacing.sm },
   userBubble: { justifyContent: 'flex-end' },
   aiBubble: { justifyContent: 'flex-start' },
-  aiAvatar: { fontSize: 24, marginTop: 4 },
-  userAvatar: { fontSize: 24, marginTop: 4 },
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  aiAvatar: { backgroundColor: Colors.primary },
+  userAvatar: { backgroundColor: '#64748B' },
   msgContent: { maxWidth: '80%', borderRadius: BorderRadius.lg, padding: Spacing.md },
   userContent: { backgroundColor: Colors.primary, borderBottomRightRadius: 4 },
-  aiContent: { backgroundColor: Colors.bgCard, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: Colors.border },
-  msgText: { fontSize: FontSizes.body, lineHeight: 22 },
-  userText: { color: Colors.textPrimary },
+  aiContent: {
+    backgroundColor: '#FFFFFF',
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
+  },
+  msgText: { fontSize: FontSizes.body, lineHeight: 21 },
+  userText: { color: '#FFFFFF' },
   aiText: { color: Colors.textSecondary },
 
-  evidenceContainer: { marginTop: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: Spacing.sm },
-  evidenceLabel: { fontSize: FontSizes.caption, color: Colors.textMuted, fontWeight: '600', marginBottom: Spacing.sm },
-  evidenceCard: { backgroundColor: Colors.bgSurface, borderRadius: BorderRadius.sm, padding: Spacing.sm + 2, marginBottom: Spacing.xs, borderWidth: 1, borderColor: Colors.border },
+  evidenceContainer: {
+    marginTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    paddingTop: Spacing.sm,
+  },
+  evidenceLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.sm },
+  evidenceLabel: { fontSize: FontSizes.caption, color: Colors.textMuted, fontWeight: '700', letterSpacing: 0.4 },
+  evidenceCard: {
+    backgroundColor: Colors.bgSurface,
+    borderRadius: BorderRadius.sm,
+    padding: Spacing.sm + 4,
+    marginBottom: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
   evidenceTitle: { fontSize: FontSizes.body, fontWeight: '700', color: Colors.textPrimary },
-  evidenceMeta: { flexDirection: 'row', gap: Spacing.sm, marginTop: 2 },
-  evidenceCategory: { fontSize: FontSizes.caption, color: Colors.accent },
+  evidenceMeta: { flexDirection: 'row', gap: Spacing.sm, marginTop: 3 },
+  evidenceCategory: { fontSize: FontSizes.caption, color: Colors.primary, fontWeight: '600' },
   evidenceDuration: { fontSize: FontSizes.caption, color: Colors.textMuted },
-  evidenceTopics: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
-  evidenceTopicChip: { fontSize: 10, color: Colors.primaryLight, backgroundColor: Colors.primary + '20', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  evidenceSummary: { fontSize: FontSizes.caption, color: Colors.textMuted, marginTop: 4, fontStyle: 'italic' },
-  confidenceText: { fontSize: FontSizes.caption, color: Colors.textMuted, marginTop: Spacing.sm },
+  evidenceTopics: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 },
+  evidenceTopicChip: {
+    fontSize: 10,
+    color: Colors.primaryDark,
+    backgroundColor: Colors.tintBlue,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  evidenceSummary: { fontSize: FontSizes.caption, color: Colors.textMuted, marginTop: 5, fontStyle: 'italic', lineHeight: 16 },
+  confidenceText: { fontSize: FontSizes.caption, color: Colors.textMuted, marginTop: Spacing.sm, fontWeight: '600' },
 
   typingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   typingText: { fontSize: FontSizes.body, color: Colors.textMuted, fontStyle: 'italic' },
 
-  inputBar: { borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.bgCard, paddingBottom: Platform.OS === 'ios' ? 30 : Spacing.md },
-  inlinePrompts: { paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, maxHeight: 40 },
-  inlineChip: { backgroundColor: Colors.bgSurface, borderRadius: BorderRadius.full, paddingHorizontal: Spacing.md, paddingVertical: 6, marginRight: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
-  inlineChipText: { fontSize: FontSizes.caption, color: Colors.accent },
-  inputRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, gap: Spacing.sm },
-  input: { flex: 1, backgroundColor: Colors.bgInput, borderRadius: BorderRadius.full, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm + 4, fontSize: FontSizes.body, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
-  sendBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
+  inputBar: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    backgroundColor: '#FFFFFF',
+    paddingBottom: Platform.OS === 'ios' ? 30 : Spacing.md,
+  },
+  inlinePrompts: { paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, maxHeight: 44 },
+  inlineChip: {
+    backgroundColor: Colors.tintBlue,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 7,
+    marginRight: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.tintBlueStrong,
+    minHeight: 32,
+    justifyContent: 'center',
+  },
+  inlineChipText: { fontSize: FontSizes.caption, color: Colors.primary, fontWeight: '600' },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: Colors.bgSurface,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 13,
+    fontSize: FontSizes.body,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    minHeight: 46,
+  },
+  sendBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.glow,
+  },
   sendBtnDisabled: { opacity: 0.4 },
-  sendText: { fontSize: 20, fontWeight: '900', color: '#FFF' },
 });

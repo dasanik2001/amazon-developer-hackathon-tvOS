@@ -4,9 +4,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
-import { Colors } from './src/theme/colors';
+import { Colors, FontSizes, Shadows } from './src/theme/colors';
 
 // Auth Screens
 import LoginScreen from './src/screens/auth/LoginScreen';
@@ -58,30 +59,32 @@ function MainNavigator() {
     <Tab.Navigator
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#1A0A35',
-          borderTopColor: 'rgba(255, 255, 255, 0.08)',
+          backgroundColor: '#FFFFFF',
+          borderTopColor: Colors.border,
           borderTopWidth: 1,
           paddingTop: 6,
           paddingBottom: 8,
           height: 65,
+          ...Shadows.raised,
         },
-        tabBarActiveTintColor: '#FA2E67',
-        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.35)',
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textMuted,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
         },
         headerStyle: {
-          backgroundColor: '#1A0A35',
+          backgroundColor: '#FFFFFF',
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 1,
-          borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+          borderBottomColor: Colors.border,
         },
-        headerTintColor: '#FFFFFF',
+        headerTintColor: Colors.textPrimary,
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 18,
+          color: Colors.textPrimary,
         },
       }}
     >
@@ -89,8 +92,8 @@ function MainNavigator() {
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          title: '🛡️ Dashboard',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>📊</Text>,
+          title: 'Dashboard',
+          tabBarIcon: ({ color, size }) => <Ionicons name="grid" size={size ?? 22} color={color} />,
           tabBarLabel: 'Dashboard',
         }}
       />
@@ -98,8 +101,8 @@ function MainNavigator() {
         name="GuardianAI"
         component={GuardianAiScreen}
         options={{
-          title: '💬 Guardian AI',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>💡</Text>,
+          title: 'Guardian AI',
+          tabBarIcon: ({ color, size }) => <Ionicons name="sparkles" size={size ?? 22} color={color} />,
           tabBarLabel: 'Ask AI',
         }}
       />
@@ -107,8 +110,8 @@ function MainNavigator() {
         name="Controls"
         component={ControlsScreen}
         options={{
-          title: '⚙️ Controls & TV Link',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>🎮</Text>,
+          title: 'Controls & TV Link',
+          tabBarIcon: ({ color, size }) => <Ionicons name="options" size={size ?? 22} color={color} />,
           tabBarLabel: 'Controls',
         }}
       />
@@ -116,8 +119,8 @@ function MainNavigator() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          title: '👤 Profile',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>👤</Text>,
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size ?? 22} color={color} />,
           tabBarLabel: 'Profile',
         }}
       />
@@ -133,9 +136,11 @@ function RootNavigator() {
   if (isLoading) {
     return (
       <View style={styles.loadingScreen}>
-        <Text style={styles.loadingLogo}>🛡️</Text>
+        <View style={styles.loadingMark}>
+          <Ionicons name="shield-checkmark" size={40} color={Colors.primary} />
+        </View>
         <Text style={styles.loadingTitle}>Family TV Guardian</Text>
-        <ActivityIndicator size="large" color="#FA2E67" style={{ marginTop: 20 }} />
+        <ActivityIndicator size="small" color={Colors.primary} style={{ marginTop: 20 }} />
       </View>
     );
   }
@@ -151,7 +156,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <RootNavigator />
       </AuthProvider>
     </SafeAreaProvider>
@@ -163,15 +168,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1A0A35',
+    backgroundColor: Colors.bgDark,
   },
-  loadingLogo: {
-    fontSize: 72,
-    marginBottom: 16,
+  loadingMark: {
+    width: 84,
+    height: 84,
+    borderRadius: 24,
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1.5,
+    borderColor: Colors.tintBlueStrong,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 18,
   },
   loadingTitle: {
-    fontSize: 24,
+    fontSize: FontSizes.title,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
+    letterSpacing: 0.3,
   },
 });

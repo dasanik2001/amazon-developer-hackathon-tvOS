@@ -1,52 +1,68 @@
-// ─── Family TV Guardian Mobile - Design System Tokens ─────────────────────
-// Inspired by the Royal Purple & Radiant Magenta Reference UI/UX
+// ─── Family TV Guardian Mobile — Design Tokens ───────────────────────────
+// Crisp, professional light theme: off-white canvas + light-blue accents.
 
 export const Colors = {
-  // Primary Royal Violet / Purple Palette
-  primary: '#FA2E67',          // Radiant Coral/Magenta CTA (from reference "Touch"/"Next")
-  primaryDark: '#D81B55',
-  primaryLight: '#FF5C8A',
+  // Primary Blue
+  primary: '#2563EB',
+  primaryDark: '#1D4ED8',
+  primaryLight: '#3B82F6',
 
-  // Deep Violet Theme Backgrounds
-  bgDark: '#220E44',          // Deepest night violet
-  bgGradientTop: '#4E2B88',   // Luminous royal purple
-  bgGradientMid: '#381D69',   // Mid-tone violet
-  bgCard: 'rgba(45, 20, 85, 0.72)', // Frosted glass purple card
-  bgCardHover: 'rgba(65, 32, 115, 0.85)',
-  bgSurface: 'rgba(255, 255, 255, 0.08)', // Translucent glass surface
-  bgInput: 'rgba(255, 255, 255, 0.12)',   // Frosted capsule input fill
+  // Surfaces (off-white canvas, white cards)
+  bgDark: '#F5F8FC',          // App / screen background — off-white, cool tint
+  bgGradientTop: '#EFF6FF',   // Light blue wash
+  bgGradientMid: '#E8F0FE',
+  bgCard: '#FFFFFF',          // Card surface
+  bgCardHover: '#F8FAFF',
+  bgSurface: '#F1F5FB',       // Subtle inset fill (chips, bars, tracks)
+  bgInput: '#FFFFFF',         // Input fill
+  bgPage: '#F5F8FC',
 
-  // Accents & Backward Compatibility
-  accent: '#FA2E67',           // Vibrant hero accent
-  accentPink: '#FA2E67',       // Hot Pink hero button
-  accentLavender: '#C4B5FD',   // Soft lavender for secondary elements
-  accentCyan: '#38BDF8',       // Crisp dynamic indicator
-  accentGold: '#FBBF24',       // Warning / test badge
-  accentOrange: '#FBBF24',     // Warm warning accent
-  accentRed: '#F87171',        // Danger / alert accent
-  accentGreen: '#34D399',      // Connected / success green
+  // Light-blue tints (soft status / highlight fills)
+  tintBlue: '#EFF6FF',
+  tintBlueStrong: '#DBEAFE',
+  tintGreen: '#ECFDF5',
+  tintAmber: '#FFFBEB',
+  tintRed: '#FEF2F2',
+  tintSlate: '#F1F5F9',
+
+  // Accents (backwards-compatible aliases)
+  accent: '#2563EB',
+  accentPink: '#2563EB',
+  accentLavender: '#93C5FD',
+  accentCyan: '#0284C7',
+  accentGold: '#D97706',
+  accentOrange: '#D97706',
+  accentRed: '#DC2626',
+  accentGreen: '#059669',
 
   // Text
-  textPrimary: '#FFFFFF',
-  textSecondary: '#D1C4E9',    // Light lavender secondary text
-  textMuted: '#9B8CB8',        // Muted purple text
-  textAccent: '#FA2E67',
-  textPlaceholder: 'rgba(255, 255, 255, 0.45)',
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#64748B',
+  textAccent: '#2563EB',
+  textPlaceholder: '#94A3B8',
+  textOnPrimary: '#FFFFFF',
+  textInverse: '#FFFFFF',
 
   // Status
-  success: '#34D399',
-  warning: '#FBBF24',
-  danger: '#F87171',
-  info: '#38BDF8',
+  success: '#059669',
+  warning: '#D97706',
+  danger: '#DC2626',
+  info: '#0284C7',
 
   // Borders
-  border: 'rgba(255, 255, 255, 0.16)',
-  borderLight: 'rgba(255, 255, 255, 0.28)',
-  borderActive: 'rgba(250, 46, 103, 0.8)',
+  border: '#E2E8F0',
+  borderLight: '#CBD5E1',
+  borderActive: '#2563EB',
 
-  // Translucent Overlays
-  overlay: 'rgba(15, 6, 32, 0.85)',
-  glassBg: 'rgba(42, 18, 80, 0.88)',
+  // Overlays
+  overlay: 'rgba(15, 23, 42, 0.45)',
+  glassBg: '#FFFFFF',
+
+  // Dark chrome reserved for camera viewfinder only
+  cameraChrome: '#0B1220',
+  cameraOverlay: 'rgba(11, 18, 32, 0.72)',
+  onCamera: '#F8FAFC',
 };
 
 export const Spacing = {
@@ -71,40 +87,47 @@ export const FontSizes = {
 
 export const BorderRadius = {
   sm: 10,
-  md: 16,
-  lg: 22,
-  xl: 28,
-  pill: 32,
+  md: 14,
+  lg: 18,
+  xl: 24,
+  pill: 999,
   full: 999,
 };
 
 export const Shadows = {
   card: {
-    shadowColor: '#000',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  raised: {
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
   },
   glow: {
-    shadowColor: '#FA2E67',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 10,
-    elevation: 6,
+    shadowColor: '#2563EB',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 4,
   },
   pinkGlow: {
-    shadowColor: '#FA2E67',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 10,
-    elevation: 6,
+    shadowColor: '#2563EB',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 4,
   },
   purpleGlow: {
-    shadowColor: '#6C4AB6',
+    shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.18,
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 3,
   },
 };

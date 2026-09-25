@@ -14,6 +14,7 @@ import {
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import BrandEmblem from '../../components/BrandEmblem';
+import Icon, { IconName } from '../../components/Icon';
 
 interface RegisterScreenProps {
   onNavigateLogin: () => void;
@@ -50,7 +51,7 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
 
   const strength = getPasswordStrength(password);
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
-  const strengthColors = ['#EF4444', '#F59E0B', '#38BDF8', '#10B981'];
+  const strengthColors = ['#DC2626', '#D97706', '#0284C7', '#059669'];
 
   const handleRegister = async () => {
     setError('');
@@ -63,18 +64,18 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
 
     setIsLoading(true);
     try {
-      // register() now auto-logs in after successful registration
       const result = await register(identifier.trim(), password, displayName.trim());
       if (!result.success) {
         setError(result.error || 'Registration failed');
       }
-      // On success, AuthContext sets user → App.tsx auto-navigates to MainNavigator
     } catch {
       setError('Network error. Please check your connection.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  const identifierIcon: IconName = isPhoneMode ? 'phone-portrait' : 'mail';
 
   return (
     <KeyboardAvoidingView
@@ -94,16 +95,17 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
         </Animated.View>
 
         <View style={styles.formContainer}>
-          {/* Display Name Capsule */}
-          <View style={styles.capsuleInputWrapper}>
-            <Text style={styles.inputPrefixIcon}>👤</Text>
+          {/* Display Name */}
+          <View style={styles.inputWrapper}>
+            <Icon name="person-outline" size={18} color={Colors.textMuted} style={styles.inputPrefixIcon} />
             <TextInput
-              style={styles.capsuleInput}
+              style={styles.input}
               placeholder="Your Full Name"
               placeholderTextColor={Colors.textPlaceholder}
               value={displayName}
               onChangeText={(t) => { setDisplayName(t); setError(''); }}
               autoCapitalize="words"
+              accessibilityLabel="Full name"
             />
           </View>
 
@@ -112,48 +114,56 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
             <TouchableOpacity
               style={[styles.segmentBtn, !isPhoneMode && styles.segmentBtnActive]}
               onPress={() => { setIsPhoneMode(false); setIdentifier(''); }}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: !isPhoneMode }}
             >
               <Text style={[styles.segmentText, !isPhoneMode && styles.segmentTextActive]}>Email</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.segmentBtn, isPhoneMode && styles.segmentBtnActive]}
               onPress={() => { setIsPhoneMode(true); setIdentifier(''); }}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isPhoneMode }}
             >
               <Text style={[styles.segmentText, isPhoneMode && styles.segmentTextActive]}>Mobile</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Identifier Capsule */}
-          <View style={styles.capsuleInputWrapper}>
-            <Text style={styles.inputPrefixIcon}>{isPhoneMode ? '📱' : '📧'}</Text>
+          {/* Identifier */}
+          <View style={styles.inputWrapper}>
+            <Icon name={identifierIcon} size={18} color={Colors.textMuted} style={styles.inputPrefixIcon} />
             <TextInput
-              style={styles.capsuleInput}
+              style={styles.input}
               placeholder={isPhoneMode ? '+1 555 123 4567' : 'parent@example.com'}
               placeholderTextColor={Colors.textPlaceholder}
               value={identifier}
               onChangeText={(t) => { setIdentifier(t); setError(''); }}
               keyboardType={isPhoneMode ? 'phone-pad' : 'email-address'}
               autoCapitalize="none"
+              accessibilityLabel={isPhoneMode ? 'Phone number' : 'Email address'}
             />
           </View>
 
-          {/* Password Capsule */}
-          <View style={styles.capsuleInputWrapper}>
-            <Text style={styles.inputPrefixIcon}>🔒</Text>
+          {/* Password */}
+          <View style={styles.inputWrapper}>
+            <Icon name="lock-closed-outline" size={18} color={Colors.textMuted} style={styles.inputPrefixIcon} />
             <TextInput
-              style={[styles.capsuleInput, { paddingRight: 36 }]}
+              style={[styles.input, { paddingRight: 36 }]}
               placeholder="Min 8 chars, uppercase, digit, symbol"
               placeholderTextColor={Colors.textPlaceholder}
               value={password}
               onChangeText={(t) => { setPassword(t); setError(''); }}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              accessibilityLabel="Password"
             />
             <TouchableOpacity
-              style={styles.capsuleEyeBtn}
+              style={styles.eyeBtn}
               onPress={() => setShowPassword(!showPassword)}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+              <Icon name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -161,12 +171,12 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
           {password.length > 0 && (
             <View style={styles.strengthContainer}>
               <View style={styles.strengthBarBg}>
-                <Animated.View
+                <View
                   style={[
                     styles.strengthBarFill,
                     {
                       width: `${(strength / 4) * 100}%`,
-                      backgroundColor: strengthColors[strength - 1] || '#EF4444',
+                      backgroundColor: strengthColors[strength - 1] || '#DC2626',
                     },
                   ]}
                 />
@@ -174,7 +184,7 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
               <Text
                 style={[
                   styles.strengthLabel,
-                  { color: strengthColors[strength - 1] || '#EF4444' },
+                  { color: strengthColors[strength - 1] || '#DC2626' },
                 ]}
               >
                 {strengthLabels[strength - 1] || 'Very Weak'}
@@ -182,11 +192,11 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
             </View>
           )}
 
-          {/* Confirm Password Capsule */}
-          <View style={styles.capsuleInputWrapper}>
-            <Text style={styles.inputPrefixIcon}>🛡️</Text>
+          {/* Confirm Password */}
+          <View style={styles.inputWrapper}>
+            <Icon name="shield-checkmark-outline" size={18} color={Colors.textMuted} style={styles.inputPrefixIcon} />
             <TextInput
-              style={styles.capsuleInput}
+              style={styles.input}
               placeholder="Confirm Password"
               placeholderTextColor={Colors.textPlaceholder}
               value={confirmPassword}
@@ -195,36 +205,43 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
               autoCapitalize="none"
               onSubmitEditing={handleRegister}
               returnKeyType="go"
+              accessibilityLabel="Confirm password"
             />
           </View>
 
           {confirmPassword.length > 0 && password !== confirmPassword && (
-            <Text style={styles.mismatchText}>⚠️ Passwords do not match</Text>
+            <View style={styles.mismatchRow}>
+              <Icon name="alert-circle" size={13} color={Colors.danger} />
+              <Text style={styles.mismatchText}>Passwords do not match</Text>
+            </View>
           )}
 
           {error ? (
             <View style={styles.errorBox}>
-              <Text style={styles.errorText}>⚠️ {error}</Text>
+              <Icon name="alert-circle" size={17} color={Colors.danger} />
+              <Text style={styles.errorText}>{error}</Text>
             </View>
           ) : null}
 
-          {/* Hero Pink CTA Button */}
+          {/* Primary CTA */}
           <TouchableOpacity
-            style={[styles.heroPinkBtn, isLoading && styles.btnDisabled]}
+            style={[styles.primaryBtn, isLoading && styles.btnDisabled]}
             onPress={handleRegister}
             disabled={isLoading}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Create account"
           >
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.heroPinkBtnText}>Create Account</Text>
+              <Text style={styles.primaryBtnText}>Create Account</Text>
             )}
           </TouchableOpacity>
 
           <View style={styles.registerRow}>
             <Text style={styles.registerPrompt}>Already have an account? </Text>
-            <TouchableOpacity onPress={onNavigateLogin}>
+            <TouchableOpacity onPress={onNavigateLogin} accessibilityRole="link">
               <Text style={styles.registerLink}>Sign In</Text>
             </TouchableOpacity>
           </View>
@@ -237,7 +254,7 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1A0A35',
+    backgroundColor: Colors.bgDark,
   },
   scrollContent: {
     flexGrow: 1,
@@ -250,74 +267,79 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 4,
+    color: Colors.textPrimary,
+    letterSpacing: 3.5,
     marginTop: Spacing.md,
   },
   subtitle: {
     fontSize: FontSizes.body,
-    color: 'rgba(209, 196, 233, 0.8)',
+    color: Colors.textSecondary,
     marginTop: 6,
     textAlign: 'center',
   },
   formContainer: {
     marginBottom: Spacing.md,
   },
-  capsuleInputWrapper: {
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: BorderRadius.pill,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#FFFFFF',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
     paddingHorizontal: Spacing.md,
     height: 54,
     marginBottom: Spacing.md,
   },
   inputPrefixIcon: {
-    fontSize: 18,
     marginRight: Spacing.sm,
   },
-  capsuleInput: {
+  input: {
     flex: 1,
     height: '100%',
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: FontSizes.bodyLarge,
   },
-  capsuleEyeBtn: {
+  eyeBtn: {
     position: 'absolute',
-    right: 16,
-  },
-  eyeIcon: {
-    fontSize: 18,
+    right: 14,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   segmentedControl: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderRadius: BorderRadius.pill,
-    padding: 3,
+    backgroundColor: Colors.bgSurface,
+    borderRadius: BorderRadius.full,
+    padding: 4,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.border,
   },
   segmentBtn: {
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: BorderRadius.pill,
+    borderRadius: BorderRadius.full,
+    minHeight: 40,
+    justifyContent: 'center',
   },
   segmentBtnActive: {
-    backgroundColor: '#FA2E67',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
   },
   segmentText: {
     fontSize: FontSizes.body,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: Colors.textMuted,
     fontWeight: '700',
   },
   segmentTextActive: {
-    color: '#FFFFFF',
+    color: Colors.primary,
   },
   strengthContainer: {
     flexDirection: 'row',
@@ -325,61 +347,75 @@ const styles = StyleSheet.create({
     marginTop: -8,
     marginBottom: Spacing.md,
     gap: 8,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
   },
   strengthBarBg: {
     flex: 1,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 2,
+    height: 6,
+    backgroundColor: Colors.bgSurface,
+    borderRadius: 3,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   strengthBarFill: {
-    height: 4,
-    borderRadius: 2,
+    height: 6,
+    borderRadius: 3,
   },
   strengthLabel: {
     fontSize: FontSizes.caption,
     fontWeight: '700',
+    minWidth: 68,
+    textAlign: 'right',
   },
-  mismatchText: {
-    color: '#FCA5A5',
-    fontSize: FontSizes.caption,
+  mismatchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginTop: -8,
     marginBottom: Spacing.md,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
+  },
+  mismatchText: {
+    color: Colors.danger,
+    fontSize: FontSizes.caption,
+    fontWeight: '600',
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.tintRed,
     borderRadius: BorderRadius.sm,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(220, 38, 38, 0.25)',
   },
   errorText: {
-    color: '#FCA5A5',
+    color: '#B91C1C',
     fontSize: FontSizes.body,
-    textAlign: 'center',
+    flexShrink: 1,
   },
-  heroPinkBtn: {
-    backgroundColor: '#FA2E67',
-    borderRadius: BorderRadius.pill,
-    height: 56,
+  primaryBtn: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    height: 54,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.pinkGlow,
+    ...Shadows.glow,
     marginTop: Spacing.xs,
     marginBottom: Spacing.lg,
   },
   btnDisabled: {
     opacity: 0.5,
   },
-  heroPinkBtnText: {
+  primaryBtnText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '800',
-    letterSpacing: 1,
+    letterSpacing: 0.6,
   },
   registerRow: {
     flexDirection: 'row',
@@ -387,11 +423,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerPrompt: {
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: Colors.textSecondary,
     fontSize: FontSizes.body,
   },
   registerLink: {
-    color: '#FA2E67',
+    color: Colors.primary,
     fontSize: FontSizes.body,
     fontWeight: '800',
   },

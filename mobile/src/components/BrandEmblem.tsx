@@ -1,23 +1,21 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Colors } from '../theme/colors';
 
 interface BrandEmblemProps {
   size?: number;
 }
 
 /**
- * Geometric Hexagonal Emblem inspired directly by the reference UI:
- * Features a modern split design with dotted matrix on the left and
- * energetic wavy lines on the right, encased in a glowing violet frame.
+ * Geometric brand emblem: dot matrix (left) + signal waves (right),
+ * split by a diagonal divider inside a rounded blue-tinted tile.
  */
 export default function BrandEmblem({ size = 84 }: BrandEmblemProps) {
   const scale = size / 84;
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
-      {/* Outer Hexagon / Shield Ring */}
-      <View style={[styles.shieldOuter, { transform: [{ scale }] }]}>
-        {/* Left Side: Dot Matrix Pattern */}
+      <View style={[styles.tile, { transform: [{ scale }] }]}>
         <View style={styles.leftHalf}>
           <View style={styles.dotRow}><View style={styles.dot} /></View>
           <View style={styles.dotRow}><View style={styles.dot} /><View style={styles.dot} /></View>
@@ -26,10 +24,8 @@ export default function BrandEmblem({ size = 84 }: BrandEmblemProps) {
           <View style={styles.dotRow}><View style={styles.dot} /></View>
         </View>
 
-        {/* Center Diagonal Divider */}
         <View style={styles.divider} />
 
-        {/* Right Side: Wavy Stream Lines */}
         <View style={styles.rightHalf}>
           <View style={styles.waveBar} />
           <View style={[styles.waveBar, styles.waveBarTilted]} />
@@ -46,22 +42,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  shieldOuter: {
+  tile: {
     width: 80,
     height: 80,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1.5,
+    borderColor: Colors.tintBlueStrong,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
-    shadowColor: '#FA2E67',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    elevation: 4,
   },
   leftHalf: {
     flex: 1,
@@ -78,12 +74,12 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.primary,
   },
   divider: {
     width: 2,
     height: '80%',
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: Colors.accentLavender,
     marginHorizontal: 4,
     transform: [{ rotate: '12deg' }],
   },
@@ -98,11 +94,11 @@ const styles = StyleSheet.create({
     width: 3.5,
     height: '100%',
     borderRadius: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.primaryLight,
   },
   waveBarTilted: {
     height: '85%',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    backgroundColor: Colors.accentLavender,
     transform: [{ scaleY: 0.95 }],
   },
 });

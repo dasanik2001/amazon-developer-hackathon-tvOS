@@ -13,10 +13,11 @@ import {
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { authApi } from '../../api/client';
+import Icon from '../../components/Icon';
 
 interface OtpVerificationScreenProps {
   challengeId: string;
-  otpHint?: string;      // Dev-mode: the actual OTP code
+  otpHint?: string;
   identifier?: string;
   onVerified: () => void;
   onBack: () => void;
@@ -39,7 +40,6 @@ export default function OtpVerificationScreen({
   const inputRefs = useRef<Array<TextInput | null>>([]);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  // Countdown timer for resend
   useEffect(() => {
     if (resendCountdown > 0) {
       const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
@@ -47,7 +47,6 @@ export default function OtpVerificationScreen({
     }
   }, [resendCountdown]);
 
-  // Pulse animation for dev hint
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -145,15 +144,14 @@ export default function OtpVerificationScreen({
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.content}>
-        {/* Back Button */}
-        <TouchableOpacity onPress={onBack} style={styles.backBtn}>
-          <Text style={styles.backText}>← Back</Text>
+        <TouchableOpacity onPress={onBack} style={styles.backBtn} accessibilityRole="link">
+          <Icon name="arrow-back" size={18} color={Colors.primary} />
+          <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
 
-        {/* Lock Screen Header (Matches Screen 5 in Reference Image) */}
         <View style={styles.header}>
           <View style={styles.lockBadge}>
-            <Text style={styles.lockIcon}>🔒</Text>
+            <Icon name="lock-closed" size={32} color={Colors.primary} />
           </View>
           <Text style={styles.title}>TWO-FACTOR PIN</Text>
           <Text style={styles.subtitle}>
@@ -162,15 +160,16 @@ export default function OtpVerificationScreen({
           </Text>
         </View>
 
-        {/* Dev Mode Hint */}
         {currentHint && (
           <Animated.View style={[styles.hintBox, { transform: [{ scale: pulseAnim }] }]}>
-            <Text style={styles.hintLabel}>🧪 Dev Mode Code:</Text>
+            <View style={styles.hintLabelRow}>
+              <Icon name="flask-outline" size={13} color={Colors.info} />
+              <Text style={styles.hintLabel}>Dev Mode Code</Text>
+            </View>
             <Text style={styles.hintCode}>{currentHint}</Text>
           </Animated.View>
         )}
 
-        {/* OTP Input Grid */}
         <View style={styles.otpRow}>
           {code.map((digit, index) => (
             <TextInput
@@ -188,32 +187,32 @@ export default function OtpVerificationScreen({
               maxLength={6}
               textContentType="oneTimeCode"
               autoFocus={index === 0}
+              accessibilityLabel={`Digit ${index + 1}`}
             />
           ))}
         </View>
 
-        {/* Error */}
         {error ? (
           <View style={styles.errorBox}>
-            <Text style={styles.errorText}>⚠️ {error}</Text>
+            <Icon name="alert-circle" size={16} color={Colors.danger} />
+            <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
 
-        {/* Radiant Hot Pink CTA Button */}
         <TouchableOpacity
-          style={[styles.heroPinkBtn, isLoading && styles.btnDisabled]}
+          style={[styles.primaryBtn, isLoading && styles.btnDisabled]}
           onPress={() => handleVerify()}
           disabled={isLoading}
           activeOpacity={0.85}
+          accessibilityRole="button"
         >
           {isLoading ? (
             <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
-            <Text style={styles.heroPinkBtnText}>Verify & Authorize</Text>
+            <Text style={styles.primaryBtnText}>Verify & Authorize</Text>
           )}
         </TouchableOpacity>
 
-        {/* 1-Tap Fill Test Code (Reference Outline Pill) */}
         <TouchableOpacity
           style={styles.outlinePill}
           onPress={() => {
@@ -224,14 +223,17 @@ export default function OtpVerificationScreen({
           }}
           disabled={isLoading}
           activeOpacity={0.7}
+          accessibilityRole="button"
         >
-          <Text style={styles.outlinePillText}>⚡ 1-Tap Fill Test Code ({currentHint || '123456'})</Text>
+          <View style={styles.outlinePillRow}>
+            <Icon name="flash" size={14} color={Colors.primary} />
+            <Text style={styles.outlinePillText}>1-Tap Fill Test Code ({currentHint || '123456'})</Text>
+          </View>
         </TouchableOpacity>
 
-        {/* Resend */}
         <View style={styles.resendRow}>
           <Text style={styles.resendPrompt}>Didn't receive the code? </Text>
-          <TouchableOpacity onPress={handleResend} disabled={resendCountdown > 0}>
+          <TouchableOpacity onPress={handleResend} disabled={resendCountdown > 0} accessibilityRole="button">
             <Text style={[styles.resendLink, resendCountdown > 0 && styles.resendLinkDisabled]}>
               {resendCountdown > 0 ? `Resend in ${resendCountdown}s` : 'Resend Code'}
             </Text>
@@ -245,7 +247,7 @@ export default function OtpVerificationScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#351B68',
+    backgroundColor: Colors.bgDark,
   },
   content: {
     flex: 1,
@@ -257,13 +259,20 @@ const styles = StyleSheet.create({
     top: 56,
     left: Spacing.lg,
     zIndex: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: BorderRadius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: BorderRadius.full,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    minHeight: 40,
+    ...Shadows.card,
   },
   backText: {
-    color: '#FFFFFF',
+    color: Colors.primary,
     fontSize: FontSizes.body,
     fontWeight: '700',
   },
@@ -272,25 +281,22 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   lockBadge: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
+    width: 76,
+    height: 76,
+    borderRadius: 24,
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1.5,
+    borderColor: Colors.tintBlueStrong,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
-    ...Shadows.pinkGlow,
-  },
-  lockIcon: {
-    fontSize: 40,
+    ...Shadows.card,
   },
   title: {
     fontSize: FontSizes.headline,
     fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 3,
+    color: Colors.textPrimary,
+    letterSpacing: 2.5,
   },
   subtitle: {
     fontSize: FontSizes.body,
@@ -300,28 +306,35 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   identifierText: {
-    color: '#FA2E67',
+    color: Colors.primary,
     fontWeight: '800',
   },
   hintBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: BorderRadius.pill,
-    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 12,
     paddingHorizontal: Spacing.md,
     alignItems: 'center',
     marginBottom: Spacing.lg,
+    ...Shadows.card,
+  },
+  hintLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
   },
   hintLabel: {
     fontSize: FontSizes.caption,
-    color: Colors.textSecondary,
-    marginBottom: 2,
+    color: Colors.info,
+    fontWeight: '700',
   },
   hintCode: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#FBBF24',
+    color: Colors.primary,
     letterSpacing: 6,
   },
   otpRow: {
@@ -333,67 +346,79 @@ const styles = StyleSheet.create({
   otpInput: {
     width: 48,
     height: 56,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.sm,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: Colors.border,
     textAlign: 'center',
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
   },
   otpInputFilled: {
-    borderColor: '#FA2E67',
-    backgroundColor: 'rgba(250, 46, 103, 0.2)',
+    borderColor: Colors.primary,
+    backgroundColor: Colors.tintBlue,
   },
   otpInputError: {
     borderColor: Colors.danger,
   },
   errorBox: {
-    backgroundColor: 'rgba(248, 113, 113, 0.2)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    backgroundColor: Colors.tintRed,
     borderRadius: BorderRadius.sm,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.danger,
+    borderColor: 'rgba(220, 38, 38, 0.25)',
   },
   errorText: {
-    color: '#FFA8A8',
+    color: '#B91C1C',
     fontSize: FontSizes.body,
-    textAlign: 'center',
+    fontWeight: '600',
+    flexShrink: 1,
   },
-  heroPinkBtn: {
-    backgroundColor: '#FA2E67',
-    borderRadius: BorderRadius.pill,
+  primaryBtn: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
     height: 54,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.pinkGlow,
+    ...Shadows.glow,
     marginBottom: Spacing.md,
   },
   btnDisabled: {
     opacity: 0.6,
   },
-  heroPinkBtnText: {
+  primaryBtnText: {
     color: '#FFFFFF',
     fontSize: FontSizes.bodyLarge,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
   outlinePill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    borderRadius: BorderRadius.pill,
+    borderColor: Colors.primary,
+    borderRadius: BorderRadius.full,
+    minHeight: 46,
+    justifyContent: 'center',
     paddingVertical: 12,
     alignItems: 'center',
     marginBottom: Spacing.lg,
   },
+  outlinePillRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
   outlinePillText: {
-    color: '#FFFFFF',
+    color: Colors.primary,
     fontSize: FontSizes.caption,
     fontWeight: '800',
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
   },
   resendRow: {
     flexDirection: 'row',
@@ -405,7 +430,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
   },
   resendLink: {
-    color: '#FA2E67',
+    color: Colors.primary,
     fontSize: FontSizes.body,
     fontWeight: '800',
   },

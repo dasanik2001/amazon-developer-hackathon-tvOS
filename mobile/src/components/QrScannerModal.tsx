@@ -16,6 +16,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../theme/colors';
 import { pairingApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import Icon from './Icon';
 
 interface QrScannerModalProps {
   visible: boolean;
@@ -32,11 +33,9 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
   const [errorMessage, setErrorMessage] = useState('');
   const [successInfo, setSuccessInfo] = useState<any>(null);
 
-  // Manual code entry mode
   const [manualMode, setManualMode] = useState(false);
   const [manualCode, setManualCode] = useState('');
 
-  // Animated scanner laser line
   const laserAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -45,7 +44,6 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
       setErrorMessage('');
       setSuccessInfo(null);
 
-      // Start laser animation
       Animated.loop(
         Animated.sequence([
           Animated.timing(laserAnim, {
@@ -77,19 +75,16 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
       let pairToken: string | undefined;
       let shortCode: string | undefined;
 
-      // 1. Try parsing JSON payload from Fire TV QR
       try {
         const parsed = JSON.parse(data);
         if (parsed.pair_token) pairToken = parsed.pair_token;
         if (parsed.short_code) shortCode = parsed.short_code;
       } catch {
-        // Not JSON, check if it's a URL or raw short code
         if (data.includes('tv_pair_')) {
           pairToken = data;
         } else if (data.toUpperCase().startsWith('GARD-') || data.length === 8) {
           shortCode = data.toUpperCase();
         } else {
-          // Fallback: try using as short code
           shortCode = data.trim().toUpperCase();
         }
       }
@@ -144,12 +139,10 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
     }
   };
 
-  // Quick Demo Pairing: fetches active TV session or creates one, then approves it
   const handleDemoPair = async () => {
     setLoading(true);
     setErrorMessage('');
     try {
-      // Initiate a pairing session as Fire TV
       const initRes = await pairingApi.initiate('Living Room Fire TV');
       if (initRes.success && initRes.data?.short_code) {
         const approveRes = await pairingApi.approve(initRes.data.pair_token, initRes.data.short_code);
@@ -175,8 +168,13 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
       <View style={styles.container}>
         {/* Top Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <Text style={styles.closeBtnText}>✕</Text>
+          <TouchableOpacity
+            style={styles.closeBtn}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Close scanner"
+          >
+            <Icon name="close" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>Scan Fire TV QR Code</Text>
@@ -185,8 +183,14 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
           <TouchableOpacity
             style={[styles.torchBtn, torch && styles.torchBtnActive]}
             onPress={() => setTorch(!torch)}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle flashlight"
           >
-            <Text style={styles.torchBtnText}>{torch ? '⚡' : '🔦'}</Text>
+            <Icon
+              name={torch ? 'flash' : 'flashlight-outline'}
+              size={18}
+              color={torch ? Colors.warning : Colors.textSecondary}
+            />
           </TouchableOpacity>
         </View>
 
@@ -194,16 +198,25 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
         {successInfo ? (
           <View style={styles.successContainer}>
             <View style={styles.successIconBadge}>
-              <Text style={styles.successIcon}>🎉</Text>
+              <Icon name="checkmark-circle" size={38} color={Colors.success} />
             </View>
-            <Text style={styles.successTitle}>Fire TV Linked!</Text>
+            <Text style={styles.successTitle}>Fire TV Linked</Text>
             <Text style={styles.successDesc}>
               {successInfo.linked_tv || 'Fire TV Device'} is now connected to {user?.display_name || 'your'}'s account.
             </Text>
             <View style={styles.successCard}>
-              <Text style={styles.successCardRow}>📺 Device: {successInfo.linked_tv || 'Fire TV'}</Text>
-              <Text style={styles.successCardRow}>🛡️ Household ID: {successInfo.household_id || user?.household_id}</Text>
-              <Text style={styles.successCardRow}>👦 Monitored: Aarav & Profiles synced</Text>
+              <View style={styles.successCardRow}>
+                <Icon name="tv-outline" size={16} color={Colors.primary} />
+                <Text style={styles.successCardText}>Device: {successInfo.linked_tv || 'Fire TV'}</Text>
+              </View>
+              <View style={styles.successCardRow}>
+                <Icon name="home-outline" size={16} color={Colors.primary} />
+                <Text style={styles.successCardText}>Household: {successInfo.household_id || user?.household_id}</Text>
+              </View>
+              <View style={styles.successCardRow}>
+                <Icon name="people-outline" size={16} color={Colors.primary} />
+                <Text style={styles.successCardText}>Monitored profiles synced</Text>
+              </View>
             </View>
             <ActivityIndicator color={Colors.primary} style={{ marginTop: 20 }} />
             <Text style={styles.redirectText}>Connecting live dashboard...</Text>
@@ -212,30 +225,37 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
           /* Manual Code Entry View */
           <View style={styles.manualContainer}>
             <View style={styles.tvIconBadge}>
-              <Text style={styles.tvIcon}>📺</Text>
+              <Icon name="tv-outline" size={32} color={Colors.primary} />
             </View>
             <Text style={styles.manualTitle}>Enter TV Code</Text>
             <Text style={styles.manualDesc}>
-              Type the 6-character code shown on your Fire TV display:
+              Type the 6-character code shown on your Fire TV display.
             </Text>
 
             <TextInput
               style={styles.manualInput}
               placeholder="GARD-892"
-              placeholderTextColor={Colors.textMuted}
+              placeholderTextColor={Colors.textPlaceholder}
               value={manualCode}
               onChangeText={(text) => setManualCode(text.toUpperCase())}
               autoCapitalize="characters"
               autoCorrect={false}
               maxLength={10}
+              accessibilityLabel="TV code"
             />
 
-            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+            {errorMessage ? (
+              <View style={styles.inlineErrorRow}>
+                <Icon name="alert-circle" size={15} color={Colors.danger} />
+                <Text style={styles.inlineErrorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
 
             <TouchableOpacity
               style={[styles.submitBtn, loading && styles.submitBtnDisabled]}
               onPress={handleManualSubmit}
               disabled={loading}
+              accessibilityRole="button"
             >
               {loading ? (
                 <ActivityIndicator color="#FFF" size="small" />
@@ -247,44 +267,62 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
             <TouchableOpacity
               style={styles.switchModeBtn}
               onPress={() => setManualMode(false)}
+              accessibilityRole="button"
             >
-              <Text style={styles.switchModeText}>📷 Back to QR Camera Scanner</Text>
+              <View style={styles.switchModeRow}>
+                <Icon name="qr-code-outline" size={15} color={Colors.primary} />
+                <Text style={styles.switchModeText}>Back to QR Camera Scanner</Text>
+              </View>
             </TouchableOpacity>
 
             {/* Quick Demo Button for effortless testing */}
             <View style={styles.demoBox}>
-              <Text style={styles.demoTitle}>Quick Hackathon Demo:</Text>
+              <Text style={styles.demoTitle}>Quick Hackathon Demo</Text>
               <TouchableOpacity
                 style={styles.demoBtn}
                 onPress={handleDemoPair}
                 disabled={loading}
+                accessibilityRole="button"
               >
-                <Text style={styles.demoBtnText}>⚡ 1-Tap Pair with Simulator TV</Text>
+                <View style={styles.switchModeRow}>
+                  <Icon name="flash" size={15} color={Colors.primary} />
+                  <Text style={styles.demoBtnText}>1-Tap Pair with Simulator TV</Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
         ) : !permission ? (
           /* Checking camera permission */
           <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="small" color={Colors.primary} />
             <Text style={styles.loadingText}>Initializing camera...</Text>
           </View>
         ) : !permission.granted ? (
           /* Permission Denied UI */
           <View style={styles.permissionContainer}>
-            <Text style={styles.permissionIcon}>📷</Text>
+            <View style={styles.permissionIconBadge}>
+              <Icon name="camera-outline" size={32} color={Colors.primary} />
+            </View>
             <Text style={styles.permissionTitle}>Camera Access Required</Text>
             <Text style={styles.permissionDesc}>
               Family TV Guardian uses your camera to quickly scan the QR code displayed on your Fire TV screen.
             </Text>
-            <TouchableOpacity style={styles.permissionBtn} onPress={requestPermission}>
+            <TouchableOpacity
+              style={styles.permissionBtn}
+              onPress={requestPermission}
+              accessibilityRole="button"
+            >
               <Text style={styles.permissionBtnText}>Enable Camera</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.manualLinkBtn}
               onPress={() => setManualMode(true)}
+              accessibilityRole="button"
             >
-              <Text style={styles.manualLinkText}>⌨️ Enter TV Code Manually Instead</Text>
+              <View style={styles.switchModeRow}>
+                <Icon name="keypad-outline" size={15} color={Colors.primary} />
+                <Text style={styles.manualLinkText}>Enter TV Code Manually Instead</Text>
+              </View>
             </TouchableOpacity>
           </View>
         ) : (
@@ -306,13 +344,11 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
               <View style={styles.overlayMiddle}>
                 <View style={styles.overlaySide} />
                 <View style={styles.scanTarget}>
-                  {/* 4 Corner Markers */}
                   <View style={[styles.corner, styles.cornerTL]} />
                   <View style={[styles.corner, styles.cornerTR]} />
                   <View style={[styles.corner, styles.cornerBL]} />
                   <View style={[styles.corner, styles.cornerBR]} />
 
-                  {/* Animated Laser Scan Line */}
                   <Animated.View
                     style={[
                       styles.laserLine,
@@ -324,7 +360,7 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
 
                   {loading && (
                     <View style={styles.loadingOverlay}>
-                      <ActivityIndicator size="large" color={Colors.primary} />
+                      <ActivityIndicator size="large" color="#FFFFFF" />
                       <Text style={styles.verifyingText}>Authorizing TV...</Text>
                     </View>
                   )}
@@ -334,6 +370,7 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
               <View style={styles.overlayBottom}>
                 {errorMessage ? (
                   <View style={styles.errorBanner}>
+                    <Icon name="alert-circle" size={15} color="#B91C1C" />
                     <Text style={styles.errorText}>{errorMessage}</Text>
                   </View>
                 ) : (
@@ -347,8 +384,9 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
                   <TouchableOpacity
                     style={styles.bottomBtn}
                     onPress={() => setManualMode(true)}
+                    accessibilityRole="button"
                   >
-                    <Text style={styles.bottomBtnIcon}>⌨️</Text>
+                    <Icon name="keypad-outline" size={16} color={Colors.textPrimary} />
                     <Text style={styles.bottomBtnText}>Enter Code</Text>
                   </TouchableOpacity>
 
@@ -356,9 +394,10 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
                     style={[styles.bottomBtn, styles.bottomBtnDemo]}
                     onPress={handleDemoPair}
                     disabled={loading}
+                    accessibilityRole="button"
                   >
-                    <Text style={styles.bottomBtnIcon}>⚡</Text>
-                    <Text style={styles.bottomBtnText}>Demo Pair</Text>
+                    <Icon name="flash-outline" size={16} color={Colors.primary} />
+                    <Text style={[styles.bottomBtnText, { color: Colors.primary }]}>Demo Pair</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -375,7 +414,7 @@ const SCAN_SIZE = 260;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0f1d',
+    backgroundColor: Colors.bgDark,
   },
   header: {
     flexDirection: 'row',
@@ -384,10 +423,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: Spacing.md,
-    backgroundColor: '#0e1628',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
     zIndex: 10,
+    gap: Spacing.sm,
   },
   closeBtn: {
     width: 40,
@@ -399,13 +439,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  closeBtnText: {
-    color: Colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '700',
-  },
   headerCenter: {
     alignItems: 'center',
+    flex: 1,
   },
   headerTitle: {
     color: Colors.textPrimary,
@@ -428,11 +464,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   torchBtnActive: {
-    backgroundColor: Colors.accentOrange + '30',
-    borderColor: Colors.accentOrange,
-  },
-  torchBtnText: {
-    fontSize: 18,
+    backgroundColor: Colors.tintAmber,
+    borderColor: Colors.warning,
   },
 
   centerContainer: {
@@ -444,6 +477,7 @@ const styles = StyleSheet.create({
   loadingText: {
     color: Colors.textSecondary,
     fontSize: FontSizes.body,
+    fontWeight: '600',
   },
 
   // Viewfinder Overlay
@@ -456,7 +490,7 @@ const styles = StyleSheet.create({
   },
   overlayTop: {
     flex: 1,
-    backgroundColor: 'rgba(10, 15, 29, 0.75)',
+    backgroundColor: Colors.cameraOverlay,
   },
   overlayMiddle: {
     flexDirection: 'row',
@@ -464,7 +498,7 @@ const styles = StyleSheet.create({
   },
   overlaySide: {
     flex: 1,
-    backgroundColor: 'rgba(10, 15, 29, 0.75)',
+    backgroundColor: Colors.cameraOverlay,
   },
   scanTarget: {
     width: SCAN_SIZE,
@@ -472,12 +506,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(108, 92, 231, 0.4)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(147, 197, 253, 0.55)',
   },
   overlayBottom: {
     flex: 1.2,
-    backgroundColor: 'rgba(10, 15, 29, 0.75)',
+    backgroundColor: Colors.cameraOverlay,
     alignItems: 'center',
     paddingTop: 24,
     paddingHorizontal: 24,
@@ -488,7 +522,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 32,
     height: 32,
-    borderColor: Colors.primary,
+    borderColor: '#FFFFFF',
   },
   cornerTL: {
     top: 0,
@@ -523,8 +557,8 @@ const styles = StyleSheet.create({
   laserLine: {
     width: '100%',
     height: 3,
-    backgroundColor: Colors.accentOrange,
-    shadowColor: Colors.accentOrange,
+    backgroundColor: Colors.primaryLight,
+    shadowColor: Colors.primaryLight,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 8,
@@ -533,38 +567,45 @@ const styles = StyleSheet.create({
 
   loadingOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(10, 15, 29, 0.85)',
+    backgroundColor: 'rgba(11, 18, 32, 0.85)',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
   },
   verifyingText: {
-    color: '#FFF',
+    color: '#F8FAFC',
     fontSize: FontSizes.body,
     fontWeight: '700',
   },
 
   hintText: {
-    color: Colors.textSecondary,
+    color: 'rgba(248, 250, 252, 0.9)',
     fontSize: FontSizes.body,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 21,
     marginBottom: 24,
+    fontWeight: '600',
   },
   errorBanner: {
-    backgroundColor: 'rgba(235, 87, 87, 0.15)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 11,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: Colors.danger,
+    borderColor: 'rgba(220, 38, 38, 0.35)',
     marginBottom: 20,
+    maxWidth: '100%',
   },
   errorText: {
-    color: Colors.danger,
-    fontSize: FontSizes.body,
-    fontWeight: '600',
+    color: '#B91C1C',
+    fontSize: FontSizes.caption,
+    fontWeight: '700',
     textAlign: 'center',
+    flexShrink: 1,
   },
 
   bottomControls: {
@@ -576,19 +617,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: Colors.bgSurface,
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 13,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    minHeight: 46,
+    ...Shadows.card,
   },
   bottomBtnDemo: {
-    backgroundColor: Colors.accentOrange + '20',
-    borderColor: Colors.accentOrange,
-  },
-  bottomBtnIcon: {
-    fontSize: 16,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
   },
   bottomBtnText: {
     color: Colors.textPrimary,
@@ -606,16 +644,14 @@ const styles = StyleSheet.create({
   tvIconBadge: {
     width: 72,
     height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.primary + '20',
+    borderRadius: 22,
+    backgroundColor: Colors.tintBlue,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.primary + '40',
-  },
-  tvIcon: {
-    fontSize: 36,
+    borderWidth: 1.5,
+    borderColor: Colors.tintBlueStrong,
+    ...Shadows.card,
   },
   manualTitle: {
     fontSize: FontSizes.title,
@@ -627,23 +663,39 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 21,
     marginBottom: Spacing.xl,
   },
   manualInput: {
     width: '100%',
-    backgroundColor: Colors.bgInput,
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.md,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '900',
     color: Colors.textPrimary,
     textAlign: 'center',
     letterSpacing: 6,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Colors.primary,
     marginBottom: Spacing.lg,
+    minHeight: 64,
+  },
+  inlineErrorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+  },
+  inlineErrorText: {
+    color: Colors.danger,
+    fontSize: FontSizes.caption,
+    fontWeight: '600',
+    flexShrink: 1,
+    textAlign: 'center',
   },
   submitBtn: {
     width: '100%',
@@ -651,6 +703,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: BorderRadius.md,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 54,
     ...Shadows.glow,
   },
   submitBtnDisabled: {
@@ -664,6 +718,13 @@ const styles = StyleSheet.create({
   switchModeBtn: {
     marginTop: Spacing.lg,
     padding: 8,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  switchModeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
   },
   switchModeText: {
     color: Colors.primary,
@@ -683,17 +744,22 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.caption,
     color: Colors.textMuted,
     marginBottom: 10,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
   },
   demoBtn: {
-    backgroundColor: Colors.accentOrange + '25',
-    paddingVertical: 12,
+    backgroundColor: Colors.tintBlue,
+    paddingVertical: 13,
     paddingHorizontal: 24,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.accentOrange,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    minHeight: 46,
+    justifyContent: 'center',
   },
   demoBtnText: {
-    color: Colors.accentOrange,
+    color: Colors.primary,
     fontWeight: '800',
     fontSize: FontSizes.body,
   },
@@ -705,9 +771,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  permissionIcon: {
-    fontSize: 64,
+  permissionIconBadge: {
+    width: 76,
+    height: 76,
+    borderRadius: 24,
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1.5,
+    borderColor: Colors.tintBlueStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacing.lg,
+    ...Shadows.card,
   },
   permissionTitle: {
     fontSize: FontSizes.title,
@@ -720,7 +794,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 23,
     marginBottom: Spacing.xl,
   },
   permissionBtn: {
@@ -729,6 +803,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 36,
     borderRadius: BorderRadius.md,
     marginBottom: Spacing.lg,
+    minHeight: 54,
+    justifyContent: 'center',
+    alignItems: 'center',
     ...Shadows.glow,
   },
   permissionBtnText: {
@@ -738,6 +815,8 @@ const styles = StyleSheet.create({
   },
   manualLinkBtn: {
     padding: 8,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   manualLinkText: {
     color: Colors.primary,
@@ -755,16 +834,14 @@ const styles = StyleSheet.create({
   successIconBadge: {
     width: 80,
     height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.accentGreen + '20',
+    borderRadius: 26,
+    backgroundColor: Colors.tintGreen,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.accentGreen,
-  },
-  successIcon: {
-    fontSize: 42,
+    borderWidth: 1.5,
+    borderColor: 'rgba(5, 150, 105, 0.3)',
+    ...Shadows.card,
   },
   successTitle: {
     fontSize: FontSizes.title,
@@ -776,26 +853,34 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 21,
     marginBottom: Spacing.lg,
   },
   successCard: {
     width: '100%',
-    backgroundColor: Colors.bgCard,
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    gap: 8,
+    gap: 12,
+    ...Shadows.card,
   },
   successCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  successCardText: {
     fontSize: FontSizes.body,
     color: Colors.textPrimary,
     fontWeight: '600',
+    flexShrink: 1,
   },
   redirectText: {
     color: Colors.textMuted,
     fontSize: FontSizes.caption,
     marginTop: 8,
+    fontWeight: '600',
   },
 });

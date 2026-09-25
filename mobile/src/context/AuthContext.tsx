@@ -163,8 +163,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: identifier && !identifier.startsWith('+') ? identifier : 'parent.test@guardian.family',
         phone: identifier && identifier.startsWith('+') ? identifier : '+15551234567',
         linked_children: [
-          { id: 'child_aarav', display_name: 'Aarav (Age 8)', age_band: 'kids_7_9', avatar: '👦' },
-          { id: 'child_meera', display_name: 'Meera (Age 13)', age_band: 'teens_13_15', avatar: '👧' }
+          { id: 'child_aarav', display_name: 'Aarav (Age 8)', age_band: 'kids_7_9', avatar: 'A' },
+          { id: 'child_meera', display_name: 'Meera (Age 13)', age_band: 'teens_13_15', avatar: 'M' }
         ]
       };
 

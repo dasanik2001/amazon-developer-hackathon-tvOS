@@ -10,8 +10,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { Colors, Spacing, FontSizes, BorderRadius } from '../../theme/colors';
+import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { authApi } from '../../api/client';
+import Icon, { IconName } from '../../components/Icon';
 
 interface ForgotPasswordScreenProps {
   onBack: () => void;
@@ -68,17 +69,26 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
     }
   };
 
+  const headerIcon: IconName = step === 'done' ? 'checkmark-circle' : 'key';
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <TouchableOpacity onPress={onBack} style={styles.backBtn}>
-          <Text style={styles.backText}>← Back to Login</Text>
+        <TouchableOpacity onPress={onBack} style={styles.backBtn} accessibilityRole="link">
+          <Icon name="arrow-back" size={18} color={Colors.primary} />
+          <Text style={styles.backText}>Back to Login</Text>
         </TouchableOpacity>
 
         <View style={styles.header}>
-          <Text style={styles.icon}>{step === 'done' ? '✅' : '🔑'}</Text>
+          <View style={[styles.iconBadge, step === 'done' && styles.iconBadgeSuccess]}>
+            <Icon
+              name={headerIcon}
+              size={32}
+              color={step === 'done' ? Colors.success : Colors.primary}
+            />
+          </View>
           <Text style={styles.title}>
-            {step === 'request' ? 'Forgot Password' : step === 'verify' ? 'Reset Password' : 'Password Reset!'}
+            {step === 'request' ? 'Forgot Password' : step === 'verify' ? 'Reset Password' : 'Password Reset'}
           </Text>
         </View>
 
@@ -91,15 +101,28 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
                 <TextInput
                   style={styles.input}
                   placeholder="parent@example.com or +91..."
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={Colors.textPlaceholder}
                   value={identifier}
                   onChangeText={setIdentifier}
                   autoCapitalize="none"
+                  accessibilityLabel="Email or phone"
                 />
               </View>
-              {error ? <Text style={styles.errorText}>⚠️ {error}</Text> : null}
-              <TouchableOpacity style={[styles.btn, isLoading && styles.btnDisabled]} onPress={handleRequestReset} disabled={isLoading}>
-                {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.btnText}>Send Reset Code</Text>}
+              {error ? (
+                <View style={styles.errorRow}>
+                  <Icon name="alert-circle" size={15} color={Colors.danger} />
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+              <TouchableOpacity
+                style={[styles.btn, isLoading && styles.btnDisabled]}
+                onPress={handleRequestReset}
+                disabled={isLoading}
+                accessibilityRole="button"
+              >
+                {isLoading
+                  ? <ActivityIndicator color="#FFF" />
+                  : <Text style={styles.btnText}>Send Reset Code</Text>}
               </TouchableOpacity>
             </>
           )}
@@ -110,7 +133,10 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
 
               {otpHint ? (
                 <View style={styles.hintBox}>
-                  <Text style={styles.hintLabel}>🧪 Dev Mode OTP:</Text>
+                  <View style={styles.hintLabelRow}>
+                    <Icon name="flask-outline" size={13} color={Colors.info} />
+                    <Text style={styles.hintLabel}>Dev Mode OTP</Text>
+                  </View>
                   <Text style={styles.hintCode}>{otpHint}</Text>
                 </View>
               ) : null}
@@ -118,13 +144,14 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>Verification Code</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, styles.codeInput]}
                   placeholder="6-digit code"
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={Colors.textPlaceholder}
                   value={otpCode}
                   onChangeText={setOtpCode}
                   keyboardType="number-pad"
                   maxLength={6}
+                  accessibilityLabel="Verification code"
                 />
               </View>
               <View style={styles.inputGroup}>
@@ -132,10 +159,11 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
                 <TextInput
                   style={styles.input}
                   placeholder="Min 8 chars, uppercase, digit, symbol"
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={Colors.textPlaceholder}
                   value={newPassword}
                   onChangeText={setNewPassword}
                   secureTextEntry
+                  accessibilityLabel="New password"
                 />
               </View>
               <View style={styles.inputGroup}>
@@ -143,23 +171,36 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
                 <TextInput
                   style={styles.input}
                   placeholder="Re-enter password"
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={Colors.textPlaceholder}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
+                  accessibilityLabel="Confirm new password"
                 />
               </View>
-              {error ? <Text style={styles.errorText}>⚠️ {error}</Text> : null}
-              <TouchableOpacity style={[styles.btn, isLoading && styles.btnDisabled]} onPress={handleResetPassword} disabled={isLoading}>
-                {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.btnText}>Reset Password</Text>}
+              {error ? (
+                <View style={styles.errorRow}>
+                  <Icon name="alert-circle" size={15} color={Colors.danger} />
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+              <TouchableOpacity
+                style={[styles.btn, isLoading && styles.btnDisabled]}
+                onPress={handleResetPassword}
+                disabled={isLoading}
+                accessibilityRole="button"
+              >
+                {isLoading
+                  ? <ActivityIndicator color="#FFF" />
+                  : <Text style={styles.btnText}>Reset Password</Text>}
               </TouchableOpacity>
             </>
           )}
 
           {step === 'done' && (
             <>
-              <Text style={styles.successText}>Your password has been reset successfully!</Text>
-              <TouchableOpacity style={styles.btn} onPress={onBack}>
+              <Text style={styles.successText}>Your password has been reset successfully.</Text>
+              <TouchableOpacity style={styles.btn} onPress={onBack} accessibilityRole="button">
                 <Text style={styles.btnText}>Back to Login</Text>
               </TouchableOpacity>
             </>
@@ -173,22 +214,105 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgDark },
   scrollContent: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.xl },
-  backBtn: { position: 'absolute', top: 60, left: Spacing.lg, zIndex: 10 },
-  backText: { color: Colors.accent, fontSize: FontSizes.bodyLarge, fontWeight: '600' },
+  backBtn: {
+    position: 'absolute',
+    top: 60,
+    left: Spacing.lg,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minHeight: 40,
+    paddingRight: 8,
+  },
+  backText: { color: Colors.primary, fontSize: FontSizes.bodyLarge, fontWeight: '700' },
   header: { alignItems: 'center', marginBottom: Spacing.lg },
-  icon: { fontSize: 56, marginBottom: Spacing.sm },
+  iconBadge: {
+    width: 76,
+    height: 76,
+    borderRadius: 24,
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1.5,
+    borderColor: Colors.tintBlueStrong,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+    ...Shadows.card,
+  },
+  iconBadgeSuccess: {
+    backgroundColor: Colors.tintGreen,
+    borderColor: 'rgba(5, 150, 105, 0.3)',
+  },
   title: { fontSize: FontSizes.title, fontWeight: '800', color: Colors.textPrimary },
-  formCard: { backgroundColor: Colors.bgCard, borderRadius: BorderRadius.lg, padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border },
-  desc: { fontSize: FontSizes.body, color: Colors.textSecondary, marginBottom: Spacing.lg, textAlign: 'center' },
+  formCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
+  },
+  desc: { fontSize: FontSizes.body, color: Colors.textSecondary, marginBottom: Spacing.lg, textAlign: 'center', lineHeight: 21 },
   inputGroup: { marginBottom: Spacing.md },
-  inputLabel: { fontSize: FontSizes.caption, fontWeight: '600', color: Colors.textSecondary, marginBottom: Spacing.xs, textTransform: 'uppercase', letterSpacing: 0.5 },
-  input: { backgroundColor: Colors.bgInput, borderRadius: BorderRadius.sm, paddingHorizontal: Spacing.md, paddingVertical: Spacing.md - 2, fontSize: FontSizes.bodyLarge, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
-  hintBox: { backgroundColor: 'rgba(108, 92, 231, 0.2)', borderWidth: 1, borderColor: Colors.primary, borderRadius: BorderRadius.md, padding: Spacing.md, alignItems: 'center', marginBottom: Spacing.lg },
-  hintLabel: { fontSize: FontSizes.caption, color: Colors.primaryLight },
-  hintCode: { fontSize: 28, fontWeight: '900', color: Colors.accentOrange, letterSpacing: 6 },
-  errorText: { color: Colors.danger, fontSize: FontSizes.body, textAlign: 'center', marginBottom: Spacing.md },
-  successText: { color: Colors.success, fontSize: FontSizes.bodyLarge, textAlign: 'center', marginBottom: Spacing.lg, fontWeight: '600' },
-  btn: { backgroundColor: Colors.primary, borderRadius: BorderRadius.md, paddingVertical: Spacing.md, alignItems: 'center' },
+  inputLabel: {
+    fontSize: FontSizes.caption,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  input: {
+    backgroundColor: Colors.bgSurface,
+    borderRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md - 2,
+    fontSize: FontSizes.bodyLarge,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  codeInput: {
+    textAlign: 'center',
+    letterSpacing: 6,
+    fontWeight: '800',
+    fontSize: 20,
+  },
+  hintBox: {
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1,
+    borderColor: Colors.tintBlueStrong,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  hintLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  hintLabel: { fontSize: FontSizes.caption, color: Colors.info, fontWeight: '700' },
+  hintCode: { fontSize: 28, fontWeight: '900', color: Colors.primary, letterSpacing: 6, marginTop: 4 },
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: Spacing.md,
+  },
+  errorText: { color: Colors.danger, fontSize: FontSizes.body, fontWeight: '600', flexShrink: 1 },
+  successText: {
+    color: '#047857',
+    fontSize: FontSizes.bodyLarge,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+    fontWeight: '600',
+  },
+  btn: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    minHeight: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.glow,
+  },
   btnDisabled: { opacity: 0.6 },
-  btnText: { color: Colors.textPrimary, fontSize: FontSizes.bodyLarge, fontWeight: '700' },
+  btnText: { color: '#FFFFFF', fontSize: FontSizes.bodyLarge, fontWeight: '700' },
 });

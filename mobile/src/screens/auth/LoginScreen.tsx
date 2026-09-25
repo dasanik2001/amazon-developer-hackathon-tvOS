@@ -21,6 +21,7 @@ import {
   DEFAULT_SERVER_URL,
 } from '../../api/client';
 import BrandEmblem from '../../components/BrandEmblem';
+import Icon, { IconName } from '../../components/Icon';
 
 interface LoginScreenProps {
   onNavigateRegister: () => void;
@@ -50,7 +51,6 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
 
   useEffect(() => {
     loadServerConfig();
-    // Entry animation
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
@@ -78,7 +78,6 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     ]).start();
   };
 
-  // ─── Direct Sign In (No 2FA) ──────────────────────────────────────────
   const handleLogin = async () => {
     setError('');
     setSuccessMsg('');
@@ -92,8 +91,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     try {
       const result = await login(identifier.trim(), password);
       if (result.success) {
-        setSuccessMsg('Welcome back! Signing you in…');
-        // AuthContext sets user → App.tsx auto-navigates to MainNavigator
+        setSuccessMsg('Welcome back. Signing you in.');
       } else {
         setError(result.error || 'Login failed');
         shake();
@@ -106,7 +104,6 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     }
   };
 
-  // ⚡ 1-Tap Auth Bypass: Instantly logs in directly
   const handleInstantBypass = async (targetId?: string) => {
     setError('');
     setSuccessMsg('');
@@ -114,12 +111,12 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     try {
       const result = await demoLogin(targetId || identifier.trim() || undefined);
       if (result.success) {
-        setSuccessMsg('⚡ Instant access granted!');
+        setSuccessMsg('Instant access granted.');
       } else {
         setError(result.error || 'Auth bypass failed. Check server connection.');
         shake();
       }
-    } catch (err: any) {
+    } catch {
       setError('Cannot reach backend. Tap server pill to configure IP.');
       shake();
     } finally {
@@ -162,6 +159,8 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     handleTestPing();
   };
 
+  const identifierIcon: IconName = isPhoneMode ? 'phone-portrait' : 'mail';
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -177,6 +176,8 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
           style={styles.serverPill}
           onPress={() => setShowServerModal(true)}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Backend host settings"
         >
           <View
             style={[
@@ -189,33 +190,35 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
             {serverUrl ? serverUrl.replace(/^https?:\/\//, '') : 'Set Server Host'}
             {serverLatency ? ` (${serverLatency}ms)` : ''}
           </Text>
-          <Text style={styles.serverGearIcon}>⚙️</Text>
+          <Icon name="settings" size={13} color={Colors.textMuted} />
         </TouchableOpacity>
 
-        {/* Hero Geometric Emblem */}
+        {/* Brand Hero */}
         <Animated.View style={[styles.brandHero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <BrandEmblem size={88} />
           <Text style={styles.brandTitle}>GUARDIAN</Text>
           <Text style={styles.brandSubtitle}>AI Parental Intelligence for Fire TV</Text>
         </Animated.View>
 
-        {/* 🧪 Testing & Demo Hub */}
+        {/* Quick Test & Demo Hub */}
         <View style={styles.demoCard}>
           <View style={styles.demoHeader}>
-            <Text style={styles.demoTitle}>⚡ QUICK TEST & BYPASS</Text>
+            <View style={styles.demoTitleWrap}>
+              <Icon name="flash" size={13} color={Colors.primary} />
+              <Text style={styles.demoTitle}>QUICK TEST & BYPASS</Text>
+            </View>
             <View style={styles.demoBadge}>
               <Text style={styles.demoBadgeText}>DEMO</Text>
             </View>
           </View>
 
-          {/* Quick-fill Outline Pills */}
           <View style={styles.pillRow}>
             <TouchableOpacity
               style={styles.outlinePill}
               onPress={handleFillTestEmail}
               activeOpacity={0.7}
             >
-              <Text style={styles.pillIcon}>📧</Text>
+              <Icon name="mail-outline" size={15} color={Colors.primary} />
               <Text style={styles.outlinePillText}>Email Demo</Text>
             </TouchableOpacity>
 
@@ -224,12 +227,11 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
               onPress={handleFillTestPhone}
               activeOpacity={0.7}
             >
-              <Text style={styles.pillIcon}>📱</Text>
+              <Icon name="phone-portrait-outline" size={15} color={Colors.primary} />
               <Text style={styles.outlinePillText}>Phone Demo</Text>
             </TouchableOpacity>
           </View>
 
-          {/* ⚡ 1-Tap Instant Auth Bypass */}
           <TouchableOpacity
             style={[styles.instantBypassPill, isBypassing && styles.btnDisabled]}
             onPress={() => handleInstantBypass()}
@@ -237,9 +239,12 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
             activeOpacity={0.8}
           >
             {isBypassing ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
+              <ActivityIndicator color={Colors.primary} size="small" />
             ) : (
-              <Text style={styles.instantBypassText}>⚡ 1-Tap Instant Sign-In</Text>
+              <View style={styles.inlineCenter}>
+                <Icon name="flash" size={15} color={Colors.primary} />
+                <Text style={styles.instantBypassText}>1-Tap Instant Sign-In</Text>
+              </View>
             )}
           </TouchableOpacity>
         </View>
@@ -251,22 +256,26 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
             <TouchableOpacity
               style={[styles.segmentBtn, !isPhoneMode && styles.segmentBtnActive]}
               onPress={() => { setIsPhoneMode(false); setIdentifier(''); }}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: !isPhoneMode }}
             >
               <Text style={[styles.segmentText, !isPhoneMode && styles.segmentTextActive]}>Email</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.segmentBtn, isPhoneMode && styles.segmentBtnActive]}
               onPress={() => { setIsPhoneMode(true); setIdentifier(''); }}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isPhoneMode }}
             >
               <Text style={[styles.segmentText, isPhoneMode && styles.segmentTextActive]}>Phone</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Identifier Input (Capsule) */}
-          <View style={styles.capsuleInputWrapper}>
-            <Text style={styles.inputPrefixIcon}>{isPhoneMode ? '📱' : '📧'}</Text>
+          {/* Identifier Input */}
+          <View style={styles.inputWrapper}>
+            <Icon name={identifierIcon} size={18} color={Colors.textMuted} style={styles.inputPrefixIcon} />
             <TextInput
-              style={styles.capsuleInput}
+              style={styles.input}
               placeholder={isPhoneMode ? '+15551234567' : 'parent.test@guardian.family'}
               placeholderTextColor={Colors.textPlaceholder}
               value={identifier}
@@ -274,14 +283,15 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
               keyboardType={isPhoneMode ? 'phone-pad' : 'email-address'}
               autoCapitalize="none"
               autoComplete={isPhoneMode ? 'tel' : 'email'}
+              accessibilityLabel={isPhoneMode ? 'Phone number' : 'Email address'}
             />
           </View>
 
-          {/* Password Input (Capsule) */}
-          <View style={styles.capsuleInputWrapper}>
-            <Text style={styles.inputPrefixIcon}>🔒</Text>
+          {/* Password Input */}
+          <View style={styles.inputWrapper}>
+            <Icon name="lock-closed-outline" size={18} color={Colors.textMuted} style={styles.inputPrefixIcon} />
             <TextInput
-              style={[styles.capsuleInput, styles.passwordCapsuleInput]}
+              style={[styles.input, styles.passwordInput]}
               placeholder="Password"
               placeholderTextColor={Colors.textPlaceholder}
               value={password}
@@ -290,45 +300,52 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
               autoCapitalize="none"
               onSubmitEditing={handleLogin}
               returnKeyType="go"
+              accessibilityLabel="Password"
             />
             <TouchableOpacity
-              style={styles.capsuleEyeBtn}
+              style={styles.eyeBtn}
               onPress={() => setShowPassword(!showPassword)}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+              <Icon name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} />
             </TouchableOpacity>
           </View>
 
           {/* Forgot Password */}
-          <TouchableOpacity onPress={onNavigateForgot} style={styles.forgotBtn}>
+          <TouchableOpacity onPress={onNavigateForgot} style={styles.forgotBtn} accessibilityRole="link">
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
           {/* Success Banner */}
           {successMsg ? (
             <View style={styles.successBox}>
-              <Text style={styles.successText}>✅ {successMsg}</Text>
+              <Icon name="checkmark-circle" size={17} color={Colors.success} />
+              <Text style={styles.successText}>{successMsg}</Text>
             </View>
           ) : null}
 
           {/* Error Banner */}
           {error ? (
             <View style={styles.errorBox}>
-              <Text style={styles.errorText}>⚠️ {error}</Text>
+              <Icon name="alert-circle" size={17} color={Colors.danger} />
+              <Text style={styles.errorText}>{error}</Text>
             </View>
           ) : null}
 
-          {/* Radiant Hot Pink CTA Button — Direct Sign In */}
+          {/* Primary CTA */}
           <TouchableOpacity
-            style={[styles.heroPinkBtn, (isLoading || isBypassing) && styles.btnDisabled]}
+            style={[styles.primaryBtn, (isLoading || isBypassing) && styles.btnDisabled]}
             onPress={handleLogin}
             disabled={isLoading || isBypassing}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Sign in"
           >
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.heroPinkBtnText}>Sign In</Text>
+              <Text style={styles.primaryBtnText}>Sign In</Text>
             )}
           </TouchableOpacity>
 
@@ -340,16 +357,17 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
           {/* Bottom Link */}
           <View style={styles.registerRow}>
             <Text style={styles.registerPrompt}>Don't have an account? </Text>
-            <TouchableOpacity onPress={onNavigateRegister}>
+            <TouchableOpacity onPress={onNavigateRegister} accessibilityRole="link">
               <Text style={styles.registerLink}>Sign Up</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
 
-        {/* Security & 30-Day Persistence Note */}
-        <Text style={styles.footerNote}>
-          🔒 30-Day Persistent Session • No 2FA Required
-        </Text>
+        {/* Security Note */}
+        <View style={styles.footerNote}>
+          <Icon name="lock-closed" size={11} color={Colors.textMuted} />
+          <Text style={styles.footerNoteText}>30-Day Persistent Session • No 2FA Required</Text>
+        </View>
       </ScrollView>
 
       {/* ─── Server Configuration Modal ─────────────────────────────────── */}
@@ -361,9 +379,14 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>🌐 Backend Host Settings</Text>
+            <View style={styles.modalTitleRow}>
+              <View style={styles.modalTitleIcon}>
+                <Icon name="globe-outline" size={18} color={Colors.primary} />
+              </View>
+              <Text style={styles.modalTitle}>Backend Host Settings</Text>
+            </View>
             <Text style={styles.modalSubtitle}>
-              Connect over local Wi-Fi or cloud tunnel:
+              Connect over local Wi-Fi or cloud tunnel.
             </Text>
 
             <TextInput
@@ -374,30 +397,43 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
               placeholderTextColor={Colors.textPlaceholder}
               autoCapitalize="none"
               autoCorrect={false}
+              accessibilityLabel="Backend host URL"
             />
 
             <TouchableOpacity
               style={styles.testBtn}
               onPress={handleTestPing}
               disabled={serverStatus === 'checking'}
+              accessibilityRole="button"
             >
               {serverStatus === 'checking' ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
+                <ActivityIndicator color={Colors.primary} size="small" />
               ) : (
-                <Text style={styles.testBtnText}>
-                  {serverStatus === 'connected' ? `✅ Connected (${serverLatency}ms)` : '📡 Ping Backend Host'}
-                </Text>
+                <View style={styles.inlineCenter}>
+                  <Icon
+                    name={serverStatus === 'connected' ? 'checkmark-circle' : 'radio-button-off'}
+                    size={15}
+                    color={serverStatus === 'connected' ? Colors.success : Colors.primary}
+                  />
+                  <Text style={[styles.testBtnText, serverStatus === 'connected' && { color: Colors.success }]}>
+                    {serverStatus === 'connected' ? `Connected (${serverLatency}ms)` : 'Ping Backend Host'}
+                  </Text>
+                </View>
               )}
             </TouchableOpacity>
 
             {serverErrorMsg ? (
-              <Text style={styles.modalErrorText}>❌ {serverErrorMsg}</Text>
+              <View style={styles.modalErrorRow}>
+                <Icon name="close-circle" size={14} color={Colors.danger} />
+                <Text style={styles.modalErrorText}>{serverErrorMsg}</Text>
+              </View>
             ) : null}
 
             <View style={styles.modalBtnRow}>
               <TouchableOpacity
                 style={styles.modalSecondaryBtn}
                 onPress={() => setServerUrl(DEFAULT_SERVER_URL)}
+                accessibilityRole="button"
               >
                 <Text style={styles.modalSecondaryBtnText}>Default</Text>
               </TouchableOpacity>
@@ -405,6 +441,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
               <TouchableOpacity
                 style={styles.modalPrimaryBtn}
                 onPress={handleSaveServer}
+                accessibilityRole="button"
               >
                 <Text style={styles.modalPrimaryBtnText}>Apply</Text>
               </TouchableOpacity>
@@ -419,7 +456,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1A0A35', // Deeper, richer Royal Violet
+    backgroundColor: Colors.bgDark,
   },
   scrollContent: {
     flexGrow: 1,
@@ -427,18 +464,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xl,
   },
+  inlineCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+
   serverPill: {
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: Colors.border,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
     marginBottom: Spacing.lg,
     gap: 8,
+    ...Shadows.card,
   },
   statusDot: {
     width: 8,
@@ -447,47 +491,46 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.warning,
   },
   statusDotGreen: {
-    backgroundColor: '#10B981',
+    backgroundColor: Colors.success,
   },
   statusDotRed: {
-    backgroundColor: '#EF4444',
+    backgroundColor: Colors.danger,
   },
   serverPillText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: Colors.textSecondary,
     fontSize: FontSizes.caption,
     fontWeight: '600',
     maxWidth: 220,
   },
-  serverGearIcon: {
-    fontSize: 12,
-  },
+
   brandHero: {
     alignItems: 'center',
     marginBottom: Spacing.xl,
   },
   brandTitle: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     letterSpacing: 6,
     marginTop: Spacing.md,
   },
   brandSubtitle: {
     fontSize: FontSizes.body,
-    color: 'rgba(209, 196, 233, 0.8)',
+    color: Colors.textSecondary,
     marginTop: 6,
     textAlign: 'center',
-    letterSpacing: 0.8,
+    letterSpacing: 0.4,
   },
 
-  // 🧪 Quick Test & Demo Hub
+  // Quick Test & Demo Hub
   demoCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.border,
     marginBottom: Spacing.lg,
+    ...Shadows.card,
   },
   demoHeader: {
     flexDirection: 'row',
@@ -495,20 +538,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.sm,
   },
+  demoTitleWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   demoTitle: {
     fontSize: FontSizes.caption,
     fontWeight: '800',
-    color: 'rgba(255, 255, 255, 0.5)',
-    letterSpacing: 1.2,
+    color: Colors.textSecondary,
+    letterSpacing: 1,
   },
   demoBadge: {
-    backgroundColor: '#FA2E67',
+    backgroundColor: Colors.tintBlue,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.tintBlueStrong,
   },
   demoBadgeText: {
-    color: '#FFFFFF',
+    color: Colors.primary,
     fontSize: 9,
     fontWeight: '900',
     letterSpacing: 0.8,
@@ -523,35 +573,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 10,
-    borderRadius: BorderRadius.pill,
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1,
+    borderColor: Colors.tintBlueStrong,
+    paddingVertical: 11,
+    borderRadius: BorderRadius.full,
     gap: 6,
-  },
-  pillIcon: {
-    fontSize: 14,
+    minHeight: 44,
   },
   outlinePillText: {
-    color: 'rgba(255, 255, 255, 0.85)',
+    color: Colors.primary,
     fontSize: FontSizes.caption,
     fontWeight: '700',
   },
   instantBypassPill: {
-    backgroundColor: 'rgba(250, 46, 103, 0.15)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(250, 46, 103, 0.5)',
-    borderRadius: BorderRadius.pill,
-    paddingVertical: 12,
-    alignItems: 'center',
+    minHeight: 46,
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    borderRadius: BorderRadius.full,
+    paddingVertical: 12,
   },
   instantBypassText: {
-    color: '#FF6B9D',
+    color: Colors.primary,
     fontSize: FontSizes.body,
     fontWeight: '800',
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
   },
 
   // Main Form Area
@@ -560,129 +610,144 @@ const styles = StyleSheet.create({
   },
   segmentedControl: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderRadius: BorderRadius.pill,
-    padding: 3,
+    backgroundColor: Colors.bgSurface,
+    borderRadius: BorderRadius.full,
+    padding: 4,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.border,
   },
   segmentBtn: {
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: BorderRadius.pill,
+    borderRadius: BorderRadius.full,
+    minHeight: 40,
+    justifyContent: 'center',
   },
   segmentBtnActive: {
-    backgroundColor: '#FA2E67',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
   },
   segmentText: {
     fontSize: FontSizes.body,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: Colors.textMuted,
     fontWeight: '700',
   },
   segmentTextActive: {
-    color: '#FFFFFF',
+    color: Colors.primary,
   },
 
-  // Capsule Inputs
-  capsuleInputWrapper: {
+  // Inputs
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: BorderRadius.pill,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#FFFFFF',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
     paddingHorizontal: Spacing.md,
     height: 54,
     marginBottom: Spacing.md,
   },
   inputPrefixIcon: {
-    fontSize: 18,
     marginRight: Spacing.sm,
   },
-  capsuleInput: {
+  input: {
     flex: 1,
     height: '100%',
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: FontSizes.bodyLarge,
   },
-  passwordCapsuleInput: {
+  passwordInput: {
     paddingRight: 36,
   },
-  capsuleEyeBtn: {
+  eyeBtn: {
     position: 'absolute',
-    right: 16,
-  },
-  eyeIcon: {
-    fontSize: 18,
+    right: 14,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   forgotBtn: {
     alignSelf: 'flex-end',
     marginBottom: Spacing.md,
     paddingRight: Spacing.xs,
+    minHeight: 24,
+    justifyContent: 'center',
   },
   forgotText: {
-    color: 'rgba(255, 255, 255, 0.45)',
+    color: Colors.primary,
     fontSize: FontSizes.caption,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   successBox: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.tintGreen,
     borderRadius: BorderRadius.sm,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: 'rgba(5, 150, 105, 0.25)',
   },
   successText: {
-    color: '#6EE7B7',
+    color: '#047857',
     fontSize: FontSizes.body,
-    textAlign: 'center',
     fontWeight: '600',
+    flexShrink: 1,
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.tintRed,
     borderRadius: BorderRadius.sm,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(220, 38, 38, 0.25)',
   },
   errorText: {
-    color: '#FCA5A5',
+    color: '#B91C1C',
     fontSize: FontSizes.body,
-    textAlign: 'center',
+    flexShrink: 1,
   },
 
-  // Radiant Hot Pink Hero Button
-  heroPinkBtn: {
-    backgroundColor: '#FA2E67',
-    borderRadius: BorderRadius.pill,
-    height: 56,
+  // Primary CTA
+  primaryBtn: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    height: 54,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.pinkGlow,
+    ...Shadows.glow,
     marginBottom: Spacing.sm,
   },
   btnDisabled: {
     opacity: 0.5,
   },
-  heroPinkBtnText: {
+  primaryBtnText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '800',
-    letterSpacing: 1,
+    letterSpacing: 0.6,
   },
   demoHint: {
     fontSize: FontSizes.caption - 1,
-    color: 'rgba(255, 255, 255, 0.35)',
+    color: Colors.textMuted,
     textAlign: 'center',
     marginTop: 4,
     marginBottom: Spacing.lg,
   },
   codeText: {
-    color: '#FBBF24',
+    color: Colors.textSecondary,
     fontWeight: '700',
   },
   registerRow: {
@@ -691,77 +756,107 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   registerPrompt: {
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: Colors.textSecondary,
     fontSize: FontSizes.body,
   },
   registerLink: {
-    color: '#FA2E67',
+    color: Colors.primary,
     fontSize: FontSizes.body,
     fontWeight: '800',
   },
   footerNote: {
-    color: 'rgba(255, 255, 255, 0.25)',
-    fontSize: 11,
-    textAlign: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     marginTop: Spacing.md,
+  },
+  footerNoteText: {
+    color: Colors.textMuted,
+    fontSize: 11,
   },
 
   // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(10, 4, 22, 0.92)',
+    backgroundColor: 'rgba(15, 23, 42, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
   },
   modalCard: {
-    backgroundColor: '#2A1254',
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.border,
     width: '100%',
     maxWidth: 400,
+    ...Shadows.raised,
+  },
+  modalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: Spacing.xs,
+  },
+  modalTitleIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: Colors.tintBlue,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modalTitle: {
     fontSize: FontSizes.subtitle,
     fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: Spacing.xs,
+    color: Colors.textPrimary,
   },
   modalSubtitle: {
     fontSize: FontSizes.caption,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: Colors.textSecondary,
     marginBottom: Spacing.md,
     lineHeight: 18,
   },
   modalInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: BorderRadius.pill,
+    backgroundColor: Colors.bgSurface,
+    borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm + 4,
     fontSize: FontSizes.body,
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: Colors.border,
     marginBottom: Spacing.sm,
   },
   testBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: BorderRadius.pill,
-    paddingVertical: 10,
+    minHeight: 44,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.tintBlue,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: Colors.tintBlueStrong,
     marginBottom: Spacing.sm,
   },
   testBtnText: {
-    color: '#FFFFFF',
+    color: Colors.primary,
     fontSize: FontSizes.caption,
     fontWeight: '700',
   },
-  modalErrorText: {
-    color: '#FCA5A5',
-    fontSize: FontSizes.caption,
+  modalErrorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     marginBottom: Spacing.sm,
+  },
+  modalErrorText: {
+    color: Colors.danger,
+    fontSize: FontSizes.caption,
   },
   modalBtnRow: {
     flexDirection: 'row',
@@ -770,20 +865,27 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   modalSecondaryBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.bgSurface,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   modalSecondaryBtnText: {
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: Colors.textSecondary,
     fontSize: FontSizes.body,
+    fontWeight: '600',
   },
   modalPrimaryBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: Spacing.lg,
-    borderRadius: BorderRadius.pill,
-    backgroundColor: '#FA2E67',
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
   },
   modalPrimaryBtnText: {
     color: '#FFFFFF',
