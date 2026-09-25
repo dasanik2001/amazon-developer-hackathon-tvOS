@@ -1,18 +1,55 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ─── Configuration ─────────────────────────────────────────────────────
-// Change this to your server URL (use ngrok/cloudflare tunnel for remote access)
-const BASE_URL = __DEV__
-  ? 'http://10.0.2.2:3001' // Android emulator localhost alias
-  : 'http://localhost:3001';
+// ─── Dynamic Server Configuration ──────────────────────────────────────
+const CUSTOM_SERVER_KEY = 'guardian_custom_server_url';
+export const DEFAULT_SERVER_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.102:3001';
 
-const API_URL = `${BASE_URL}/api`;
-const AUTH_URL = `${BASE_URL}/api/auth`;
+/** Resolve dynamic server URL: Custom override -> EXPO_PUBLIC_API_URL -> Emulator fallback */
+export async function getBaseUrl(): Promise<string> {
+  try {
+    const custom = await AsyncStorage.getItem(CUSTOM_SERVER_KEY);
+    if (custom && custom.trim()) {
+      return custom.trim().replace(/\/+$/, '');
+    }
+  } catch {}
 
-// ─── Token Management ───────────────────────────────────────────────────
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL.replace(/\/+$/, '');
+  }
+
+  return __DEV__ ? 'http://10.0.2.2:3001' : 'http://192.168.0.102:3001';
+}
+
+/** Set a custom server host (e.g. http://192.168.0.102:3001 or https://my-tunnel.ngrok.io) */
+export async function setCustomServerUrl(url: string): Promise<void> {
+  const clean = url.trim().replace(/\/+$/, '');
+  if (!clean || clean === DEFAULT_SERVER_URL) {
+    await AsyncStorage.removeItem(CUSTOM_SERVER_KEY);
+  } else {
+    await AsyncStorage.setItem(CUSTOM_SERVER_KEY, clean);
+  }
+}
+
+/** Test connectivity to the server */
+export async function testServerConnection(targetUrl?: string): Promise<{ success: boolean; latencyMs?: number; error?: string; url: string }> {
+  const base = targetUrl ? targetUrl.trim().replace(/\/+$/, '') : await getBaseUrl();
+  const start = Date.now();
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`${base}/health`, { signal: controller.signal });
+    clearTimeout(timeout);
+    return { success: res.ok, latencyMs: Date.now() - start, url: base };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Cannot reach server', url: base };
+  }
+}
+
+// ─── Token & Session Management (Persistent Auth) ───────────────────────
 
 const TOKEN_KEY = 'guardian_access_token';
 const REFRESH_KEY = 'guardian_refresh_token';
+const CACHED_USER_KEY = 'guardian_cached_user';
 
 export async function storeTokens(accessToken: string, refreshToken: string): Promise<void> {
   await AsyncStorage.multiSet([
@@ -29,16 +66,40 @@ export async function getRefreshToken(): Promise<string | null> {
   return AsyncStorage.getItem(REFRESH_KEY);
 }
 
+export async function storeCachedUser(user: any): Promise<void> {
+  try {
+    if (user) {
+      await AsyncStorage.setItem(CACHED_USER_KEY, JSON.stringify(user));
+    } else {
+      await AsyncStorage.removeItem(CACHED_USER_KEY);
+    }
+  } catch {}
+}
+
+export async function getCachedUser(): Promise<any | null> {
+  try {
+    const raw = await AsyncStorage.getItem(CACHED_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function clearTokens(): Promise<void> {
-  await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_KEY]);
+  await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_KEY, CACHED_USER_KEY]);
 }
 
 // ─── HTTP Helper ────────────────────────────────────────────────────────
 
 async function request<T>(
-  url: string,
+  pathOrUrl: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const baseUrl = await getBaseUrl();
+  const fullUrl = pathOrUrl.startsWith('http')
+    ? pathOrUrl
+    : `${baseUrl}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`;
+
   const token = await getAccessToken();
 
   const headers: Record<string, string> = {
@@ -50,7 +111,7 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(fullUrl, {
     ...options,
     headers,
   });
@@ -61,7 +122,7 @@ async function request<T>(
   if (response.status === 401 && token) {
     const refreshToken = await getRefreshToken();
     if (refreshToken) {
-      const refreshResult = await fetch(`${AUTH_URL}/refresh`, {
+      const refreshResult = await fetch(`${baseUrl}/api/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh_token: refreshToken }),
@@ -73,7 +134,7 @@ async function request<T>(
           await AsyncStorage.setItem(TOKEN_KEY, refreshData.access_token);
           // Retry original request with new token
           headers['Authorization'] = `Bearer ${refreshData.access_token}`;
-          const retryResponse = await fetch(url, { ...options, headers });
+          const retryResponse = await fetch(fullUrl, { ...options, headers });
           return retryResponse.json();
         }
       }
@@ -87,45 +148,51 @@ async function request<T>(
 
 export const authApi = {
   register: (identifier: string, password: string, display_name: string) =>
-    request<any>(`${AUTH_URL}/register`, {
+    request<any>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ identifier, password, display_name }),
     }),
 
   login: (identifier: string, password: string) =>
-    request<any>(`${AUTH_URL}/login`, {
+    request<any>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ identifier, password }),
     }),
 
+  demoLogin: (identifier?: string) =>
+    request<any>('/api/auth/demo-login', {
+      method: 'POST',
+      body: JSON.stringify({ identifier }),
+    }),
+
   verify2FA: (challenge_id: string, otp_code: string) =>
-    request<any>(`${AUTH_URL}/verify-2fa`, {
+    request<any>('/api/auth/verify-2fa', {
       method: 'POST',
       body: JSON.stringify({ challenge_id, otp_code }),
     }),
 
   resendOtp: (challenge_id: string) =>
-    request<any>(`${AUTH_URL}/resend-otp`, {
+    request<any>('/api/auth/resend-otp', {
       method: 'POST',
       body: JSON.stringify({ challenge_id }),
     }),
 
   forgotPassword: (identifier: string) =>
-    request<any>(`${AUTH_URL}/forgot-password`, {
+    request<any>('/api/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ identifier }),
     }),
 
   resetPassword: (challenge_id: string, otp_code: string, new_password: string) =>
-    request<any>(`${AUTH_URL}/reset-password`, {
+    request<any>('/api/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify({ challenge_id, otp_code, new_password }),
     }),
 
-  getMe: () => request<any>(`${AUTH_URL}/me`),
+  getMe: () => request<any>('/api/auth/me'),
 
   refreshToken: (refresh_token: string) =>
-    request<any>(`${AUTH_URL}/refresh`, {
+    request<any>('/api/auth/refresh', {
       method: 'POST',
       body: JSON.stringify({ refresh_token }),
     }),
@@ -134,28 +201,28 @@ export const authApi = {
 // ─── Guardian API (Viewing Data) ────────────────────────────────────────
 
 export const guardianApi = {
-  getChildren: () => request<any>(`${API_URL}/children`),
+  getChildren: () => request<any>('/api/children'),
 
   getDigest: (childId: string, date?: string) =>
-    request<any>(`${API_URL}/digest/${childId}${date ? `?date=${date}` : ''}`),
+    request<any>(`/api/digest/${childId}${date ? `?date=${date}` : ''}`),
 
   getSessions: (childId?: string, date?: string) => {
     const params = new URLSearchParams();
     if (childId) params.append('child_id', childId);
     if (date) params.append('date', date);
-    return request<any>(`${API_URL}/sessions?${params.toString()}`);
+    return request<any>(`/api/sessions?${params.toString()}`);
   },
 
   askAI: (child_id: string, question: string, date?: string) =>
-    request<any>(`${API_URL}/ai/qa`, {
+    request<any>('/api/ai/qa', {
       method: 'POST',
       body: JSON.stringify({ child_id, question, date }),
     }),
 
-  getOverlayControl: () => request<any>(`${API_URL}/overlay/control`),
+  getOverlayControl: () => request<any>('/api/overlay/control'),
 
   setOverlayControl: (enabled: boolean, child_id?: string) =>
-    request<any>(`${API_URL}/overlay/control`, {
+    request<any>('/api/overlay/control', {
       method: 'POST',
       body: JSON.stringify({ enabled, child_id }),
     }),
@@ -164,17 +231,17 @@ export const guardianApi = {
     const params = new URLSearchParams();
     if (childId) params.append('child_id', childId);
     if (limit) params.append('limit', String(limit));
-    return request<any>(`${API_URL}/overlay/frames?${params.toString()}`);
+    return request<any>(`/api/overlay/frames?${params.toString()}`);
   },
 
-  getCatalog: () => request<any>(`${API_URL}/catalog`),
+  getCatalog: () => request<any>('/api/catalog'),
 };
 
 // ─── Remote Control API ─────────────────────────────────────────────────
 
 export const remoteApi = {
   sendCommand: (command: string, target_child?: string, payload?: Record<string, any>) =>
-    request<any>(`${AUTH_URL}/remote/command`, {
+    request<any>('/api/auth/remote/command', {
       method: 'POST',
       body: JSON.stringify({ command, target_child, payload }),
     }),
@@ -184,25 +251,23 @@ export const remoteApi = {
 
 export const pairingApi = {
   approve: (pair_token?: string, short_code?: string) =>
-    request<any>(`${AUTH_URL}/tv-pair/approve`, {
+    request<any>('/api/auth/tv-pair/approve', {
       method: 'POST',
       body: JSON.stringify({ pair_token, short_code }),
     }),
 
   getDevices: () =>
-    request<any>(`${AUTH_URL}/tv-pair/devices`),
+    request<any>('/api/auth/tv-pair/devices'),
 
   disconnect: (pair_token: string) =>
-    request<any>(`${AUTH_URL}/tv-pair/disconnect`, {
+    request<any>('/api/auth/tv-pair/disconnect', {
       method: 'POST',
       body: JSON.stringify({ pair_token }),
     }),
 
   initiate: (device_name?: string) =>
-    request<any>(`${AUTH_URL}/tv-pair/initiate`, {
+    request<any>('/api/auth/tv-pair/initiate', {
       method: 'POST',
       body: JSON.stringify({ device_name }),
     }),
 };
-
-export { BASE_URL, API_URL, AUTH_URL };

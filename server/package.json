@@ -9,7 +9,8 @@
     "start": "tsx src/index.ts",
     "test:real-life": "tsx test/realLifeScenario.test.ts",
     "test:overlay": "tsx test/overlayIngestTest.ts",
-    "test:tv-pairing": "tsx test/tvPairingFlow.test.ts"
+    "test:tv-pairing": "tsx test/tvPairingFlow.test.ts",
+    "test:auth-bypass": "tsx test/demoBypass.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.750.0",

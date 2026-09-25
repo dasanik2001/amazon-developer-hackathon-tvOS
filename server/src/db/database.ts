@@ -350,6 +350,10 @@ class Database {
     this.save();
   }
 
+  public getAllParents(): ParentUser[] {
+    return this.data.parent_users || [];
+  }
+
   public getParentById(id: string): ParentUser | undefined {
     if (!this.data.parent_users) return undefined;
     return this.data.parent_users.find((u) => u.id === id);

@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family TV Guardian • Mobile App UI/UX Live Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, #20103B 0%, #0D0618 100%);
+      color: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 64px;
+    }
+
+    /* Top Navigation & Controls */
+    .header-bar {
+      text-align: center;
+      max-width: 900px;
+      margin-bottom: 28px;
+    }
+    .badge-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(250, 46, 103, 0.15);
+      border: 1px solid rgba(250, 46, 103, 0.4);
+      color: #FA2E67;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #FFFFFF 0%, #D1C4E9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-desc {
+      color: #A393BF;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* Screen Selector Pills */
+    .screen-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px;
+      border-radius: 999px;
+      margin-bottom: 36px;
+      max-width: 820px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #C4B5FD;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .tab-btn.active {
+      background: #FA2E67;
+      color: #FFFFFF;
+      box-shadow: 0 4px 16px rgba(250, 46, 103, 0.4);
+    }
+
+    /* Main Simulator Stage */
+    .stage-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 48px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    /* Realistic White Smartphone Mockup Frame (Matches User Reference Image) */
+    .phone-frame {
+      width: 375px;
+      height: 770px;
+      background: #FFFFFF;
+      border-radius: 54px;
+      padding: 14px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.2);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .phone-speaker {
+      position: absolute;
+      top: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 5px;
+      background: #D1D5DB;
+      border-radius: 999px;
+      z-index: 20;
+    }
+    .phone-camera {
+      position: absolute;
+      top: 24px;
+      left: calc(50% + 46px);
+      width: 9px;
+      height: 9px;
+      background: #1F2937;
+      border-radius: 50%;
+      z-index: 20;
+    }
+
+    /* Screen Inner Display */
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: #351B68; /* Royal Purple from Reference */
+      border-radius: 42px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      padding: 24px 20px 32px;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 18px;
+      padding: 0 4px;
+    }
+
+    /* Dynamic Server Pill */
+    .server-pill {
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #FFFFFF;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .dot-green {
+      width: 7px;
+      height: 7px;
+      background: #34D399;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #34D399;
+    }
+
+    /* Geometric Brand Emblem (From Reference Image) */
+    .brand-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .emblem-box {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      box-shadow: 0 8px 24px rgba(250, 46, 103, 0.35);
+      position: relative;
+    }
+    .emblem-split {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .emblem-dots {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+      width: 44%;
+    }
+    .emblem-dot-row {
+      display: flex;
+      gap: 3px;
+    }
+    .emblem-dot {
+      width: 4px;
+      height: 4px;
+      background: #FFFFFF;
+      border-radius: 50%;
+    }
+    .emblem-divider {
+      width: 2px;
+      height: 80%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: rotate(12deg);
+    }
+    .emblem-waves {
+      display: flex;
+      justify-content: space-evenly;
+      width: 44%;
+      height: 80%;
+    }
+    .wave-line {
+      width: 3.5px;
+      height: 100%;
+      background: #FFFFFF;
+      border-radius: 2px;
+    }
+
+    .brand-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #FFFFFF;
+      margin-top: 14px;
+    }
+    .brand-sub {
+      font-size: 12px;
+      color: #C4B5FD;
+      margin-top: 2px;
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    /* Testing & Demo Box (Screen 3 style) */
+    .demo-box {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .demo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #E2D9F3;
+      margin-bottom: 10px;
+    }
+    .demo-badge {
+      background: #FA2E67;
+      color: #FFFFFF;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 900;
+    }
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .outline-pill {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      padding: 8px 10px;
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .outline-pill:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .bypass-btn {
+      width: 100%;
+      background: rgba(250, 46, 103, 0.25);
+      border: 1.5px solid #FA2E67;
+      border-radius: 999px;
+      padding: 10px;
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .bypass-btn:hover {
+      background: #FA2E67;
+      box-shadow: 0 4px 14px rgba(250, 46, 103, 0.4);
+    }
+
+    /* Segmented Control */
+    .segmented-control {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 3px;
+      margin-bottom: 14px;
+    }
+    .seg-btn {
+      flex: 1;
+      padding: 7px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #D1C4E9;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .seg-btn.active {
+      background: #FA2E67;
+      color: #FFFFFF;
+    }
+
+    /* Capsule Inputs */
+    .capsule-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      padding: 0 16px;
+      height: 48px;
+      margin-bottom: 12px;
+    }
+    .capsule-input input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #FFFFFF;
+      font-size: 14px;
+      outline: none;
+    }
+    .capsule-input input::placeholder {
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .forgot-link {
+      text-align: right;
+      font-size: 11px;
+      color: #C4B5FD;
+      font-weight: 600;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    /* Radiant Hot Pink CTA (Reference "Touch" / "Next") */
+    .pink-cta {
+      width: 100%;
+      height: 50px;
+      background: #FA2E67;
+      border: none;
+      border-radius: 999px;
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(250, 46, 103, 0.45);
+      transition: transform 0.15s ease, background 0.15s ease;
+      margin-bottom: 10px;
+    }
+    .pink-cta:hover {
+      background: #FF3B7A;
+      transform: translateY(-1px);
+    }
+    .pink-cta:active {
+      transform: translateY(1px);
+    }
+
+    .otp-prompt {
+      text-align: center;
+      font-size: 11px;
+      color: #D1C4E9;
+      margin-bottom: 14px;
+    }
+    .otp-prompt span {
+      color: #FBBF24;
+      font-weight: 800;
+    }
+
+    .footer-switch {
+      text-align: center;
+      font-size: 13px;
+      color: #C4B5FD;
+      margin-top: 8px;
+    }
+    .footer-switch a {
+      color: #FA2E67;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Two-Factor Lock Screen (Screen 5 from Reference) */
+    .lock-badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 20px auto 16px;
+      box-shadow: 0 8px 24px rgba(250, 46, 103, 0.4);
+    }
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 24px 0;
+    }
+    .otp-digit {
+      width: 44px;
+      height: 52px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+      font-size: 22px;
+      font-weight: 800;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .otp-digit.filled {
+      border-color: #FA2E67;
+      background: rgba(250, 46, 103, 0.2);
+    }
+
+    /* Dashboard View */
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .child-chips {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .child-chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .child-chip.active {
+      background: #FA2E67;
+      border-color: #FA2E67;
+      color: #FFFFFF;
+    }
+    .tv-status-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .remote-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .remote-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 12px;
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .remote-btn:hover {
+      background: rgba(250, 46, 103, 0.3);
+      border-color: #FA2E67;
+    }
+
+    /* Right Side Reference & Specs Panel */
+    .specs-panel {
+      flex: 1;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      padding: 28px;
+      backdrop-filter: blur(12px);
+    }
+    .spec-section {
+      margin-bottom: 24px;
+    }
+    .spec-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #FA2E67;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .color-swatches {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .swatch {
+      flex: 1;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .info-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .info-card strong {
+      color: #FFFFFF;
+    }
+    .code-pill {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: monospace;
+      color: #FBBF24;
+    }
+    .apk-dl-btn {
+      width: 100%;
+      background: #FA2E67;
+      color: #FFFFFF;
+      padding: 14px;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+      box-shadow: 0 8px 24px rgba(250, 46, 103, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="badge-tag">🎨 Reference UI/UX Simulator</div>
+    <h1>Family TV Guardian Mobile Preview</h1>
+    <p class="header-desc">
+      Interactive preview replicating the royal purple & radiant magenta design system from your reference image board.
+    </p>
+  </div>
+
+  <!-- Screen Selector Tabs -->
+  <div class="screen-tabs">
+    <button class="tab-btn active" onclick="switchScreen('login')">🔐 Login (Reference)</button>
+    <button class="tab-btn" onclick="switchScreen('otp')">🔒 Two-Factor PIN</button>
+    <button class="tab-btn" onclick="switchScreen('register')">📝 Sign Up</button>
+    <button class="tab-btn" onclick="switchScreen('dashboard')">📊 TV Dashboard</button>
+  </div>
+
+  <div class="stage-container">
+    <!-- Smartphone Device Mockup -->
+    <div class="phone-frame">
+      <div class="phone-speaker"></div>
+      <div class="phone-camera"></div>
+
+      <div class="phone-screen" id="phoneScreen">
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span>09:41</span>
+          <span>⚡ 5G 100%</span>
+        </div>
+
+        <!-- ─── SCREEN 1: LOGIN (DEFAULT) ─── -->
+        <div id="screenLogin">
+          <div class="server-pill" onclick="alert('Host: http://192.168.0.102:3001 (Ping: 22ms OK)')">
+            <div class="dot-green"></div>
+            <span>192.168.0.102:3001 (22ms)</span>
+            <span>⚙️</span>
+          </div>
+
+          <div class="brand-hero">
+            <div class="emblem-box">
+              <div class="emblem-split">
+                <div class="emblem-dots">
+                  <div class="emblem-dot-row"><div class="emblem-dot"></div></div>
+                  <div class="emblem-dot-row"><div class="emblem-dot"></div><div class="emblem-dot"></div></div>
+                  <div class="emblem-dot-row"><div class="emblem-dot"></div><div class="emblem-dot"></div><div class="emblem-dot"></div></div>
+                  <div class="emblem-dot-row"><div class="emblem-dot"></div><div class="emblem-dot"></div></div>
+                  <div class="emblem-dot-row"><div class="emblem-dot"></div></div>
+                </div>
+                <div class="emblem-divider"></div>
+                <div class="emblem-waves">
+                  <div class="wave-line"></div>
+                  <div class="wave-line" style="opacity: 0.85;"></div>
+                  <div class="wave-line"></div>
+                  <div class="wave-line" style="opacity: 0.85;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="brand-title">GUARDIAN</div>
+            <div class="brand-sub">AI Parental Intelligence for Fire TV</div>
+          </div>
+
+          <!-- Quick Test & Auth Bypass Hub -->
+          <div class="demo-box">
+            <div class="demo-header">
+              <span>⚡ QUICK TEST & BYPASS</span>
+              <span class="demo-badge">DEV / DEMO</span>
+            </div>
+            <div class="pill-row">
+              <button class="outline-pill" onclick="fillTestEmail()">📧 Email Demo</button>
+              <button class="outline-pill" onclick="fillTestPhone()">📱 Phone Demo</button>
+            </div>
+            <button class="bypass-btn" onclick="triggerBypass()">
+              🚀 1-Tap Instant Sign-In (Skip 2FA)
+            </button>
+          </div>
+
+          <!-- Segmented Toggle -->
+          <div class="segmented-control">
+            <div class="seg-btn active" id="segEmail" onclick="setMode('email')">Email</div>
+            <div class="seg-btn" id="segPhone" onclick="setMode('phone')">Mobile</div>
+          </div>
+
+          <!-- Capsule Inputs -->
+          <div class="capsule-input">
+            <span id="inputIcon">📧</span>
+            <input type="text" id="idInput" placeholder="parent.test@guardian.family" value="parent.test@guardian.family">
+          </div>
+
+          <div class="capsule-input">
+            <span>🔒</span>
+            <input type="password" id="pwInput" placeholder="Password123!" value="Password123!">
+            <span style="cursor:pointer;" onclick="togglePassword()">👁️</span>
+          </div>
+
+          <div class="forgot-link">Forgot Password?</div>
+
+          <!-- Hot Pink CTA Button -->
+          <button class="pink-cta" onclick="switchScreen('otp')">
+            Sign In with 2FA 🔐
+          </button>
+
+          <div class="otp-prompt">
+            Master 2FA code: <span>123456</span> (accepted anywhere)
+          </div>
+
+          <div class="footer-switch">
+            Don't have an account? <a onclick="switchScreen('register')">Sign Up</a>
+          </div>
+        </div>
+
+        <!-- ─── SCREEN 2: TWO-FACTOR PIN ─── -->
+        <div id="screenOtp" style="display: none;">
+          <button class="outline-pill" style="align-self: flex-start; margin-bottom: 12px; padding: 6px 14px;" onclick="switchScreen('login')">
+            ← Back
+          </button>
+
+          <div class="lock-badge">🔒</div>
+          <div class="brand-title" style="font-size: 20px; text-align: center; margin-top: 0;">TWO-FACTOR PIN</div>
+          <div class="brand-sub" style="margin-bottom: 16px;">Enter 6-digit verification code sent to your device</div>
+
+          <div style="background: rgba(255,255,255,0.1); border-radius: 999px; padding: 8px 16px; text-align: center; font-size: 12px; color: #FBBF24; margin-bottom: 12px; font-weight: 700;">
+            🧪 Dev Hint / Master Code: 123456
+          </div>
+
+          <div class="otp-inputs">
+            <div class="otp-digit filled">1</div>
+            <div class="otp-digit filled">2</div>
+            <div class="otp-digit filled">3</div>
+            <div class="otp-digit filled">4</div>
+            <div class="otp-digit filled">5</div>
+            <div class="otp-digit filled">6</div>
+          </div>
+
+          <button class="pink-cta" onclick="switchScreen('dashboard')">
+            Verify & Authorize
+          </button>
+
+          <button class="outline-pill" style="width: 100%; margin-top: 8px; padding: 12px;" onclick="switchScreen('dashboard')">
+            ⚡ 1-Tap Fill Test Code (123456)
+          </button>
+
+          <div class="footer-switch" style="margin-top: 16px;">
+            Didn't receive code? <a onclick="alert('New OTP Sent: 123456')">Resend Code</a>
+          </div>
+        </div>
+
+        <!-- ─── SCREEN 3: REGISTER ─── -->
+        <div id="screenRegister" style="display: none;">
+          <button class="outline-pill" style="align-self: flex-start; margin-bottom: 12px; padding: 6px 14px;" onclick="switchScreen('login')">
+            ← Back
+          </button>
+
+          <div class="brand-hero" style="margin-bottom: 16px;">
+            <div class="emblem-box" style="width: 64px; height: 64px;">
+              <span style="font-size: 30px;">🛡️</span>
+            </div>
+            <div class="brand-title" style="font-size: 20px; margin-top: 8px;">CREATE ACCOUNT</div>
+            <div class="brand-sub">Set up your Family TV Guardian profile</div>
+          </div>
+
+          <div class="capsule-input">
+            <span>👤</span>
+            <input type="text" placeholder="Full Name" value="David Miller">
+          </div>
+
+          <div class="capsule-input">
+            <span>📧</span>
+            <input type="text" placeholder="Email Address" value="parent.test@guardian.family">
+          </div>
+
+          <div class="capsule-input">
+            <span>🔒</span>
+            <input type="password" placeholder="Create Password" value="Password123!">
+          </div>
+
+          <div class="capsule-input">
+            <span>🛡️</span>
+            <input type="password" placeholder="Confirm Password" value="Password123!">
+          </div>
+
+          <button class="pink-cta" onclick="switchScreen('otp')">
+            Complete Sign Up
+          </button>
+
+          <div class="footer-switch">
+            Already have an account? <a onclick="switchScreen('login')">Sign In</a>
+          </div>
+        </div>
+
+        <!-- ─── SCREEN 4: DASHBOARD ─── -->
+        <div id="screenDashboard" style="display: none;">
+          <div class="dash-header">
+            <div>
+              <div style="font-size: 11px; color: #C4B5FD; font-weight: 700;">ACTIVE PARENT</div>
+              <div style="font-size: 18px; font-weight: 900;">David Miller</div>
+            </div>
+            <div class="demo-badge" style="background:#34D399; color:#000;">PAIRED TV</div>
+          </div>
+
+          <div class="child-chips">
+            <div class="child-chip active" id="chipAarav" onclick="selectChild('aarav')">👦 Aarav (7-10)</div>
+            <div class="child-chip" id="chipMeera" onclick="selectChild('meera')">👧 Meera (4-6)</div>
+          </div>
+
+          <!-- Fire TV Connected Card -->
+          <div class="tv-status-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:12px; font-weight:800; color:#FA2E67;">📺 FIRE TV STICK 4K</span>
+              <span style="font-size:10px; color:#34D399; font-weight:800;">● STREAMING</span>
+            </div>
+            <div style="font-size:15px; font-weight:800; margin-bottom:4px;" id="videoTitle">JWST: Unfolding the Universe</div>
+            <div style="font-size:11px; color:#D1C4E9; margin-bottom:12px;">NASA TV • Prime Video • TV-G</div>
+
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+              <span>Daily Limit (60m)</span>
+              <span style="color:#34D399; font-weight:800;" id="timeRemaining">35m remaining</span>
+            </div>
+            <div style="width:100%; height:6px; background:rgba(255,255,255,0.1); border-radius:999px; overflow:hidden;">
+              <div style="width:42%; height:100%; background:#FA2E67; border-radius:999px;"></div>
+            </div>
+          </div>
+
+          <!-- Remote Control Grid -->
+          <div style="font-size:12px; font-weight:800; color:#C4B5FD; margin-bottom:8px;">PARENTAL QUICK CONTROLS</div>
+          <div class="remote-grid">
+            <button class="remote-btn" onclick="alert('Command sent: Pause Fire TV playback')">
+              <span style="font-size:20px;">⏸️</span>
+              <span>Pause TV</span>
+            </button>
+            <button class="remote-btn" onclick="alert('Command sent: Mute Fire TV Audio')">
+              <span style="font-size:20px;">🔇</span>
+              <span>Mute</span>
+            </button>
+            <button class="remote-btn" onclick="alert('Overlay Message: It is dinnertime! Please wrap up.')">
+              <span style="font-size:20px;">💬</span>
+              <span>Send Message</span>
+            </button>
+            <button class="remote-btn" onclick="alert('TV locked: Bedtime enforcement active.')">
+              <span style="font-size:20px;">🌙</span>
+              <span>Bedtime Lock</span>
+            </button>
+          </div>
+
+          <button class="outline-pill" style="width:100%; margin-top:16px; padding:10px;" onclick="switchScreen('login')">
+            🚪 Log Out (Reset Demo)
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Side Information & Actions -->
+    <div class="specs-panel">
+      <div class="spec-section">
+        <div class="spec-title">✨ Reference Color System</div>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#351B68;">#351B68<br>Royal Violet</div>
+          <div class="swatch" style="background:#FA2E67;">#FA2E67<br>Radiant Pink</div>
+          <div class="swatch" style="background:rgba(255,255,255,0.15);">rgba(255..)<br>Glass Pill</div>
+        </div>
+      </div>
+
+      <div class="spec-section">
+        <div class="spec-title">🔑 Testing Credentials</div>
+        <div class="info-card">
+          <strong>Email:</strong> <span class="code-pill">parent.test@guardian.family</span><br>
+          <strong>Mobile:</strong> <span class="code-pill">+15551234567</span><br>
+          <strong>Password:</strong> <span class="code-pill">Password123!</span><br>
+          <strong>Universal Test OTP:</strong> <span class="code-pill">123456</span>
+        </div>
+      </div>
+
+      <div class="spec-section">
+        <div class="spec-title">🔒 30-Day Persistence & Dynamic IP</div>
+        <div class="info-card">
+          • <strong>Persistence:</strong> JWT access expiry extended to <strong>30 days</strong>, cached in <span class="code-pill">AsyncStorage</span>.<br>
+          • <strong>Dynamic IP:</strong> Mobile connects directly to <span class="code-pill">192.168.0.102:3001</span> or custom server without <span class="code-pill">localhost</span> limits.<br>
+          • <strong>Database:</strong> Stored locally at <span class="code-pill">server/data/guardian_db.json</span>.
+        </div>
+      </div>
+
+      <div class="spec-section">
+        <div class="spec-title">📦 Compiled Release APK</div>
+        <div class="info-card">
+          File: <span class="code-pill">mobile/FamilyTVGuardian.apk</span><br>
+          Size: <strong>62.4 MB</strong> (Signed release build with new UI)
+        </div>
+        <a href="file:///d:/Dev/Projects/amazon-developer-hackathon-tvOS/mobile/FamilyTVGuardian.apk" class="apk-dl-btn">
+          📱 Locate FamilyTVGuardian.apk
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchScreen(screenName) {
+      document.getElementById('screenLogin').style.display = 'none';
+      document.getElementById('screenOtp').style.display = 'none';
+      document.getElementById('screenRegister').style.display = 'none';
+      document.getElementById('screenDashboard').style.display = 'none';
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+      if (screenName === 'login') {
+        document.getElementById('screenLogin').style.display = 'block';
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      } else if (screenName === 'otp') {
+        document.getElementById('screenOtp').style.display = 'block';
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      } else if (screenName === 'register') {
+        document.getElementById('screenRegister').style.display = 'block';
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+      } else if (screenName === 'dashboard') {
+        document.getElementById('screenDashboard').style.display = 'block';
+        document.querySelectorAll('.tab-btn')[3].classList.add('active');
+      }
+    }
+
+    function setMode(mode) {
+      const segEmail = document.getElementById('segEmail');
+      const segPhone = document.getElementById('segPhone');
+      const input = document.getElementById('idInput');
+      const icon = document.getElementById('inputIcon');
+
+      if (mode === 'email') {
+        segEmail.classList.add('active');
+        segPhone.classList.remove('active');
+        input.value = 'parent.test@guardian.family';
+        input.placeholder = 'parent.test@guardian.family';
+        icon.textContent = '📧';
+      } else {
+        segPhone.classList.add('active');
+        segEmail.classList.remove('active');
+        input.value = '+15551234567';
+        input.placeholder = '+15551234567';
+        icon.textContent = '📱';
+      }
+    }
+
+    function fillTestEmail() {
+      setMode('email');
+      document.getElementById('pwInput').value = 'Password123!';
+    }
+
+    function fillTestPhone() {
+      setMode('phone');
+      document.getElementById('pwInput').value = 'Password123!';
+    }
+
+    function triggerBypass() {
+      switchScreen('dashboard');
+    }
+
+    function togglePassword() {
+      const pw = document.getElementById('pwInput');
+      pw.type = pw.type === 'password' ? 'text' : 'password';
+    }
+
+    function selectChild(child) {
+      const aarav = document.getElementById('chipAarav');
+      const meera = document.getElementById('chipMeera');
+      const title = document.getElementById('videoTitle');
+      const rem = document.getElementById('timeRemaining');
+
+      if (child === 'aarav') {
+        aarav.classList.add('active');
+        meera.classList.remove('active');
+        title.textContent = 'JWST: Unfolding the Universe';
+        rem.textContent = '35m remaining';
+      } else {
+        meera.classList.add('active');
+        aarav.classList.remove('active');
+        title.textContent = 'RoboKids: Learn to Code';
+        rem.textContent = '18m remaining';
+      }
+    }
+  </script>
+</body>
+</html>

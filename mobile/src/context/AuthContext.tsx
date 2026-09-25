@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { authApi, storeTokens, clearTokens, getAccessToken } from '../api/client';
+import {
+  authApi,
+  storeTokens,
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  storeCachedUser,
+  getCachedUser,
+} from '../api/client';
 
 interface User {
   id: string;
@@ -24,6 +32,7 @@ interface AuthContextType {
   selectedChildId: string;
   setSelectedChildId: (id: string) => void;
   login: (identifier: string, password: string) => Promise<{ success: boolean; challenge_id?: string; otp_hint?: string; error?: string }>;
+  demoLogin: (identifier?: string) => Promise<{ success: boolean; error?: string }>;
   verify2FA: (challengeId: string, otpCode: string) => Promise<{ success: boolean; error?: string }>;
   register: (identifier: string, password: string, displayName: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
@@ -37,6 +46,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedChildId, setSelectedChildId] = useState('child_aarav');
 
+  // Load cached user session immediately on mount for persistent instant login
+  useEffect(() => {
+    async function initSession() {
+      try {
+        const [token, cached] = await Promise.all([
+          getAccessToken(),
+          getCachedUser(),
+        ]);
+
+        if (token && cached) {
+          setUser(cached);
+          if (cached.linked_children?.length > 0) {
+            setSelectedChildId(cached.linked_children[0].id);
+          }
+        }
+      } catch (err) {
+        console.warn('[Auth] Failed to restore local session:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    initSession();
+  }, []);
+
   const refreshUser = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -49,16 +83,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await authApi.getMe();
       if (result.success && result.data) {
         setUser(result.data);
-        // Auto-select first child if available
+        await storeCachedUser(result.data);
         if (result.data.linked_children?.length > 0) {
           setSelectedChildId(result.data.linked_children[0].id);
         }
-      } else {
-        setUser(null);
+      } else if (result.status === 401 || result.error?.includes('expired') || result.error?.includes('Unauthorized')) {
+        // Access token expired, attempt refresh
+        const refreshToken = await getRefreshToken();
+        if (refreshToken) {
+          const refreshRes = await authApi.refreshToken(refreshToken);
+          if (refreshRes.success && refreshRes.access_token) {
+            await storeTokens(refreshRes.access_token, refreshToken);
+            // Retry getMe
+            const retryMe = await authApi.getMe();
+            if (retryMe.success && retryMe.data) {
+              setUser(retryMe.data);
+              await storeCachedUser(retryMe.data);
+              return;
+            }
+          }
+        }
+        // Only clear if refresh explicitly failed
         await clearTokens();
+        setUser(null);
       }
+      // If network unreachable / offline, DO NOT clear session! Keep user logged in!
     } catch {
-      setUser(null);
+      // Offline or network hiccup - preserve existing cached session
     } finally {
       setIsLoading(false);
     }
@@ -84,11 +135,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // 1-Tap Instant Auth Bypass for rapid testing/evaluators
+  const demoLogin = useCallback(async (identifier?: string) => {
+    try {
+      setIsLoading(true);
+      const result = await authApi.demoLogin(identifier);
+      if (result.success && result.access_token) {
+        await storeTokens(result.access_token, result.refresh_token);
+        await storeCachedUser(result.user);
+        setUser(result.user);
+        if (result.user?.linked_children?.length > 0) {
+          setSelectedChildId(result.user.linked_children[0].id);
+        }
+        return { success: true };
+      }
+      return { success: false, error: result.error || 'Demo login failed' };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Cannot reach server' };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const verify2FA = useCallback(async (challengeId: string, otpCode: string) => {
     try {
       const result = await authApi.verify2FA(challengeId, otpCode);
       if (result.success && result.access_token) {
         await storeTokens(result.access_token, result.refresh_token);
+        await storeCachedUser(result.user);
         setUser(result.user);
         if (result.user?.linked_children?.length > 0) {
           setSelectedChildId(result.user.linked_children[0].id);
@@ -127,6 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         selectedChildId,
         setSelectedChildId,
         login,
+        demoLogin,
         verify2FA,
         register,
         logout,

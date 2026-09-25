@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,8 +10,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { Colors, Spacing, FontSizes, BorderRadius } from '../../theme/colors';
+import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
+import BrandEmblem from '../../components/BrandEmblem';
 
 interface RegisterScreenProps {
   onNavigateLogin: () => void;
@@ -29,7 +30,6 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Password strength
   const getPasswordStrength = (pw: string) => {
     let score = 0;
     if (pw.length >= 8) score++;
@@ -41,7 +41,7 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
 
   const strength = getPasswordStrength(password);
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
-  const strengthColors = [Colors.danger, Colors.warning, Colors.info, Colors.success];
+  const strengthColors = ['#F87171', '#FBBF24', '#38BDF8', '#34D399'];
 
   const handleRegister = async () => {
     setError('');
@@ -56,7 +56,6 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
     try {
       const result = await register(identifier.trim(), password, displayName.trim());
       if (result.success) {
-        // Auto-login after registration
         const loginResult = await login(identifier.trim(), password);
         if (loginResult.success && loginResult.challenge_id) {
           onNavigateOtp(loginResult.challenge_id, loginResult.otp_hint, identifier.trim());
@@ -79,51 +78,52 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* Header Hero */}
         <View style={styles.header}>
-          <Text style={styles.logoIcon}>🛡️</Text>
-          <Text style={styles.logoText}>Create Account</Text>
-          <Text style={styles.tagline}>Set up your Family TV Guardian parent account</Text>
+          <BrandEmblem size={76} />
+          <Text style={styles.title}>CREATE ACCOUNT</Text>
+          <Text style={styles.subtitle}>Set up your Family TV Guardian parent profile</Text>
         </View>
 
-        <View style={styles.formCard}>
-          {/* Display Name */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Your Name</Text>
+        <View style={styles.formContainer}>
+          {/* Display Name Capsule */}
+          <View style={styles.capsuleInputWrapper}>
+            <Text style={styles.inputPrefixIcon}>👤</Text>
             <TextInput
-              style={styles.input}
-              placeholder="e.g. Priya Sharma"
-              placeholderTextColor={Colors.textMuted}
+              style={styles.capsuleInput}
+              placeholder="Your Full Name"
+              placeholderTextColor={Colors.textPlaceholder}
               value={displayName}
               onChangeText={setDisplayName}
               autoCapitalize="words"
             />
           </View>
 
-          {/* Email / Phone Toggle */}
-          <View style={styles.toggleRow}>
+          {/* Segmented Mode Selector */}
+          <View style={styles.segmentedControl}>
             <TouchableOpacity
-              style={[styles.toggleBtn, !isPhoneMode && styles.toggleBtnActive]}
+              style={[styles.segmentBtn, !isPhoneMode && styles.segmentBtnActive]}
               onPress={() => { setIsPhoneMode(false); setIdentifier(''); }}
             >
-              <Text style={[styles.toggleText, !isPhoneMode && styles.toggleTextActive]}>📧 Email</Text>
+              <Text style={[styles.segmentText, !isPhoneMode && styles.segmentTextActive]}>Email</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.toggleBtn, isPhoneMode && styles.toggleBtnActive]}
+              style={[styles.segmentBtn, isPhoneMode && styles.segmentBtnActive]}
               onPress={() => { setIsPhoneMode(true); setIdentifier(''); }}
             >
-              <Text style={[styles.toggleText, isPhoneMode && styles.toggleTextActive]}>📱 Phone</Text>
+              <Text style={[styles.segmentText, isPhoneMode && styles.segmentTextActive]}>Mobile</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Identifier */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>{isPhoneMode ? 'Phone Number' : 'Email Address'}</Text>
+          {/* Identifier Capsule */}
+          <View style={styles.capsuleInputWrapper}>
+            <Text style={styles.inputPrefixIcon}>{isPhoneMode ? '📱' : '📧'}</Text>
             <TextInput
-              style={styles.input}
-              placeholder={isPhoneMode ? '+91 98765 43210' : 'parent@example.com'}
-              placeholderTextColor={Colors.textMuted}
+              style={styles.capsuleInput}
+              placeholder={isPhoneMode ? '+1 555 123 4567' : 'parent@example.com'}
+              placeholderTextColor={Colors.textPlaceholder}
               value={identifier}
               onChangeText={setIdentifier}
               keyboardType={isPhoneMode ? 'phone-pad' : 'email-address'}
@@ -131,79 +131,68 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
             />
           </View>
 
-          {/* Password */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Create Password</Text>
-            <View style={styles.passwordRow}>
-              <TextInput
-                style={[styles.input, { paddingRight: 50 }]}
-                placeholder="Min 8 chars, uppercase, digit, symbol"
-                placeholderTextColor={Colors.textMuted}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                style={styles.eyeBtn}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Text style={{ fontSize: 20 }}>{showPassword ? '🙈' : '👁️'}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Password Strength Meter */}
-            {password.length > 0 && (
-              <View style={styles.strengthContainer}>
-                <View style={styles.strengthBarBg}>
-                  <View
-                    style={[
-                      styles.strengthBarFill,
-                      { width: `${(strength / 4) * 100}%`, backgroundColor: strengthColors[strength - 1] || Colors.danger },
-                    ]}
-                  />
-                </View>
-                <Text style={[styles.strengthLabel, { color: strengthColors[strength - 1] || Colors.danger }]}>
-                  {strengthLabels[strength - 1] || 'Very Weak'}
-                </Text>
-              </View>
-            )}
-
-            {/* Requirements Checklist */}
-            {password.length > 0 && (
-              <View style={styles.requirementsList}>
-                <Text style={[styles.req, password.length >= 8 && styles.reqMet]}>
-                  {password.length >= 8 ? '✅' : '⬜'} At least 8 characters
-                </Text>
-                <Text style={[styles.req, /[A-Z]/.test(password) && styles.reqMet]}>
-                  {/[A-Z]/.test(password) ? '✅' : '⬜'} One uppercase letter
-                </Text>
-                <Text style={[styles.req, /[0-9]/.test(password) && styles.reqMet]}>
-                  {/[0-9]/.test(password) ? '✅' : '⬜'} One digit
-                </Text>
-                <Text style={[styles.req, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) && styles.reqMet]}>
-                  {/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? '✅' : '⬜'} One special character
-                </Text>
-              </View>
-            )}
+          {/* Password Capsule */}
+          <View style={styles.capsuleInputWrapper}>
+            <Text style={styles.inputPrefixIcon}>🔒</Text>
+            <TextInput
+              style={[styles.capsuleInput, { paddingRight: 36 }]}
+              placeholder="Min 8 chars, uppercase, digit, symbol"
+              placeholderTextColor={Colors.textPlaceholder}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+            />
+            <TouchableOpacity
+              style={styles.capsuleEyeBtn}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Confirm Password */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Confirm Password</Text>
+          {/* Password Strength Meter */}
+          {password.length > 0 && (
+            <View style={styles.strengthContainer}>
+              <View style={styles.strengthBarBg}>
+                <View
+                  style={[
+                    styles.strengthBarFill,
+                    {
+                      width: `${(strength / 4) * 100}%`,
+                      backgroundColor: strengthColors[strength - 1] || Colors.danger,
+                    },
+                  ]}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.strengthLabel,
+                  { color: strengthColors[strength - 1] || Colors.danger },
+                ]}
+              >
+                {strengthLabels[strength - 1] || 'Very Weak'}
+              </Text>
+            </View>
+          )}
+
+          {/* Confirm Password Capsule */}
+          <View style={styles.capsuleInputWrapper}>
+            <Text style={styles.inputPrefixIcon}>🛡️</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Re-enter your password"
-              placeholderTextColor={Colors.textMuted}
+              style={styles.capsuleInput}
+              placeholder="Confirm Password"
+              placeholderTextColor={Colors.textPlaceholder}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
               autoCapitalize="none"
             />
-            {confirmPassword.length > 0 && password !== confirmPassword && (
-              <Text style={styles.mismatchText}>Passwords don't match</Text>
-            )}
           </View>
+
+          {confirmPassword.length > 0 && password !== confirmPassword && (
+            <Text style={styles.mismatchText}>⚠️ Passwords do not match</Text>
+          )}
 
           {error ? (
             <View style={styles.errorBox}>
@@ -211,16 +200,17 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
             </View>
           ) : null}
 
+          {/* Hero Pink CTA Button */}
           <TouchableOpacity
-            style={[styles.primaryBtn, isLoading && styles.primaryBtnDisabled]}
+            style={[styles.heroPinkBtn, isLoading && styles.btnDisabled]}
             onPress={handleRegister}
             disabled={isLoading}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
           >
             {isLoading ? (
-              <ActivityIndicator color="#FFF" size="small" />
+              <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.primaryBtnText}>Create Account 🚀</Text>
+              <Text style={styles.heroPinkBtnText}>Complete Sign Up</Text>
             )}
           </TouchableOpacity>
 
@@ -237,37 +227,164 @@ export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: Regis
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bgDark },
-  scrollContent: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.xl },
-  header: { alignItems: 'center', marginBottom: Spacing.lg },
-  logoIcon: { fontSize: 48, marginBottom: Spacing.xs },
-  logoText: { fontSize: FontSizes.title, fontWeight: '800', color: Colors.textPrimary },
-  tagline: { fontSize: FontSizes.body, color: Colors.textSecondary, marginTop: Spacing.xs, textAlign: 'center' },
-  formCard: { backgroundColor: Colors.bgCard, borderRadius: BorderRadius.lg, padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border },
-  inputGroup: { marginBottom: Spacing.md },
-  inputLabel: { fontSize: FontSizes.caption, fontWeight: '600', color: Colors.textSecondary, marginBottom: Spacing.xs, textTransform: 'uppercase', letterSpacing: 0.5 },
-  input: { backgroundColor: Colors.bgInput, borderRadius: BorderRadius.sm, paddingHorizontal: Spacing.md, paddingVertical: Spacing.md - 2, fontSize: FontSizes.bodyLarge, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
-  toggleRow: { flexDirection: 'row', backgroundColor: Colors.bgSurface, borderRadius: BorderRadius.md, padding: 3, marginBottom: Spacing.lg },
-  toggleBtn: { flex: 1, paddingVertical: Spacing.sm + 2, alignItems: 'center', borderRadius: BorderRadius.sm },
-  toggleBtnActive: { backgroundColor: Colors.primary },
-  toggleText: { fontSize: FontSizes.body, color: Colors.textMuted, fontWeight: '600' },
-  toggleTextActive: { color: Colors.textPrimary },
-  passwordRow: { position: 'relative' as const },
-  eyeBtn: { position: 'absolute' as const, right: 12, top: 12 },
-  strengthContainer: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.sm, gap: 8 },
-  strengthBarBg: { flex: 1, height: 4, backgroundColor: Colors.bgSurface, borderRadius: 2, overflow: 'hidden' as const },
-  strengthBarFill: { height: 4, borderRadius: 2 },
-  strengthLabel: { fontSize: FontSizes.caption, fontWeight: '600' },
-  requirementsList: { marginTop: Spacing.sm, gap: 2 },
-  req: { fontSize: FontSizes.caption, color: Colors.textMuted },
-  reqMet: { color: Colors.success },
-  mismatchText: { color: Colors.danger, fontSize: FontSizes.caption, marginTop: Spacing.xs },
-  errorBox: { backgroundColor: 'rgba(255, 107, 107, 0.15)', borderRadius: BorderRadius.sm, padding: Spacing.sm + 2, marginBottom: Spacing.md, borderWidth: 1, borderColor: 'rgba(255, 107, 107, 0.3)' },
-  errorText: { color: Colors.danger, fontSize: FontSizes.body, textAlign: 'center' },
-  primaryBtn: { backgroundColor: Colors.primary, borderRadius: BorderRadius.md, paddingVertical: Spacing.md, alignItems: 'center', marginBottom: Spacing.md },
-  primaryBtnDisabled: { opacity: 0.6 },
-  primaryBtnText: { color: Colors.textPrimary, fontSize: FontSizes.bodyLarge, fontWeight: '700' },
-  registerRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  registerPrompt: { color: Colors.textSecondary, fontSize: FontSizes.body },
-  registerLink: { color: Colors.accent, fontSize: FontSizes.body, fontWeight: '700' },
+  container: {
+    flex: 1,
+    backgroundColor: '#351B68',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  title: {
+    fontSize: FontSizes.headline,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 3,
+    marginTop: Spacing.md,
+  },
+  subtitle: {
+    fontSize: FontSizes.body,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  formContainer: {
+    marginBottom: Spacing.md,
+  },
+  capsuleInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: BorderRadius.pill,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: Spacing.md,
+    height: 52,
+    marginBottom: Spacing.md,
+  },
+  inputPrefixIcon: {
+    fontSize: 18,
+    marginRight: Spacing.sm,
+  },
+  capsuleInput: {
+    flex: 1,
+    height: '100%',
+    color: '#FFFFFF',
+    fontSize: FontSizes.bodyLarge,
+  },
+  capsuleEyeBtn: {
+    position: 'absolute',
+    right: 16,
+  },
+  eyeIcon: {
+    fontSize: 18,
+  },
+  segmentedControl: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: BorderRadius.pill,
+    padding: 3,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  segmentBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: BorderRadius.pill,
+  },
+  segmentBtnActive: {
+    backgroundColor: '#FA2E67',
+  },
+  segmentText: {
+    fontSize: FontSizes.body,
+    color: Colors.textSecondary,
+    fontWeight: '700',
+  },
+  segmentTextActive: {
+    color: '#FFFFFF',
+  },
+  strengthContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: -4,
+    marginBottom: Spacing.md,
+    gap: 8,
+    paddingHorizontal: Spacing.sm,
+  },
+  strengthBarBg: {
+    flex: 1,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  strengthBarFill: {
+    height: 4,
+    borderRadius: 2,
+  },
+  strengthLabel: {
+    fontSize: FontSizes.caption,
+    fontWeight: '700',
+  },
+  mismatchText: {
+    color: '#FFA8A8',
+    fontSize: FontSizes.caption,
+    marginTop: -8,
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+  },
+  errorBox: {
+    backgroundColor: 'rgba(248, 113, 113, 0.2)',
+    borderRadius: BorderRadius.sm,
+    padding: Spacing.sm + 2,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.danger,
+  },
+  errorText: {
+    color: '#FFA8A8',
+    fontSize: FontSizes.body,
+    textAlign: 'center',
+  },
+  heroPinkBtn: {
+    backgroundColor: '#FA2E67',
+    borderRadius: BorderRadius.pill,
+    height: 54,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.pinkGlow,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.lg,
+  },
+  btnDisabled: {
+    opacity: 0.6,
+  },
+  heroPinkBtnText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.bodyLarge,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  registerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  registerPrompt: {
+    color: Colors.textSecondary,
+    fontSize: FontSizes.body,
+  },
+  registerLink: {
+    color: '#FA2E67',
+    fontSize: FontSizes.body,
+    fontWeight: '800',
+  },
 });

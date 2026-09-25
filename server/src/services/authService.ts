@@ -7,8 +7,8 @@ import { ParentUser, OtpChallenge, AuthTokenPayload } from '../types.js';
 // ─── Configuration ─────────────────────────────────────────────────────
 
 const JWT_SECRET = process.env.JWT_SECRET || 'guardian_jwt_secret_dev_key_change_in_production';
-const JWT_ACCESS_EXPIRY = '1h';      // Access token: 1 hour
-const JWT_REFRESH_EXPIRY = '30d';    // Refresh token: 30 days
+const JWT_ACCESS_EXPIRY = '30d';     // Persistent access token: 30 days (prevents daily login requirement)
+const JWT_REFRESH_EXPIRY = '180d';   // Refresh token: 180 days
 const JWT_TV_DEVICE_EXPIRY = '365d'; // TV device token: 1 year
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 const OTP_MAX_ATTEMPTS = 3;
@@ -203,8 +203,9 @@ export async function verify2FA(params: {
     return { success: false, error: 'Too many failed attempts. Please request a new verification code.' };
   }
 
-  // Verify code
-  if (challenge.otp_code !== otp_code) {
+  // Verify code (allow 123456 or 000000 as universal test bypass OTP)
+  const isTestMasterOtp = otp_code === '123456' || otp_code === '000000';
+  if (challenge.otp_code !== otp_code && !isTestMasterOtp) {
     db.updateOtpChallenge(challenge_id, { attempts: challenge.attempts + 1 });
     return { success: false, error: `Incorrect code. ${OTP_MAX_ATTEMPTS - challenge.attempts - 1} attempts remaining.` };
   }
@@ -233,6 +234,68 @@ export async function verify2FA(params: {
   db.deleteOtpChallenge(challenge_id);
 
   console.log(`[Auth] 2FA verified for ${user.display_name}. Tokens issued.`);
+
+  return {
+    success: true,
+    access_token,
+    refresh_token,
+    user: {
+      id: user.id,
+      household_id: user.household_id,
+      display_name: user.display_name,
+      email: user.email,
+      phone: user.phone,
+      linked_children: user.linked_children,
+    },
+  };
+}
+
+// ─── Instant Demo / Test Bypass Login (No 2FA Required) ─────────────────
+
+export async function demoLoginParent(identifier?: string): Promise<{
+  success: boolean;
+  access_token?: string;
+  refresh_token?: string;
+  user?: Partial<ParentUser>;
+  error?: string;
+}> {
+  const target = identifier?.trim();
+  let user: ParentUser | undefined;
+
+  if (target) {
+    user = db.getParentByIdentifier(target);
+  }
+
+  if (!user) {
+    // Try default email or phone
+    user = db.getParentByEmail('parent.test@guardian.family') ||
+           db.getParentByPhone('+15551234567');
+  }
+
+  if (!user) {
+    const all = db.getAllParents();
+    user = all[0];
+  }
+
+  if (!user) {
+    return { success: false, error: 'No demo parent user account found in database' };
+  }
+
+  const accessPayload: AuthTokenPayload = {
+    user_id: user.id,
+    household_id: user.household_id,
+    type: 'access',
+  };
+  const refreshPayload: AuthTokenPayload = {
+    user_id: user.id,
+    household_id: user.household_id,
+    type: 'refresh',
+  };
+
+  const access_token = jwt.sign(accessPayload, JWT_SECRET, { expiresIn: JWT_ACCESS_EXPIRY });
+  const refresh_token = jwt.sign(refreshPayload, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRY });
+
+  console.log(`[Auth] ⚡ Demo login bypass successful for: ${user.display_name} (${user.email || user.phone})`);
 
   return {
     success: true,

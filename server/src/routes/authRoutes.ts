@@ -9,6 +9,7 @@ import {
   resetPassword,
   verifyAccessToken,
   refreshAccessToken,
+  demoLoginParent,
   generatePairCode,
   issueTvDeviceToken,
 } from '../services/authService.js';
@@ -91,6 +92,23 @@ router.post('/login', async (req: Request, res: Response) => {
     res.json(result);
   } catch (err: any) {
     console.error('[Auth] Login error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ─── Instant Demo / Auth Bypass (Step 1 & 2 Combined, No 2FA) ───────────
+
+router.post('/demo-login', async (req: Request, res: Response) => {
+  try {
+    const { identifier } = req.body || {};
+    const result = await demoLoginParent(identifier);
+    if (!result.success) {
+      res.status(400).json(result);
+      return;
+    }
+    res.json(result);
+  } catch (err: any) {
+    console.error('[Auth] Demo login bypass error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });

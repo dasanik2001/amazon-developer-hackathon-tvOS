@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import { Colors, Spacing, FontSizes, BorderRadius } from '../../theme/colors';
+import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { authApi } from '../../api/client';
 
@@ -59,7 +59,6 @@ export default function OtpVerificationScreen({
 
   const handleCodeChange = (index: number, value: string) => {
     if (value.length > 1) {
-      // Handle paste: distribute digits across inputs
       const digits = value.replace(/\D/g, '').split('').slice(0, 6);
       const newCode = [...code];
       digits.forEach((d, i) => {
@@ -69,7 +68,6 @@ export default function OtpVerificationScreen({
       const nextIndex = Math.min(index + digits.length, 5);
       inputRefs.current[nextIndex]?.focus();
 
-      // Auto-submit if all 6 digits filled
       if (newCode.every(d => d !== '')) {
         handleVerify(newCode.join(''));
       }
@@ -84,7 +82,6 @@ export default function OtpVerificationScreen({
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Auto-submit when all 6 digits are entered
     if (newCode.every(d => d !== '')) {
       handleVerify(newCode.join(''));
     }
@@ -153,12 +150,14 @@ export default function OtpVerificationScreen({
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
 
-        {/* Header */}
+        {/* Lock Screen Header (Matches Screen 5 in Reference Image) */}
         <View style={styles.header}>
-          <Text style={styles.lockIcon}>🔐</Text>
-          <Text style={styles.title}>Two-Factor Verification</Text>
+          <View style={styles.lockBadge}>
+            <Text style={styles.lockIcon}>🔒</Text>
+          </View>
+          <Text style={styles.title}>TWO-FACTOR PIN</Text>
           <Text style={styles.subtitle}>
-            Enter the 6-digit code sent to{'\n'}
+            Enter 6-digit verification code sent to{'\n'}
             <Text style={styles.identifierText}>{identifier || 'your registered contact'}</Text>
           </Text>
         </View>
@@ -166,7 +165,7 @@ export default function OtpVerificationScreen({
         {/* Dev Mode Hint */}
         {currentHint && (
           <Animated.View style={[styles.hintBox, { transform: [{ scale: pulseAnim }] }]}>
-            <Text style={styles.hintLabel}>🧪 Dev Mode — Your OTP Code:</Text>
+            <Text style={styles.hintLabel}>🧪 Dev Mode Code:</Text>
             <Text style={styles.hintCode}>{currentHint}</Text>
           </Animated.View>
         )}
@@ -186,7 +185,7 @@ export default function OtpVerificationScreen({
               onChangeText={(val) => handleCodeChange(index, val)}
               onKeyPress={({ nativeEvent }) => handleKeyPress(index, nativeEvent.key)}
               keyboardType="number-pad"
-              maxLength={6} // Allow paste
+              maxLength={6}
               textContentType="oneTimeCode"
               autoFocus={index === 0}
             />
@@ -200,18 +199,33 @@ export default function OtpVerificationScreen({
           </View>
         ) : null}
 
-        {/* Verify Button */}
+        {/* Radiant Hot Pink CTA Button */}
         <TouchableOpacity
-          style={[styles.verifyBtn, isLoading && styles.verifyBtnDisabled]}
+          style={[styles.heroPinkBtn, isLoading && styles.btnDisabled]}
           onPress={() => handleVerify()}
           disabled={isLoading}
-          activeOpacity={0.8}
+          activeOpacity={0.85}
         >
           {isLoading ? (
-            <ActivityIndicator color="#FFF" size="small" />
+            <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
-            <Text style={styles.verifyBtnText}>Verify & Sign In</Text>
+            <Text style={styles.heroPinkBtnText}>Verify & Authorize</Text>
           )}
+        </TouchableOpacity>
+
+        {/* 1-Tap Fill Test Code (Reference Outline Pill) */}
+        <TouchableOpacity
+          style={styles.outlinePill}
+          onPress={() => {
+            const fillCode = currentHint || '123456';
+            const digits = fillCode.split('').slice(0, 6);
+            setCode(digits);
+            handleVerify(fillCode);
+          }}
+          disabled={isLoading}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.outlinePillText}>⚡ 1-Tap Fill Test Code ({currentHint || '123456'})</Text>
         </TouchableOpacity>
 
         {/* Resend */}
@@ -229,71 +243,173 @@ export default function OtpVerificationScreen({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bgDark },
-  content: { flex: 1, justifyContent: 'center', paddingHorizontal: Spacing.lg },
-  backBtn: { position: 'absolute', top: 60, left: Spacing.lg, zIndex: 10 },
-  backText: { color: Colors.accent, fontSize: FontSizes.bodyLarge, fontWeight: '600' },
-  header: { alignItems: 'center', marginBottom: Spacing.xl },
-  lockIcon: { fontSize: 56, marginBottom: Spacing.sm },
-  title: { fontSize: FontSizes.title, fontWeight: '800', color: Colors.textPrimary },
-  subtitle: { fontSize: FontSizes.body, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm, lineHeight: 22 },
-  identifierText: { color: Colors.accent, fontWeight: '700' },
+  container: {
+    flex: 1,
+    backgroundColor: '#351B68',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.lg,
+  },
+  backBtn: {
+    position: 'absolute',
+    top: 56,
+    left: Spacing.lg,
+    zIndex: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: BorderRadius.pill,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  backText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.body,
+    fontWeight: '700',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
+  lockBadge: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+    ...Shadows.pinkGlow,
+  },
+  lockIcon: {
+    fontSize: 40,
+  },
+  title: {
+    fontSize: FontSizes.headline,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 3,
+  },
+  subtitle: {
+    fontSize: FontSizes.body,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+    lineHeight: 22,
+  },
+  identifierText: {
+    color: '#FA2E67',
+    fontWeight: '800',
+  },
   hintBox: {
-    backgroundColor: 'rgba(108, 92, 231, 0.2)',
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: BorderRadius.pill,
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.md,
     alignItems: 'center',
     marginBottom: Spacing.lg,
   },
-  hintLabel: { fontSize: FontSizes.caption, color: Colors.primaryLight, marginBottom: Spacing.xs },
-  hintCode: { fontSize: 32, fontWeight: '900', color: Colors.accentOrange, letterSpacing: 8 },
+  hintLabel: {
+    fontSize: FontSizes.caption,
+    color: Colors.textSecondary,
+    marginBottom: 2,
+  },
+  hintCode: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#FBBF24',
+    letterSpacing: 6,
+  },
   otpRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 10,
+    gap: 8,
     marginBottom: Spacing.lg,
   },
   otpInput: {
     width: 48,
     height: 56,
-    backgroundColor: Colors.bgInput,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: BorderRadius.sm,
-    borderWidth: 2,
-    borderColor: Colors.border,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     textAlign: 'center',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
-    color: Colors.textPrimary,
+    color: '#FFFFFF',
   },
   otpInputFilled: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.bgCardHover,
+    borderColor: '#FA2E67',
+    backgroundColor: 'rgba(250, 46, 103, 0.2)',
   },
   otpInputError: {
     borderColor: Colors.danger,
   },
   errorBox: {
-    backgroundColor: 'rgba(255, 107, 107, 0.15)',
+    backgroundColor: 'rgba(248, 113, 113, 0.2)',
     borderRadius: BorderRadius.sm,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 107, 107, 0.3)',
+    borderColor: Colors.danger,
   },
-  errorText: { color: Colors.danger, fontSize: FontSizes.body, textAlign: 'center' },
-  verifyBtn: {
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
+  errorText: {
+    color: '#FFA8A8',
+    fontSize: FontSizes.body,
+    textAlign: 'center',
+  },
+  heroPinkBtn: {
+    backgroundColor: '#FA2E67',
+    borderRadius: BorderRadius.pill,
+    height: 54,
+    justifyContent: 'center',
     alignItems: 'center',
+    ...Shadows.pinkGlow,
     marginBottom: Spacing.md,
   },
-  verifyBtnDisabled: { opacity: 0.6 },
-  verifyBtnText: { color: Colors.textPrimary, fontSize: FontSizes.bodyLarge, fontWeight: '700' },
-  resendRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  resendPrompt: { color: Colors.textSecondary, fontSize: FontSizes.body },
-  resendLink: { color: Colors.accent, fontSize: FontSizes.body, fontWeight: '700' },
-  resendLinkDisabled: { color: Colors.textMuted },
+  btnDisabled: {
+    opacity: 0.6,
+  },
+  heroPinkBtnText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.bodyLarge,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  outlinePill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    borderRadius: BorderRadius.pill,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  outlinePillText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.caption,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  resendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  resendPrompt: {
+    color: Colors.textSecondary,
+    fontSize: FontSizes.body,
+  },
+  resendLink: {
+    color: '#FA2E67',
+    fontSize: FontSizes.body,
+    fontWeight: '800',
+  },
+  resendLinkDisabled: {
+    color: Colors.textMuted,
+  },
 });
