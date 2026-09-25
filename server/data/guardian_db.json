@@ -560,6 +560,62 @@
       "expiresAt": "2026-09-25T15:43:15.707Z",
       "deviceId": "tv_fire_livingroom",
       "deviceName": "Fire TV Living Room"
+    },
+    "gdn_pcm5ffpz": {
+      "sessionId": "gdn_pcm5ffpz",
+      "pairingCode": "TV-1645",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:43:29.488Z",
+      "expiresAt": "2026-09-25T15:58:29.488Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_45et54qp": {
+      "sessionId": "gdn_45et54qp",
+      "pairingCode": "TV-2934",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:44:16.264Z",
+      "expiresAt": "2026-09-25T15:59:16.264Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_kpcl4axj": {
+      "sessionId": "gdn_kpcl4axj",
+      "pairingCode": "TV-3260",
+      "status": "expired",
+      "createdAt": "2026-09-25T15:44:37.963Z",
+      "expiresAt": "2026-09-25T15:59:37.963Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "anikdas.2113@gmail.com",
+      "linkedUserId": "usr_anikdas_2113_gmail_com"
+    },
+    "gdn_tn93bw01": {
+      "sessionId": "gdn_tn93bw01",
+      "pairingCode": "TV-1100",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:46:26.084Z",
+      "expiresAt": "2026-09-25T16:01:26.084Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_5jly7dh2": {
+      "sessionId": "gdn_5jly7dh2",
+      "pairingCode": "TV-2582",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:56:23.769Z",
+      "expiresAt": "2026-09-25T16:11:23.769Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_f356z8hc": {
+      "sessionId": "gdn_f356z8hc",
+      "pairingCode": "TV-9443",
+      "status": "pending",
+      "createdAt": "2026-09-25T15:57:51.340Z",
+      "expiresAt": "2026-09-25T16:12:51.340Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
     }
   },
   "devices": {}
