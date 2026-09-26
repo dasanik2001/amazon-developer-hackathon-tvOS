@@ -127,11 +127,17 @@ export interface OtpChallenge {
   id: string;               // challenge_id returned to client
   user_id: string;
   otp_code: string;         // 6-digit code
-  purpose: 'login_2fa' | 'forgot_password' | 'verify_account';
+  purpose: 'login_2fa' | 'forgot_password' | 'verify_account' | 'registration';
   identifier: string;       // email or phone used
   expires_at: number;       // Unix timestamp (ms)
   attempts: number;         // max 3
   created_at: string;
+  pending_user?: {
+    display_name: string;
+    password_hash: string;
+    email?: string;
+    phone?: string;
+  };
 }
 
 export interface TvPairSession {

@@ -196,36 +196,83 @@
   },
   "digests": {},
   "frames": [],
-  "pairingSessions": {},
-  "devices": {},
+  "pairingSessions": {
+    "gdn_yry3lc4l": {
+      "sessionId": "gdn_yry3lc4l",
+      "pairingCode": "TV-5832",
+      "status": "linked",
+      "createdAt": "2026-09-26T15:28:47.908Z",
+      "expiresAt": "2026-09-26T15:43:47.908Z",
+      "deviceId": "tv_test_unit",
+      "deviceName": "Living Room Fire TV",
+      "linkedEmail": "parent.test@guardian.family",
+      "linkedUserId": "parent_1790356907650_765c2429"
+    },
+    "gdn_rua45amk": {
+      "sessionId": "gdn_rua45amk",
+      "pairingCode": "TV-6962",
+      "status": "expired",
+      "createdAt": "2026-09-26T16:28:01.422Z",
+      "expiresAt": "2026-09-26T16:43:01.422Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room",
+      "linkedEmail": "parent.test@guardian.family",
+      "linkedUserId": "parent_1790356907650_765c2429"
+    },
+    "gdn_itn41dl8": {
+      "sessionId": "gdn_itn41dl8",
+      "pairingCode": "TV-6066",
+      "status": "pending",
+      "createdAt": "2026-09-26T16:28:42.296Z",
+      "expiresAt": "2026-09-26T16:43:42.296Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    },
+    "gdn_hmw5xrit": {
+      "sessionId": "gdn_hmw5xrit",
+      "pairingCode": "TV-4383",
+      "status": "pending",
+      "createdAt": "2026-09-26T16:28:42.402Z",
+      "expiresAt": "2026-09-26T16:43:42.402Z",
+      "deviceId": "tv_fire_livingroom",
+      "deviceName": "Fire TV Living Room"
+    }
+  },
+  "devices": {
+    "tv_test_unit": {
+      "email": "parent.test@guardian.family",
+      "deviceName": "Living Room Fire TV",
+      "linkedAt": "2026-09-26T15:28:51.717Z"
+    }
+  },
   "parent_users": [
     {
       "id": "parent_1790356907650_765c2429",
       "household_id": "house_1790356907651",
       "display_name": "David Miller",
       "email": "parent.test@guardian.family",
-      "password_hash": "$2b$10$P92et0kJg4DIZ3uUXbHQw.M2w7ZwBvqscYWGiMurRFp9nvrlDU5IS",
+      "password_hash": "$2b$10$wkDyTMtbhbzd/mIs16mwHujE.bJLBTwwu9tn9lBNYH8mA9XAkdPRy",
       "two_fa_enabled": true,
       "linked_children": [
         "child_aarav",
         "child_meera"
       ],
       "created_at": "2026-09-25T17:21:47.649Z",
-      "updated_at": "2026-09-26T11:10:42.147Z"
+      "updated_at": "2026-09-26T16:35:22.118Z"
     },
     {
       "id": "parent_1790360904980_f0f95f35",
       "household_id": "house_1790360904981",
       "display_name": "Demo Parent (Phone)",
       "phone": "+15551234567",
-      "password_hash": "$2b$10$P92et0kJg4DIZ3uUXbHQw.M2w7ZwBvqscYWGiMurRFp9nvrlDU5IS",
+      "password_hash": "$2b$10$wkDyTMtbhbzd/mIs16mwHujE.bJLBTwwu9tn9lBNYH8mA9XAkdPRy",
       "two_fa_enabled": true,
       "linked_children": [
         "child_aarav",
         "child_meera"
       ],
       "created_at": "2026-09-25T18:28:24.980Z",
-      "updated_at": "2026-09-26T11:10:42.151Z"
+      "updated_at": "2026-09-26T16:35:22.120Z"
     },
     {
       "id": "parent_1790361055079_b138d721",
@@ -282,6 +329,34 @@
       ],
       "created_at": "2026-09-26T10:55:07.466Z",
       "updated_at": "2026-09-26T10:55:07.466Z"
+    },
+    {
+      "id": "parent_1790440180946_98ec1f2e",
+      "household_id": "house_1790440180947",
+      "display_name": "Anik Das",
+      "email": "anikdas.2113@gmail.com",
+      "password_hash": "$2b$10$furjI1SADrP8kWANrHn47eSTptyNkow5Yg0LLW9eVOQppqgO94tBm",
+      "two_fa_enabled": true,
+      "linked_children": [
+        "child_aarav",
+        "child_meera"
+      ],
+      "created_at": "2026-09-26T16:29:40.946Z",
+      "updated_at": "2026-09-26T16:29:40.946Z"
+    },
+    {
+      "id": "parent_1790440618048_89e72c00",
+      "household_id": "house_1790440618048",
+      "display_name": "Sarah Connor",
+      "email": "sarah.test@guardian.family",
+      "password_hash": "$2b$10$wq2ggS/8ApbUe4LBneeEVu.F2CSFVelHC1tAIBfNWIuBENl9/iFAG",
+      "two_fa_enabled": true,
+      "linked_children": [
+        "child_aarav",
+        "child_meera"
+      ],
+      "created_at": "2026-09-26T16:36:58.048Z",
+      "updated_at": "2026-09-26T16:36:58.048Z"
     }
   ],
   "otp_challenges": [],

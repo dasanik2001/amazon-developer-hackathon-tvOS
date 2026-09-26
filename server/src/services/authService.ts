@@ -83,7 +83,14 @@ export async function registerParent(params: {
   identifier: string;  // email or phone
   password: string;
   display_name: string;
-}): Promise<{ success: boolean; user?: Partial<ParentUser>; error?: string }> {
+}): Promise<{
+  success: boolean;
+  requires_otp?: boolean;
+  challenge_id?: string;
+  otp_hint?: string;
+  user?: Partial<ParentUser>;
+  error?: string;
+}> {
   const { identifier, password, display_name } = params;
 
   // Determine if identifier is email or phone
@@ -110,27 +117,35 @@ export async function registerParent(params: {
   // Hash password
   const password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-  const now = new Date().toISOString();
-  const user: ParentUser = {
-    id: generateUserId(),
-    household_id: `house_${Date.now()}`,
-    display_name,
-    email: isPhone ? undefined : identifier,
-    phone: isPhone ? identifier : undefined,
-    password_hash,
-    two_fa_enabled: true, // Always enabled by default
-    linked_children: ['child_aarav', 'child_meera'], // Link to existing demo children
-    created_at: now,
-    updated_at: now,
+  // Require OTP verification for email (or all registrations) to validate email exists before account creation
+  db.cleanupExpiredOtps();
+  const otpCode = generateOtpCode();
+  const challengeId = `otp_${generateToken().substring(0, 16)}`;
+  const challenge: OtpChallenge = {
+    id: challengeId,
+    user_id: '', // Will be assigned upon verification when account is created
+    otp_code: otpCode,
+    purpose: 'registration',
+    identifier,
+    expires_at: Date.now() + OTP_EXPIRY_MS,
+    attempts: 0,
+    created_at: new Date().toISOString(),
+    pending_user: {
+      display_name,
+      password_hash,
+      email: isPhone ? undefined : identifier,
+      phone: isPhone ? identifier : undefined,
+    },
   };
+  db.createOtpChallenge(challenge);
 
-  db.createParentUser(user);
-
-  console.log(`[Auth] New parent registered: ${display_name} (${identifier})`);
+  console.log(`[Auth] 📧 Registration verification OTP generated for ${display_name} (${identifier}): ${otpCode}`);
 
   return {
     success: true,
-    user: formatUserResponse(user),
+    requires_otp: true,
+    challenge_id: challenge.id,
+    otp_hint: otpCode, // Provided in development for rapid testing
   };
 }
 
@@ -144,6 +159,9 @@ export async function loginParent(params: {
   access_token?: string;
   refresh_token?: string;
   user?: Partial<ParentUser>;
+  requires_2fa?: boolean;
+  challenge_id?: string;
+  otp_hint?: string;
   error?: string;
 }> {
   const { identifier, password } = params;
@@ -158,7 +176,39 @@ export async function loginParent(params: {
     return { success: false, error: 'Incorrect password' };
   }
 
-  // Directly issue tokens — no 2FA step
+  // If identifier is an email (or user has 2FA enabled), issue OTP challenge to verify email ownership
+  if (!identifier.startsWith('+') || user.two_fa_enabled) {
+    db.cleanupExpiredOtps();
+    const otpCode = generateOtpCode();
+    const challenge: OtpChallenge = {
+      id: `otp_${generateToken().substring(0, 16)}`,
+      user_id: user.id,
+      otp_code: otpCode,
+      purpose: 'login_2fa',
+      identifier,
+      expires_at: Date.now() + OTP_EXPIRY_MS,
+      attempts: 0,
+      created_at: new Date().toISOString(),
+    };
+    db.createOtpChallenge(challenge);
+
+    console.log(`[Auth] 📧 Login OTP generated for ${user.display_name} (${identifier}): ${otpCode}`);
+
+    return {
+      success: true,
+      requires_2fa: true,
+      challenge_id: challenge.id,
+      otp_hint: otpCode, // Provided in development for instantaneous testing
+      user: {
+        id: user.id,
+        display_name: user.display_name,
+        email: user.email,
+        phone: user.phone,
+      },
+    };
+  }
+
+  // Directly issue tokens for phone numbers (or fallback)
   const accessPayload: AuthTokenPayload = {
     user_id: user.id,
     household_id: user.household_id,
@@ -222,9 +272,40 @@ export async function verify2FA(params: {
   }
 
   // OTP verified! Issue tokens
-  const user = db.getParentById(challenge.user_id);
-  if (!user) {
-    return { success: false, error: 'User account not found' };
+  let user: ParentUser | undefined;
+
+  if (challenge.purpose === 'registration') {
+    if (!challenge.pending_user) {
+      return { success: false, error: 'Registration session expired or corrupted. Please sign up again.' };
+    }
+
+    const existing = db.getParentByIdentifier(challenge.identifier);
+    if (existing) {
+      user = existing;
+    } else {
+      const now = new Date().toISOString();
+      const newUserId = generateUserId();
+      const newUser: ParentUser = {
+        id: newUserId,
+        household_id: `house_${Date.now()}`,
+        display_name: challenge.pending_user.display_name,
+        email: challenge.pending_user.email,
+        phone: challenge.pending_user.phone,
+        password_hash: challenge.pending_user.password_hash,
+        two_fa_enabled: true,
+        linked_children: ['child_aarav', 'child_meera'],
+        created_at: now,
+        updated_at: now,
+      };
+      db.createParentUser(newUser);
+      user = newUser;
+      console.log(`[Auth] ✅ Email verified! Parent account created for: ${user.display_name} (${challenge.identifier})`);
+    }
+  } else {
+    user = db.getParentById(challenge.user_id);
+    if (!user) {
+      return { success: false, error: 'User account not found' };
+    }
   }
 
   const accessPayload: AuthTokenPayload = {
@@ -319,22 +400,25 @@ export async function resendOtp(params: {
     return { success: false, error: 'No active challenge found. Please start login again.' };
   }
 
-  const user = db.getParentById(existing.user_id);
-  if (!user) {
-    return { success: false, error: 'User not found' };
+  if (existing.purpose !== 'registration') {
+    const user = db.getParentById(existing.user_id);
+    if (!user) {
+      return { success: false, error: 'User not found' };
+    }
   }
 
   // Generate fresh OTP
   const otpCode = generateOtpCode();
   const challenge: OtpChallenge = {
     id: `otp_${generateToken().substring(0, 16)}`,
-    user_id: user.id,
+    user_id: existing.user_id,
     otp_code: otpCode,
     purpose: existing.purpose,
     identifier: existing.identifier,
     expires_at: Date.now() + OTP_EXPIRY_MS,
     attempts: 0,
     created_at: new Date().toISOString(),
+    pending_user: existing.pending_user,
   };
 
   // Remove old, add new
