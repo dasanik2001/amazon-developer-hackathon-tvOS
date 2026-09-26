@@ -327,29 +327,56 @@ export default function DashboardScreen() {
         <Text style={styles.cardSubtitle}>Control the Fire TV from your phone</Text>
 
         <View style={styles.actionsGrid}>
-          {actions.map((action) => {
-            const isPending = sendingCmd === action.cmd;
-            const isBusy = !!sendingCmd;
-            return (
-              <TouchableOpacity
-                key={action.cmd}
-                style={[styles.actionBtn, { backgroundColor: action.tint }, isBusy && styles.actionBtnBusy]}
-                onPress={() => sendCommand(action.cmd, action.label, action.payload)}
-                disabled={isBusy}
-                activeOpacity={0.75}
-                accessibilityRole="button"
-                accessibilityLabel={action.label}
-                accessibilityState={{ disabled: isBusy, busy: isPending }}
-              >
-                {isPending ? (
-                  <ActivityIndicator size="small" color={action.color} />
-                ) : (
-                  <Icon name={action.icon} size={22} color={action.color} />
-                )}
-                <Text style={styles.actionLabel}>{action.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
+          <View style={styles.actionRow}>
+            {actions.slice(0, 2).map((action) => {
+              const isPending = sendingCmd === action.cmd;
+              const isBusy = !!sendingCmd;
+              return (
+                <TouchableOpacity
+                  key={action.cmd}
+                  style={[styles.actionBtn, { backgroundColor: action.tint }, isBusy && styles.actionBtnBusy]}
+                  onPress={() => sendCommand(action.cmd, action.label, action.payload)}
+                  disabled={isBusy}
+                  activeOpacity={0.75}
+                  accessibilityRole="button"
+                  accessibilityLabel={action.label}
+                  accessibilityState={{ disabled: isBusy, busy: isPending }}
+                >
+                  {isPending ? (
+                    <ActivityIndicator size="small" color={action.color} />
+                  ) : (
+                    <Icon name={action.icon} size={22} color={action.color} />
+                  )}
+                  <Text style={styles.actionLabel}>{action.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <View style={styles.actionRow}>
+            {actions.slice(2, 4).map((action) => {
+              const isPending = sendingCmd === action.cmd;
+              const isBusy = !!sendingCmd;
+              return (
+                <TouchableOpacity
+                  key={action.cmd}
+                  style={[styles.actionBtn, { backgroundColor: action.tint }, isBusy && styles.actionBtnBusy]}
+                  onPress={() => sendCommand(action.cmd, action.label, action.payload)}
+                  disabled={isBusy}
+                  activeOpacity={0.75}
+                  accessibilityRole="button"
+                  accessibilityLabel={action.label}
+                  accessibilityState={{ disabled: isBusy, busy: isPending }}
+                >
+                  {isPending ? (
+                    <ActivityIndicator size="small" color={action.color} />
+                  ) : (
+                    <Icon name={action.icon} size={22} color={action.color} />
+                  )}
+                  <Text style={styles.actionLabel}>{action.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       </View>
 
@@ -591,9 +618,10 @@ const styles = StyleSheet.create({
   statusOn: { backgroundColor: Colors.success },
   statusOff: { backgroundColor: Colors.warning },
 
-  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  actionsGrid: { gap: Spacing.sm },
+  actionRow: { flexDirection: 'row', gap: Spacing.sm },
   actionBtn: {
-    width: (SCREEN_WIDTH - Spacing.md * 2 - Spacing.lg * 2 - Spacing.sm) / 2,
+    flex: 1,
     paddingVertical: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -601,7 +629,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    minHeight: 92,
+    minHeight: 88,
   },
   actionLabel: { fontSize: FontSizes.body, fontWeight: '700', color: Colors.textPrimary },
   actionBtnBusy: { opacity: 0.55 },

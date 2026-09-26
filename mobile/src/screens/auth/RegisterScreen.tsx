@@ -20,9 +20,10 @@ import { getBaseUrl, setCustomServerUrl, testServerConnection } from '../../api/
 
 interface RegisterScreenProps {
   onNavigateLogin: () => void;
+  onNavigateOtp?: (data: { challengeId: string; otpHint?: string; identifier: string }) => void;
 }
 
-export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps) {
+export default function RegisterScreen({ onNavigateLogin, onNavigateOtp }: RegisterScreenProps) {
   const { register } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [identifier, setIdentifier] = useState('');
@@ -106,7 +107,16 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
     setIsLoading(true);
     try {
       const result = await register(identifier.trim(), password, displayName.trim());
-      if (!result.success) {
+      if (result.success) {
+        if (result.requires_otp && result.challenge_id && onNavigateOtp) {
+          onNavigateOtp({
+            challengeId: result.challenge_id,
+            otpHint: result.otp_hint,
+            identifier: identifier.trim(),
+          });
+          return;
+        }
+      } else {
         setError(result.error || 'Registration failed');
       }
     } catch {

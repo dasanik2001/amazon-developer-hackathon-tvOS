@@ -73,6 +73,10 @@ function AuthNavigator() {
       return (
         <RegisterScreen
           onNavigateLogin={() => setScreen('login')}
+          onNavigateOtp={(data) => {
+            setOtpData(data);
+            setScreen('otp');
+          }}
         />
       );
     case 'forgot':

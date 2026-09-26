@@ -151,12 +151,12 @@ export default function OtpVerificationScreen({
 
         <View style={styles.header}>
           <View style={styles.lockBadge}>
-            <Icon name="lock-closed" size={32} color={Colors.primary} />
+            <Icon name="shield-checkmark" size={32} color={Colors.primary} />
           </View>
-          <Text style={styles.title}>TWO-FACTOR PIN</Text>
+          <Text style={styles.title}>EMAIL VERIFICATION</Text>
           <Text style={styles.subtitle}>
-            Enter 6-digit verification code sent to{'\n'}
-            <Text style={styles.identifierText}>{identifier || 'your registered contact'}</Text>
+            Enter the 6-digit verification code sent to{'\n'}
+            <Text style={styles.identifierText}>{identifier || 'your email'}</Text>
           </Text>
         </View>
 

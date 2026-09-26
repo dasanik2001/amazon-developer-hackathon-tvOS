@@ -33,7 +33,7 @@ interface AuthContextType {
   setSelectedChildId: (id: string) => void;
   login: (identifier: string, password: string) => Promise<{ success: boolean; requires_2fa?: boolean; challenge_id?: string; otp_hint?: string; error?: string }>;
   demoLogin: (identifier?: string) => Promise<{ success: boolean; error?: string }>;
-  register: (identifier: string, password: string, displayName: string) => Promise<{ success: boolean; error?: string }>;
+  register: (identifier: string, password: string, displayName: string) => Promise<{ success: boolean; requires_otp?: boolean; challenge_id?: string; otp_hint?: string; error?: string }>;
   verify2FA: (challengeId: string, otpCode: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -225,12 +225,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // ─── Register and Auto-Login ──────────────────────────────────────────
+  // ─── Register and Validate with OTP ──────────────────────────────────
   const register = useCallback(async (identifier: string, password: string, displayName: string) => {
     try {
       const result = await authApi.register(identifier, password, displayName);
       if (result.success) {
-        // Auto-login after registration
+        if (result.requires_otp) {
+          return {
+            success: true,
+            requires_otp: true,
+            challenge_id: result.challenge_id,
+            otp_hint: result.otp_hint,
+          };
+        }
+        // Auto-login fallback if direct registration
         return await login(identifier, password);
       }
       return { success: false, error: result.error || 'Registration failed' };
