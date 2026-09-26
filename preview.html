@@ -662,30 +662,15 @@
 
         <!-- ─── SCREEN 1: LOGIN (DEFAULT) ─── -->
         <div id="screenLogin">
-          <div class="server-pill" onclick="alert('Host: http://192.168.0.102:3001 (Ping: 22ms OK)')">
+          <div class="server-pill" onclick="alert('Host: http://192.168.0.100:3001 (Ping: 18ms OK)')">
             <div class="dot-green"></div>
-            <span>192.168.0.102:3001 (22ms)</span>
+            <span>192.168.0.100:3001 (18ms)</span>
             <span>⚙️</span>
           </div>
 
           <div class="brand-hero">
-            <div class="emblem-box">
-              <div class="emblem-split">
-                <div class="emblem-dots">
-                  <div class="emblem-dot-row"><div class="emblem-dot"></div></div>
-                  <div class="emblem-dot-row"><div class="emblem-dot"></div><div class="emblem-dot"></div></div>
-                  <div class="emblem-dot-row"><div class="emblem-dot"></div><div class="emblem-dot"></div><div class="emblem-dot"></div></div>
-                  <div class="emblem-dot-row"><div class="emblem-dot"></div><div class="emblem-dot"></div></div>
-                  <div class="emblem-dot-row"><div class="emblem-dot"></div></div>
-                </div>
-                <div class="emblem-divider"></div>
-                <div class="emblem-waves">
-                  <div class="wave-line"></div>
-                  <div class="wave-line" style="opacity: 0.85;"></div>
-                  <div class="wave-line"></div>
-                  <div class="wave-line" style="opacity: 0.85;"></div>
-                </div>
-              </div>
+            <div class="emblem-box" style="padding: 0; background: none; border: none; box-shadow: 0 4px 16px rgba(15,23,42,0.08);">
+              <img src="mobile/assets/application.png" style="width: 80px; height: 80px; border-radius: 18px; border: 1px solid #E2E8F0; object-fit: cover;" alt="Guardian Fire TV Remote Icon" />
             </div>
             <div class="brand-title">GUARDIAN</div>
             <div class="brand-sub">AI Parental Intelligence for Fire TV</div>
@@ -906,7 +891,7 @@
         <div class="spec-title">🔒 30-Day Persistence & Dynamic IP</div>
         <div class="info-card">
           • <strong>Persistence:</strong> JWT access expiry extended to <strong>30 days</strong>, cached in <span class="code-pill">AsyncStorage</span>.<br>
-          • <strong>Dynamic IP:</strong> Mobile connects directly to <span class="code-pill">192.168.0.102:3001</span> or custom server without <span class="code-pill">localhost</span> limits.<br>
+          • <strong>Dynamic IP:</strong> Mobile connects directly to <span class="code-pill">192.168.0.100:3001</span> or custom server without <span class="code-pill">localhost</span> limits.<br>
           • <strong>Database:</strong> Stored locally at <span class="code-pill">server/data/guardian_db.json</span>.
         </div>
       </div>

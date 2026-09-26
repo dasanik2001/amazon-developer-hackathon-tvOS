@@ -10,17 +10,30 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { guardianApi, pairingApi } from '../../api/client';
+import { getPrefs, setPrefs, SensitivityLevel } from '../../storage/prefs';
 import QrScannerModal from '../../components/QrScannerModal';
+import Toast from '../../components/Toast';
 import Icon, { IconName } from '../../components/Icon';
 
 export default function ControlsScreen() {
   const { user, selectedChildId } = useAuth();
+  const insets = useSafeAreaInsets();
   const [monitoringEnabled, setMonitoringEnabled] = useState(true);
-  const [sensitivityLevel, setSensitivityLevel] = useState<'strict' | 'standard' | 'relaxed'>('standard');
+  const [sensitivityLevel, setSensitivityLevel] = useState<SensitivityLevel>('standard');
   const [dailyLimit, setDailyLimit] = useState(60);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; tone: 'success' | 'error' | 'info' }>({
+    visible: false,
+    message: '',
+    tone: 'info',
+  });
+
+  const showToast = useCallback((message: string, tone: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ visible: true, message, tone });
+  }, []);
 
   // TV Pairing state
   const [scannerVisible, setScannerVisible] = useState(false);
@@ -50,21 +63,42 @@ export default function ControlsScreen() {
 
   useEffect(() => {
     loadLinkedDevices();
+    (async () => {
+      const prefs = await getPrefs();
+      if (prefs.dailyLimitMinutes) setDailyLimit(prefs.dailyLimitMinutes);
+      if (prefs.sensitivity) setSensitivityLevel(prefs.sensitivity);
+    })();
   }, [loadLinkedDevices]);
+
+  const applyDailyLimit = useCallback(async (mins: number) => {
+    setDailyLimit(mins);
+    await setPrefs({ dailyLimitMinutes: mins });
+    showToast(`Daily limit set to ${mins} minutes`, 'success');
+  }, [showToast]);
+
+  const applySensitivity = useCallback(async (level: SensitivityLevel) => {
+    setSensitivityLevel(level);
+    await setPrefs({ sensitivity: level });
+    const label = level.charAt(0).toUpperCase() + level.slice(1);
+    showToast(`Sensitivity switched to ${label}`, 'success');
+  }, [showToast]);
 
   const toggleMonitoring = useCallback(async (value: boolean) => {
     setMonitoringEnabled(value);
     try {
       await guardianApi.setOverlayControl(value, selectedChildId);
+      showToast(value ? 'Monitoring resumed' : 'Monitoring paused', 'success');
     } catch (err) {
       console.warn('Failed to toggle monitoring:', err);
       setMonitoringEnabled(!value);
+      showToast('Could not update monitoring — check your connection', 'error');
     }
-  }, [selectedChildId]);
+  }, [selectedChildId, showToast]);
 
   const handlePairSuccess = (data: any) => {
     setPairingOk(true);
     setPairingResult(`Successfully linked ${data.linked_tv || 'Fire TV'}`);
+    showToast(`Linked ${data.linked_tv || 'Fire TV'}`, 'success');
     loadLinkedDevices();
   };
 
@@ -82,14 +116,17 @@ export default function ControlsScreen() {
         setPairingOk(true);
         setPairingResult(`Successfully linked ${result.data?.linked_tv || 'Fire TV'}`);
         setPairingCode('');
+        showToast(`Linked ${result.data?.linked_tv || 'Fire TV'}`, 'success');
         loadLinkedDevices();
       } else {
         setPairingOk(false);
         setPairingResult(result.error || 'Failed to link TV. Check the code and try again.');
+        showToast(result.error || 'Failed to link TV', 'error');
       }
     } catch {
       setPairingOk(false);
       setPairingResult('Network error. Make sure both devices are connected.');
+      showToast('Network error while pairing', 'error');
     } finally {
       setPairingLoading(false);
     }
@@ -107,9 +144,10 @@ export default function ControlsScreen() {
           onPress: async () => {
             try {
               await pairingApi.disconnect(device.id);
+              showToast(`${device.device_name || 'Fire TV'} unlinked`, 'success');
               loadLinkedDevices();
             } catch (err) {
-              Alert.alert('Error', 'Failed to disconnect TV');
+              showToast('Failed to disconnect TV', 'error');
             }
           },
         },
@@ -118,14 +156,20 @@ export default function ControlsScreen() {
   };
 
   const limitPresets = [30, 45, 60, 90, 120];
-  const sensitivityOptions: Array<{ key: 'strict' | 'standard' | 'relaxed'; label: string; icon: IconName; desc: string }> = [
+  const sensitivityOptions: Array<{ key: SensitivityLevel; label: string; icon: IconName; desc: string }> = [
     { key: 'strict', label: 'Strict', icon: 'lock-closed', desc: 'Flag any mild content' },
     { key: 'standard', label: 'Standard', icon: 'shield-checkmark', desc: 'Balanced filtering' },
     { key: 'relaxed', label: 'Relaxed', icon: 'lock-open', desc: 'Educational focus only' },
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.root}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 96 }]}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
       {/* Monitoring Toggle */}
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -175,9 +219,10 @@ export default function ControlsScreen() {
             <TouchableOpacity
               key={mins}
               style={[styles.limitChip, dailyLimit === mins && styles.limitChipActive]}
-              onPress={() => setDailyLimit(mins)}
+              onPress={() => applyDailyLimit(mins)}
               accessibilityRole="button"
               accessibilityState={{ selected: dailyLimit === mins }}
+              accessibilityLabel={`Set daily limit to ${mins} minutes`}
             >
               <Text style={[styles.limitText, dailyLimit === mins && styles.limitTextActive]}>
                 {mins}m
@@ -207,9 +252,10 @@ export default function ControlsScreen() {
             <TouchableOpacity
               key={opt.key}
               style={[styles.sensOption, sensitivityLevel === opt.key && styles.sensOptionActive]}
-              onPress={() => setSensitivityLevel(opt.key)}
+              onPress={() => applySensitivity(opt.key)}
               accessibilityRole="button"
               accessibilityState={{ selected: sensitivityLevel === opt.key }}
+              accessibilityLabel={`${opt.label} sensitivity. ${opt.desc}`}
             >
               <View style={[styles.sensIconWrap, sensitivityLevel === opt.key && styles.sensIconWrapActive]}>
                 <Icon
@@ -359,8 +405,6 @@ export default function ControlsScreen() {
         ) : null}
       </View>
 
-      <View style={{ height: 100 }} />
-
       {/* QR Scanner Modal with CameraView */}
       <QrScannerModal
         visible={scannerVisible}
@@ -368,10 +412,20 @@ export default function ControlsScreen() {
         onSuccess={handlePairSuccess}
       />
     </ScrollView>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        tone={toast.tone}
+        bottom={insets.bottom + 74}
+        onDismiss={() => setToast((t) => ({ ...t, visible: false }))}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: Colors.bgDark },
   container: { flex: 1, backgroundColor: Colors.bgDark },
   content: { paddingHorizontal: Spacing.md, paddingTop: Spacing.md },
 
@@ -421,7 +475,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSurface,
     borderWidth: 1,
     borderColor: Colors.border,
-    minHeight: 40,
+    minHeight: 44,
   },
   limitChipActive: { backgroundColor: Colors.tintBlue, borderColor: Colors.primary },
   limitText: { fontSize: FontSizes.body, fontWeight: '700', color: Colors.textMuted },
@@ -473,9 +527,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   refreshIconBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.bgSurface,
@@ -541,7 +595,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.tintRed,
     borderWidth: 1,
     borderColor: 'rgba(220, 38, 38, 0.3)',
-    minHeight: 34,
+    minHeight: 44,
   },
   unlinkBtnText: {
     color: Colors.danger,

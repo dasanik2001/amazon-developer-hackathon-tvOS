@@ -319,7 +319,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
 
           {/* Success Banner */}
           {successMsg ? (
-            <View style={styles.successBox}>
+            <View style={styles.successBox} accessible accessibilityLiveRegion="polite">
               <Icon name="checkmark-circle" size={17} color={Colors.success} />
               <Text style={styles.successText}>{successMsg}</Text>
             </View>
@@ -327,7 +327,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
 
           {/* Error Banner */}
           {error ? (
-            <View style={styles.errorBox}>
+            <View style={styles.errorBox} accessible accessibilityLiveRegion="polite" accessibilityRole="alert">
               <Icon name="alert-circle" size={17} color={Colors.danger} />
               <Text style={styles.errorText}>{error}</Text>
             </View>
@@ -366,7 +366,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
         {/* Security Note */}
         <View style={styles.footerNote}>
           <Icon name="lock-closed" size={11} color={Colors.textMuted} />
-          <Text style={styles.footerNoteText}>30-Day Persistent Session • No 2FA Required</Text>
+          <Text style={styles.footerNoteText}>Encrypted session • You stay signed in on this device</Text>
         </View>
       </ScrollView>
 
@@ -393,7 +393,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
               style={styles.modalInput}
               value={serverUrl}
               onChangeText={setServerUrl}
-              placeholder="http://192.168.0.102:3001"
+              placeholder="http://192.168.0.100:3001"
               placeholderTextColor={Colors.textPlaceholder}
               autoCapitalize="none"
               autoCorrect={false}

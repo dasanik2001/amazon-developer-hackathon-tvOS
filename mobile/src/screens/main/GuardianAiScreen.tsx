@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { guardianApi } from '../../api/client';
@@ -27,6 +28,8 @@ interface Message {
     summary: string;
   }>;
   confidence?: number;
+  error?: boolean;
+  retryQuestion?: string;
   timestamp: Date;
 }
 
@@ -41,6 +44,7 @@ const QUICK_PROMPTS = [
 
 export default function GuardianAiScreen() {
   const { selectedChildId } = useAuth();
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +74,8 @@ export default function GuardianAiScreen() {
         text: result.data?.answer || 'Sorry, I could not find relevant viewing data to answer that.',
         evidence: result.data?.evidence_sessions || [],
         confidence: result.data?.confidence,
+        error: result.success === false,
+        retryQuestion: result.success === false ? question.trim() : undefined,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, aiMsg]);
@@ -78,6 +84,8 @@ export default function GuardianAiScreen() {
         id: `msg_${Date.now()}_error`,
         type: 'ai',
         text: 'Sorry, something went wrong. Please check your connection and try again.',
+        error: true,
+        retryQuestion: question.trim(),
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -85,6 +93,11 @@ export default function GuardianAiScreen() {
       setIsLoading(false);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 200);
     }
+  };
+
+  const clearChat = () => {
+    setMessages([]);
+    setInputText('');
   };
 
   return (
@@ -134,7 +147,15 @@ export default function GuardianAiScreen() {
                 <Icon name="shield-checkmark" size={14} color="#FFFFFF" />
               </View>
             )}
-            <View style={[styles.msgContent, msg.type === 'user' ? styles.userContent : styles.aiContent]}>
+            <View
+              style={[
+                styles.msgContent,
+                msg.type === 'user' ? styles.userContent : styles.aiContent,
+                msg.error && styles.aiContentError,
+              ]}
+              accessible
+              accessibilityLiveRegion={msg.type === 'ai' ? 'polite' : 'none'}
+            >
               <Text style={[styles.msgText, msg.type === 'user' ? styles.userText : styles.aiText]}>
                 {msg.text}
               </Text>
@@ -172,6 +193,20 @@ export default function GuardianAiScreen() {
                   Confidence: {Math.round(msg.confidence * 100)}%
                 </Text>
               )}
+
+              {/* Retry after a failed answer */}
+              {msg.error && msg.retryQuestion && !isLoading ? (
+                <TouchableOpacity
+                  style={styles.retryBtn}
+                  onPress={() => askQuestion(msg.retryQuestion as string)}
+                  activeOpacity={0.75}
+                  accessibilityRole="button"
+                  accessibilityLabel="Retry question"
+                >
+                  <Icon name="refresh" size={14} color={Colors.danger} />
+                  <Text style={styles.retryText}>Try again</Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
             {msg.type === 'user' && (
               <View style={[styles.avatar, styles.userAvatar]}>
@@ -198,15 +233,34 @@ export default function GuardianAiScreen() {
       </ScrollView>
 
       {/* Input Bar */}
-      <View style={styles.inputBar}>
+      <View style={[styles.inputBar, { paddingBottom: Math.max(insets.bottom, Spacing.md) }]}>
         {messages.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.inlinePrompts}>
-            {QUICK_PROMPTS.slice(0, 3).map((p, i) => (
-              <TouchableOpacity key={i} style={styles.inlineChip} onPress={() => askQuestion(p)} accessibilityRole="button">
-                <Text style={styles.inlineChipText}>{p}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          <View style={styles.composerTopRow}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.inlinePrompts}>
+              {QUICK_PROMPTS.map((p, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.inlineChip}
+                  onPress={() => askQuestion(p)}
+                  disabled={isLoading}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Ask: ${p}`}
+                >
+                  <Text style={styles.inlineChipText}>{p}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.clearBtn}
+              onPress={clearChat}
+              disabled={isLoading}
+              accessibilityRole="button"
+              accessibilityLabel="Start a new conversation"
+            >
+              <Icon name="add-circle-outline" size={15} color={Colors.textMuted} />
+              <Text style={styles.clearBtnText}>New</Text>
+            </TouchableOpacity>
+          </View>
         )}
         <View style={styles.inputRow}>
           <TextInput
@@ -226,6 +280,7 @@ export default function GuardianAiScreen() {
             disabled={!inputText.trim() || isLoading}
             accessibilityRole="button"
             accessibilityLabel="Send message"
+            accessibilityState={{ disabled: !inputText.trim() || isLoading }}
           >
             <Icon name="arrow-up" size={20} color="#FFFFFF" />
           </TouchableOpacity>
@@ -305,6 +360,10 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     ...Shadows.card,
   },
+  aiContentError: {
+    borderColor: 'rgba(220, 38, 38, 0.35)',
+    backgroundColor: '#FFFAFA',
+  },
   msgText: { fontSize: FontSizes.body, lineHeight: 21 },
   userText: { color: '#FFFFFF' },
   aiText: { color: Colors.textSecondary },
@@ -341,6 +400,21 @@ const styles = StyleSheet.create({
   },
   evidenceSummary: { fontSize: FontSizes.caption, color: Colors.textMuted, marginTop: 5, fontStyle: 'italic', lineHeight: 16 },
   confidenceText: { fontSize: FontSizes.caption, color: Colors.textMuted, marginTop: Spacing.sm, fontWeight: '600' },
+  retryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    marginTop: Spacing.sm,
+    minHeight: 40,
+    paddingHorizontal: 14,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 38, 38, 0.35)',
+    backgroundColor: Colors.tintRed,
+    justifyContent: 'center',
+  },
+  retryText: { fontSize: FontSizes.caption, fontWeight: '800', color: Colors.danger },
 
   typingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   typingText: { fontSize: FontSizes.body, color: Colors.textMuted, fontStyle: 'italic' },
@@ -349,9 +423,29 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.border,
     backgroundColor: '#FFFFFF',
-    paddingBottom: Platform.OS === 'ios' ? 30 : Spacing.md,
   },
-  inlinePrompts: { paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, maxHeight: 44 },
+  composerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingTop: Spacing.sm,
+    paddingRight: Spacing.md,
+  },
+  inlinePrompts: { flexGrow: 0, flexShrink: 1 },
+  clearBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    minHeight: 34,
+    paddingHorizontal: 10,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.bgSurface,
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  clearBtnText: { fontSize: FontSizes.caption, fontWeight: '800', color: Colors.textMuted },
   inlineChip: {
     backgroundColor: Colors.tintBlue,
     borderRadius: BorderRadius.full,

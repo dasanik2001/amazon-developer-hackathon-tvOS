@@ -41,6 +41,35 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const DEFAULT_CHILDREN_MAP: Record<string, any> = {
+  child_aarav: { id: 'child_aarav', display_name: 'Aarav', age_band: '7-9', avatar: '👦', settings: { daily_limit_minutes: 90, bed_time: '20:30', overlay_enabled: true } },
+  child_meera: { id: 'child_meera', display_name: 'Meera', age_band: '4-6', avatar: '👧', settings: { daily_limit_minutes: 60, bed_time: '20:00', overlay_enabled: true } },
+};
+
+function normalizeUser(rawUser: any): User | null {
+  if (!rawUser) return null;
+  const rawList = Array.isArray(rawUser.linked_children) ? rawUser.linked_children : [];
+  const normalizedChildren = rawList.map((c: any, i: number) => {
+    if (typeof c === 'string') {
+      return DEFAULT_CHILDREN_MAP[c] || { id: c, display_name: c === 'child_aarav' ? 'Aarav' : c === 'child_meera' ? 'Meera' : c, age_band: '7-9' };
+    }
+    if (c && typeof c === 'object') {
+      const id = c.id || `child_${i}`;
+      return {
+        ...c,
+        id,
+        display_name: c.display_name || DEFAULT_CHILDREN_MAP[id]?.display_name || id,
+      };
+    }
+    return { id: `child_${i}`, display_name: `Child ${i + 1}` };
+  });
+
+  return {
+    ...rawUser,
+    linked_children: normalizedChildren.length > 0 ? normalizedChildren : Object.values(DEFAULT_CHILDREN_MAP),
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,9 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ]);
 
         if (token && cached) {
-          setUser(cached);
-          if (cached.linked_children && cached.linked_children.length > 0) {
-            const firstChild = cached.linked_children[0];
+          const cleanUser = normalizeUser(cached);
+          setUser(cleanUser);
+          if (cleanUser && cleanUser.linked_children && cleanUser.linked_children.length > 0) {
+            const firstChild = cleanUser.linked_children[0];
             setSelectedChildId(typeof firstChild === 'string' ? firstChild : firstChild.id);
           }
         }
@@ -82,10 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const result = await authApi.getMe();
       if (result.success && result.data) {
-        setUser(result.data);
-        await storeCachedUser(result.data);
-        if (result.data.linked_children && result.data.linked_children.length > 0) {
-          const firstChild = result.data.linked_children[0];
+        const cleanUser = normalizeUser(result.data);
+        setUser(cleanUser);
+        await storeCachedUser(cleanUser);
+        if (cleanUser && cleanUser.linked_children && cleanUser.linked_children.length > 0) {
+          const firstChild = cleanUser.linked_children[0];
           setSelectedChildId(typeof firstChild === 'string' ? firstChild : firstChild.id);
         }
       } else if (result.status === 401 || result.error?.includes('expired') || result.error?.includes('Unauthorized')) {
@@ -97,8 +128,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await storeTokens(refreshRes.access_token, refreshToken);
             const retryMe = await authApi.getMe();
             if (retryMe.success && retryMe.data) {
-              setUser(retryMe.data);
-              await storeCachedUser(retryMe.data);
+              const cleanUser = normalizeUser(retryMe.data);
+              setUser(cleanUser);
+              await storeCachedUser(cleanUser);
               return;
             }
           }
@@ -120,11 +152,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const result = await authApi.login(identifier, password);
       if (result.success && result.access_token) {
+        const cleanUser = normalizeUser(result.user);
         await storeTokens(result.access_token, result.refresh_token);
-        await storeCachedUser(result.user);
-        setUser(result.user);
-        if (result.user?.linked_children && result.user.linked_children.length > 0) {
-          const first = result.user.linked_children[0];
+        await storeCachedUser(cleanUser);
+        setUser(cleanUser);
+        if (cleanUser && cleanUser.linked_children && cleanUser.linked_children.length > 0) {
+          const first = cleanUser.linked_children[0];
           setSelectedChildId(typeof first === 'string' ? first : first.id);
         }
         return { success: true };
@@ -142,11 +175,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const result = await authApi.demoLogin(identifier);
         if (result && result.success && result.access_token) {
+          const cleanUser = normalizeUser(result.user);
           await storeTokens(result.access_token, result.refresh_token);
-          await storeCachedUser(result.user);
-          setUser(result.user);
-          if (result.user?.linked_children && result.user.linked_children.length > 0) {
-            const first = result.user.linked_children[0];
+          await storeCachedUser(cleanUser);
+          setUser(cleanUser);
+          if (cleanUser && cleanUser.linked_children && cleanUser.linked_children.length > 0) {
+            const first = cleanUser.linked_children[0];
             setSelectedChildId(typeof first === 'string' ? first : first.id);
           }
           return { success: true };

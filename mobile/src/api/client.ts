@@ -3,11 +3,11 @@ import { NativeModules, Platform } from 'react-native';
 
 // ─── Dynamic Server Configuration ──────────────────────────────────────
 const CUSTOM_SERVER_KEY = 'guardian_custom_server_url';
-export const DEFAULT_SERVER_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.102:3001';
+export const DEFAULT_SERVER_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.100:3001';
 
 /**
  * Detect host IP dynamically from Metro bundler's scriptURL in Expo Go / React Native.
- * If Metro is loading from "http://192.168.0.102:8081/index.bundle...", this extracts "192.168.0.102".
+ * If Metro is loading from "http://192.168.0.100:8081/index.bundle...", this extracts "192.168.0.100".
  */
 function getMetroHostIp(): string | null {
   try {
@@ -27,6 +27,12 @@ export async function getBaseUrl(): Promise<string> {
   try {
     const custom = await AsyncStorage.getItem(CUSTOM_SERVER_KEY);
     if (custom && custom.trim()) {
+      // Auto-migrate stale hardcoded 192.168.0.102 address if previously stored in AsyncStorage
+      if (custom.includes('192.168.0.102')) {
+        const updated = custom.replace('192.168.0.102', '192.168.0.100');
+        await AsyncStorage.setItem(CUSTOM_SERVER_KEY, updated);
+        return updated.replace(/\/+$/, '');
+      }
       return custom.trim().replace(/\/+$/, '');
     }
   } catch {}
@@ -40,11 +46,11 @@ export async function getBaseUrl(): Promise<string> {
     return `http://${metroIp}:3001`;
   }
 
-  // Fallback to PC's LAN IP
-  return 'http://192.168.0.102:3001';
+  // Fallback to PC's active LAN IP
+  return 'http://192.168.0.100:3001';
 }
 
-/** Set a custom server host (e.g. http://192.168.0.102:3001 or https://my-tunnel.ngrok.io) */
+/** Set a custom server host (e.g. http://192.168.0.100:3001 or https://my-tunnel.ngrok.io) */
 export async function setCustomServerUrl(url: string): Promise<void> {
   const clean = url.trim().replace(/\/+$/, '');
   if (!clean || clean === DEFAULT_SERVER_URL) {
@@ -183,7 +189,14 @@ async function request<T>(
     if (fetchErr.name === 'AbortError') {
       return {
         success: false,
-        error: 'Server connection timed out (5s). Check your Wi-Fi or server status.',
+        error: `Server timed out (5s) connecting to ${baseUrl}. Check your Wi-Fi or server status.`,
+      } as unknown as T;
+    }
+    const msg = fetchErr.message || '';
+    if (msg.includes('NoRouteToHost') || msg.includes('Network request failed') || msg.includes('ECONNREFUSED')) {
+      return {
+        success: false,
+        error: `Cannot reach backend at ${baseUrl}. Ensure backend server is running and phone is on the same Wi-Fi.`,
       } as unknown as T;
     }
     return {

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { Colors, FontSizes, Shadows } from './src/theme/colors';
+import BrandEmblem from './src/components/BrandEmblem';
 
 // Auth Screens
 import LoginScreen from './src/screens/auth/LoginScreen';
@@ -55,23 +56,30 @@ function AuthNavigator() {
 // ─── Main App Navigator (Authenticated) ─────────────────────────────────
 
 function MainNavigator() {
+  const insets = useSafeAreaInsets();
+  // Keep the bar clear of the Android gesture bar / iPhone home indicator.
+  const bottomInset = Math.max(insets.bottom, 8);
+
   return (
     <Tab.Navigator
       screenOptions={{
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopColor: Colors.border,
           borderTopWidth: 1,
           paddingTop: 6,
-          paddingBottom: 8,
-          height: 65,
+          paddingBottom: bottomInset,
+          height: 58 + bottomInset,
           ...Shadows.raised,
         },
+        tabBarItemStyle: { paddingVertical: 4 },
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '600',
+          fontWeight: '700',
+          letterSpacing: 0.1,
         },
         headerStyle: {
           backgroundColor: '#FFFFFF',
@@ -80,12 +88,16 @@ function MainNavigator() {
           borderBottomWidth: 1,
           borderBottomColor: Colors.border,
         },
+        headerShadowVisible: false,
+        headerTitleAlign: 'left',
         headerTintColor: Colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: '700',
-          fontSize: 18,
+          fontWeight: '800',
+          fontSize: 19,
           color: Colors.textPrimary,
+          letterSpacing: -0.2,
         },
+        headerTitleContainerStyle: { marginLeft: 16, marginRight: 16 },
       }}
     >
       <Tab.Screen
@@ -135,18 +147,26 @@ function RootNavigator() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingScreen}>
-        <View style={styles.loadingMark}>
-          <Ionicons name="shield-checkmark" size={40} color={Colors.primary} />
-        </View>
+      <View
+        style={styles.loadingScreen}
+        accessibilityRole="progressbar"
+        accessibilityLabel="Family TV Guardian is starting"
+      >
+        <BrandEmblem size={88} />
         <Text style={styles.loadingTitle}>Family TV Guardian</Text>
-        <ActivityIndicator size="small" color={Colors.primary} style={{ marginTop: 20 }} />
+        <Text style={styles.loadingSubtitle}>Preparing your household…</Text>
+        <ActivityIndicator size="small" color={Colors.primary} style={{ marginTop: 18 }} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      theme={{
+        ...DefaultTheme,
+        colors: { ...DefaultTheme.colors, background: Colors.bgDark },
+      }}
+    >
       {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
@@ -169,22 +189,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.bgDark,
-  },
-  loadingMark: {
-    width: 84,
-    height: 84,
-    borderRadius: 24,
-    backgroundColor: Colors.tintBlue,
-    borderWidth: 1.5,
-    borderColor: Colors.tintBlueStrong,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 18,
+    gap: 4,
   },
   loadingTitle: {
     fontSize: FontSizes.title,
     fontWeight: '800',
     color: Colors.textPrimary,
     letterSpacing: 0.3,
+    marginTop: 18,
+  },
+  loadingSubtitle: {
+    fontSize: FontSizes.body,
+    color: Colors.textSecondary,
+    marginTop: 2,
   },
 });

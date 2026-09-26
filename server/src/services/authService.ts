@@ -38,6 +38,24 @@ function generateUserId(): string {
   return `parent_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
 }
 
+/** Formats user object for API responses with fully hydrated child profile objects */
+export function formatUserResponse(user: ParentUser) {
+  const children = (user.linked_children || [])
+    .map((cid: any) => (typeof cid === 'string' ? db.getChildById(cid) : cid))
+    .filter(Boolean);
+
+  return {
+    id: user.id,
+    household_id: user.household_id,
+    display_name: user.display_name,
+    email: user.email,
+    phone: user.phone,
+    two_fa_enabled: user.two_fa_enabled,
+    linked_children: children,
+    created_at: user.created_at,
+  };
+}
+
 // ─── Password Validation ────────────────────────────────────────────────
 
 /** Validate password strength: min 8 chars, 1 uppercase, 1 digit, 1 symbol */
@@ -112,14 +130,7 @@ export async function registerParent(params: {
 
   return {
     success: true,
-    user: {
-      id: user.id,
-      household_id: user.household_id,
-      display_name: user.display_name,
-      email: user.email,
-      phone: user.phone,
-      linked_children: user.linked_children,
-    },
+    user: formatUserResponse(user),
   };
 }
 
@@ -168,14 +179,7 @@ export async function loginParent(params: {
     success: true,
     access_token,
     refresh_token,
-    user: {
-      id: user.id,
-      household_id: user.household_id,
-      display_name: user.display_name,
-      email: user.email,
-      phone: user.phone,
-      linked_children: user.linked_children,
-    },
+    user: formatUserResponse(user),
   };
 }
 
@@ -246,14 +250,7 @@ export async function verify2FA(params: {
     success: true,
     access_token,
     refresh_token,
-    user: {
-      id: user.id,
-      household_id: user.household_id,
-      display_name: user.display_name,
-      email: user.email,
-      phone: user.phone,
-      linked_children: user.linked_children,
-    },
+    user: formatUserResponse(user),
   };
 }
 
@@ -308,14 +305,7 @@ export async function demoLoginParent(identifier?: string): Promise<{
     success: true,
     access_token,
     refresh_token,
-    user: {
-      id: user.id,
-      household_id: user.household_id,
-      display_name: user.display_name,
-      email: user.email,
-      phone: user.phone,
-      linked_children: user.linked_children,
-    },
+    user: formatUserResponse(user),
   };
 }
 

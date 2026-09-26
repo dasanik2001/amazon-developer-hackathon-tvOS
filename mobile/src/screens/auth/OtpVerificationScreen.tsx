@@ -193,7 +193,7 @@ export default function OtpVerificationScreen({
         </View>
 
         {error ? (
-          <View style={styles.errorBox}>
+          <View style={styles.errorBox} accessible accessibilityLiveRegion="polite" accessibilityRole="alert">
             <Icon name="alert-circle" size={16} color={Colors.danger} />
             <Text style={styles.errorText}>{error}</Text>
           </View>

@@ -9,10 +9,14 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { guardianApi, remoteApi } from '../../api/client';
+import { getPrefs, GuardianPrefs } from '../../storage/prefs';
 import QrScannerModal from '../../components/QrScannerModal';
+import Toast from '../../components/Toast';
+import { EmptyState, ErrorState, LoadingState } from '../../components/AsyncState';
 import Icon, { IconName } from '../../components/Icon';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -25,30 +29,59 @@ interface DigestData {
   generated_summary: string;
 }
 
+function greetingForHour(hour: number) {
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 export default function DashboardScreen() {
   const { user, selectedChildId, setSelectedChildId } = useAuth();
+  const insets = useSafeAreaInsets();
   const [digest, setDigest] = useState<DigestData | null>(null);
   const [controlState, setControlState] = useState({ enabled: true, current_app: null as any });
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [commandFeedback, setCommandFeedback] = useState('');
-  const [feedbackOk, setFeedbackOk] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [prefs, setPrefsState] = useState<GuardianPrefs | null>(null);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; tone: 'success' | 'error' | 'info' }>({
+    visible: false,
+    message: '',
+    tone: 'info',
+  });
+  const [sendingCmd, setSendingCmd] = useState('');
   const [scannerVisible, setScannerVisible] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
-  const selectedChild = user?.linked_children?.find((c: any) => c.id === selectedChildId);
-  const dailyLimit = selectedChild?.settings?.daily_limit_minutes || 60;
+  const selectedChild = user?.linked_children?.find((c: any) => (typeof c === 'string' ? c : c?.id) === selectedChildId);
+  const childLimit = (typeof selectedChild === 'object' && selectedChild?.settings?.daily_limit_minutes) || null;
+  const dailyLimit = prefs?.dailyLimitMinutes ?? childLimit ?? 60;
+
+  const showToast = useCallback((message: string, tone: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ visible: true, message, tone });
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
-      const [digestRes, controlRes] = await Promise.all([
+      setLoadError('');
+      const [digestRes, controlRes, currentPrefs] = await Promise.all([
         guardianApi.getDigest(selectedChildId, today),
         guardianApi.getOverlayControl(),
+        getPrefs(),
       ]);
-      if (digestRes.success) setDigest(digestRes.data);
-      if (controlRes.success) setControlState({ enabled: controlRes.enabled, current_app: controlRes.current_app });
+      setPrefsState(currentPrefs);
+      if (digestRes.success) {
+        setDigest(digestRes.data);
+      } else {
+        setDigest(null);
+        setLoadError(digestRes.error || 'Could not load today’s digest.');
+      }
+      if (controlRes.success) {
+        setControlState({ enabled: controlRes.enabled, current_app: controlRes.current_app });
+      }
     } catch (err) {
       console.warn('Dashboard load error:', err);
+      setLoadError('Something went wrong while loading the dashboard.');
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -60,21 +93,36 @@ export default function DashboardScreen() {
   const onRefresh = useCallback(() => { setRefreshing(true); loadData(); }, [loadData]);
 
   const sendCommand = async (cmd: string, label: string, payload?: Record<string, any>) => {
+    if (sendingCmd) return;
+    setSendingCmd(cmd);
+    showToast(`Sending ${label}…`, 'info');
     try {
-      setFeedbackOk(true);
-      setCommandFeedback(`Sending ${label}...`);
-      await remoteApi.sendCommand(cmd, selectedChildId, payload);
-      setFeedbackOk(true);
-      setCommandFeedback(`${label} sent`);
-      setTimeout(() => setCommandFeedback(''), 3000);
+      const res = await remoteApi.sendCommand(cmd, selectedChildId, payload);
+      if (res && res.success === false) {
+        showToast(res.error || `Failed to send ${label}`, 'error');
+        return;
+      }
+      showToast(`${label} sent to Fire TV`, 'success');
     } catch {
-      setFeedbackOk(false);
-      setCommandFeedback(`Failed to send ${label}`);
+      showToast(`Failed to send ${label}`, 'error');
+    } finally {
+      setSendingCmd('');
     }
   };
 
   const totalMinutes = digest?.total_minutes || 0;
-  const progressPercent = Math.min((totalMinutes / dailyLimit) * 100, 100);
+  const rawPercent = dailyLimit > 0 ? (totalMinutes / dailyLimit) * 100 : 0;
+  const progressPercent = Math.min(rawPercent, 100);
+  const overLimit = totalMinutes > dailyLimit;
+  const remainingMinutes = Math.max(dailyLimit - totalMinutes, 0);
+  const progressTone = overLimit
+    ? Colors.danger
+    : rawPercent >= 80
+      ? Colors.warning
+      : Colors.success;
+  const progressCaption = overLimit
+    ? `${totalMinutes - dailyLimit} min over the daily limit`
+    : `${remainingMinutes} min left today`;
   const categoryEntries = Object.entries(digest?.category_minutes || {}).sort((a, b) => b[1] - a[1]);
   const categoryColors: Record<string, string> = {
     'Science & Documentary': '#2563EB',
@@ -96,39 +144,78 @@ export default function DashboardScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading dashboard</Text>
+        <LoadingState label="Loading dashboard" />
       </View>
     );
   }
 
+  const parentName = user?.display_name?.split(' ')[0] || 'there';
+
   return (
+    <View style={styles.root}>
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[styles.contentContainer, { paddingBottom: insets.bottom + 96 }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
     >
+      {/* Personal Greeting */}
+      <View style={styles.greetingBlock}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.greetingTitle} accessibilityRole="header">
+            {greetingForHour(new Date().getHours())}, {parentName}
+          </Text>
+          <Text style={styles.greetingSubtitle}>
+            Here is how screen time is tracking today.
+          </Text>
+        </View>
+        <View style={styles.greetingDate}>
+          <Icon name="calendar" size={13} color={Colors.primary} />
+          <Text style={styles.greetingDateText}>{today}</Text>
+        </View>
+      </View>
+
+      {/* Load Failure */}
+      {loadError && !digest ? (
+        <ErrorState
+          title="Dashboard unavailable"
+          description={loadError}
+          actionLabel="Try Again"
+          onAction={() => {
+            setIsLoading(true);
+            loadData();
+          }}
+        />
+      ) : null}
+
       {/* Child Selector */}
       {user?.linked_children && user.linked_children.length > 1 && (
         <View style={styles.childSelector}>
-          {user.linked_children.map((child: any) => (
-            <TouchableOpacity
-              key={child.id}
-              style={[styles.childChip, selectedChildId === child.id && styles.childChipActive]}
-              onPress={() => setSelectedChildId(child.id)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: selectedChildId === child.id }}
-            >
-              <View style={[styles.childAvatar, selectedChildId === child.id && styles.childAvatarActive]}>
-                <Text style={[styles.childAvatarText, selectedChildId === child.id && styles.childAvatarTextActive]}>
-                  {(child.display_name || '?').charAt(0).toUpperCase()}
+          {user.linked_children.map((child: any, index: number) => {
+            const childId = typeof child === 'string' ? child : (child?.id || `child_${index}`);
+            const childName = typeof child === 'string'
+              ? (child === 'child_aarav' ? 'Aarav' : child === 'child_meera' ? 'Meera' : child)
+              : (child?.display_name || childId);
+            const isSelected = selectedChildId === childId;
+
+            return (
+              <TouchableOpacity
+                key={childId}
+                style={[styles.childChip, isSelected && styles.childChipActive]}
+                onPress={() => setSelectedChildId(childId)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+              >
+                <View style={[styles.childAvatar, isSelected && styles.childAvatarActive]}>
+                  <Text style={[styles.childAvatarText, isSelected && styles.childAvatarTextActive]}>
+                    {childName.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+                <Text style={[styles.childName, isSelected && styles.childNameActive]}>
+                  {childName}
                 </Text>
-              </View>
-              <Text style={[styles.childName, selectedChildId === child.id && styles.childNameActive]}>
-                {child.display_name}
-              </Text>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       )}
 
@@ -144,19 +231,47 @@ export default function DashboardScreen() {
           <Text style={styles.dateLabel}>{today}</Text>
         </View>
 
-        <View style={styles.ringContainer}>
-          <View style={styles.ringStats}>
-            <Text style={styles.ringValue}>{totalMinutes}</Text>
-            <Text style={styles.ringUnit}>min</Text>
-            <Text style={styles.ringLimit}>of {dailyLimit} min limit</Text>
-          </View>
-          <View style={styles.ringBg}>
-            <View style={[styles.ringFill, { width: `${progressPercent}%` }]} />
-          </View>
-        </View>
+        {!digest && !loadError ? (
+          <EmptyState
+            icon="tv"
+            title="No viewing logged yet"
+            description="Once the Fire TV reports a session, today's screen time and learning themes will appear here."
+            actionLabel="Refresh"
+            onAction={onRefresh}
+            compact
+          />
+        ) : (
+          <>
+            <View style={styles.ringContainer}>
+              <View style={styles.ringStats}>
+                <Text style={styles.ringValue}>{totalMinutes}</Text>
+                <Text style={styles.ringUnit}>min</Text>
+                <Text style={styles.ringLimit}>of {dailyLimit} min limit</Text>
+              </View>
+              <View
+                style={styles.ringBg}
+                accessibilityRole="progressbar"
+                accessibilityValue={{
+                  min: 0,
+                  max: dailyLimit,
+                  now: totalMinutes,
+                  text: `${totalMinutes} of ${dailyLimit} minutes`,
+                }}
+              >
+                <View style={[styles.ringFill, { width: `${progressPercent}%`, backgroundColor: progressTone }]} />
+              </View>
+              <View style={styles.progressCaptionRow}>
+                <View style={[styles.progressDot, { backgroundColor: progressTone }]} />
+                <Text style={[styles.progressCaption, { color: progressTone }]}>
+                  {progressCaption}
+                </Text>
+              </View>
+            </View>
 
-        {digest?.generated_summary && (
-          <Text style={styles.summaryText}>{digest.generated_summary}</Text>
+            {digest?.generated_summary && (
+              <Text style={styles.summaryText}>{digest.generated_summary}</Text>
+            )}
+          </>
         )}
       </View>
 
@@ -212,32 +327,30 @@ export default function DashboardScreen() {
         <Text style={styles.cardSubtitle}>Control the Fire TV from your phone</Text>
 
         <View style={styles.actionsGrid}>
-          {actions.map((action) => (
-            <TouchableOpacity
-              key={action.cmd}
-              style={[styles.actionBtn, { backgroundColor: action.tint }]}
-              onPress={() => sendCommand(action.cmd, action.label, action.payload)}
-              accessibilityRole="button"
-              accessibilityLabel={action.label}
-            >
-              <Icon name={action.icon} size={22} color={action.color} />
-              <Text style={styles.actionLabel}>{action.label}</Text>
-            </TouchableOpacity>
-          ))}
+          {actions.map((action) => {
+            const isPending = sendingCmd === action.cmd;
+            const isBusy = !!sendingCmd;
+            return (
+              <TouchableOpacity
+                key={action.cmd}
+                style={[styles.actionBtn, { backgroundColor: action.tint }, isBusy && styles.actionBtnBusy]}
+                onPress={() => sendCommand(action.cmd, action.label, action.payload)}
+                disabled={isBusy}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                accessibilityLabel={action.label}
+                accessibilityState={{ disabled: isBusy, busy: isPending }}
+              >
+                {isPending ? (
+                  <ActivityIndicator size="small" color={action.color} />
+                ) : (
+                  <Icon name={action.icon} size={22} color={action.color} />
+                )}
+                <Text style={styles.actionLabel}>{action.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-
-        {commandFeedback ? (
-          <View style={[styles.feedbackRow, { backgroundColor: feedbackOk ? Colors.tintBlue : Colors.tintRed }]}>
-            <Icon
-              name={feedbackOk ? 'information-circle' : 'alert-circle'}
-              size={15}
-              color={feedbackOk ? Colors.info : Colors.danger}
-            />
-            <Text style={[styles.feedbackText, { color: feedbackOk ? Colors.info : Colors.danger }]}>
-              {commandFeedback}
-            </Text>
-          </View>
-        ) : null}
       </View>
 
       {/* Category Breakdown */}
@@ -318,26 +431,71 @@ export default function DashboardScreen() {
         </View>
       )}
 
-      <View style={{ height: 100 }} />
+      {/* Space for the fixed tab bar + toast lane */}
+      <View style={{ height: 24 }} />
 
       <QrScannerModal
         visible={scannerVisible}
         onClose={() => setScannerVisible(false)}
         onSuccess={() => {
           loadData();
-          setFeedbackOk(true);
-          setCommandFeedback('Fire TV linked successfully');
+          showToast('Fire TV linked successfully', 'success');
         }}
       />
     </ScrollView>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        tone={toast.tone}
+        bottom={insets.bottom + 74}
+        onDismiss={() => setToast((t) => ({ ...t, visible: false }))}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: Colors.bgDark },
   container: { flex: 1, backgroundColor: Colors.bgDark },
   contentContainer: { paddingHorizontal: Spacing.md, paddingTop: Spacing.md },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.bgDark, gap: 10 },
-  loadingText: { color: Colors.textSecondary, fontSize: FontSizes.body, fontWeight: '600' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.bgDark },
+
+  greetingBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  greetingTitle: {
+    fontSize: FontSizes.title,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+    letterSpacing: -0.3,
+  },
+  greetingSubtitle: {
+    fontSize: FontSizes.body,
+    color: Colors.textSecondary,
+    marginTop: 3,
+    lineHeight: 20,
+  },
+  greetingDate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    minHeight: 32,
+  },
+  greetingDateText: {
+    fontSize: FontSizes.caption,
+    color: Colors.textSecondary,
+    fontWeight: '700',
+  },
 
   childSelector: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md, flexWrap: 'wrap' },
   childChip: {
@@ -350,7 +508,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     gap: 8,
-    minHeight: 40,
+    minHeight: 44,
   },
   childChipActive: { borderColor: Colors.primary, backgroundColor: Colors.tintBlue },
   childAvatar: {
@@ -405,6 +563,14 @@ const styles = StyleSheet.create({
   ringLimit: { fontSize: FontSizes.body, color: Colors.textMuted, marginLeft: 8 },
   ringBg: { width: '100%', height: 10, backgroundColor: Colors.bgSurface, borderRadius: 5, overflow: 'hidden' },
   ringFill: { height: 10, borderRadius: 5, backgroundColor: Colors.primary },
+  progressCaptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginTop: 2,
+  },
+  progressDot: { width: 7, height: 7, borderRadius: 4 },
+  progressCaption: { fontSize: FontSizes.body, fontWeight: '700' },
 
   summaryText: { fontSize: FontSizes.body, color: Colors.textSecondary, lineHeight: 21, fontStyle: 'italic' },
 
@@ -438,18 +604,7 @@ const styles = StyleSheet.create({
     minHeight: 92,
   },
   actionLabel: { fontSize: FontSizes.body, fontWeight: '700', color: Colors.textPrimary },
-  feedbackRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-    borderRadius: BorderRadius.sm,
-    paddingVertical: 9,
-    marginTop: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  feedbackText: { fontSize: FontSizes.body, fontWeight: '700' },
+  actionBtnBusy: { opacity: 0.55 },
 
   categoryRow: { marginBottom: Spacing.sm + 2 },
   categoryLabelRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
@@ -489,12 +644,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
     backgroundColor: Colors.tintBlue,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: Colors.tintBlueStrong,
-    minHeight: 32,
+    minHeight: 44,
   },
   pairMiniBtnText: {
     color: Colors.primary,

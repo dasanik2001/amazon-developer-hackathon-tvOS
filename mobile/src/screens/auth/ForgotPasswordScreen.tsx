@@ -109,7 +109,7 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
                 />
               </View>
               {error ? (
-                <View style={styles.errorRow}>
+                <View style={styles.errorRow} accessible accessibilityLiveRegion="polite" accessibilityRole="alert">
                   <Icon name="alert-circle" size={15} color={Colors.danger} />
                   <Text style={styles.errorText}>{error}</Text>
                 </View>
@@ -179,7 +179,7 @@ export default function ForgotPasswordScreen({ onBack }: ForgotPasswordScreenPro
                 />
               </View>
               {error ? (
-                <View style={styles.errorRow}>
+                <View style={styles.errorRow} accessible accessibilityLiveRegion="polite" accessibilityRole="alert">
                   <Icon name="alert-circle" size={15} color={Colors.danger} />
                   <Text style={styles.errorText}>{error}</Text>
                 </View>

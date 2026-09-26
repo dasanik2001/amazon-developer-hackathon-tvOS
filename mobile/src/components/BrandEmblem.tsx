@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, Platform } from 'react-native';
 import { Colors } from '../theme/colors';
 
 interface BrandEmblemProps {
@@ -7,31 +7,38 @@ interface BrandEmblemProps {
 }
 
 /**
- * Geometric brand emblem: dot matrix (left) + signal waves (right),
- * split by a diagonal divider inside a rounded blue-tinted tile.
+ * Modern, Professional, Light Brand Emblem for Family TV Guardian.
+ * Features a crisp Fire TV Smart Remote with upward broadcast intelligence waves.
  */
-export default function BrandEmblem({ size = 84 }: BrandEmblemProps) {
-  const scale = size / 84;
+export default function BrandEmblem({ size = 88 }: BrandEmblemProps) {
+  const borderRadius = Math.round(size * 0.22);
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
-      <View style={[styles.tile, { transform: [{ scale }] }]}>
-        <View style={styles.leftHalf}>
-          <View style={styles.dotRow}><View style={styles.dot} /></View>
-          <View style={styles.dotRow}><View style={styles.dot} /><View style={styles.dot} /></View>
-          <View style={styles.dotRow}><View style={styles.dot} /><View style={styles.dot} /><View style={styles.dot} /></View>
-          <View style={styles.dotRow}><View style={styles.dot} /><View style={styles.dot} /></View>
-          <View style={styles.dotRow}><View style={styles.dot} /></View>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.rightHalf}>
-          <View style={styles.waveBar} />
-          <View style={[styles.waveBar, styles.waveBarTilted]} />
-          <View style={styles.waveBar} />
-          <View style={[styles.waveBar, styles.waveBarTilted]} />
-        </View>
+      <View
+        style={[
+          styles.tileShadow,
+          {
+            width: size,
+            height: size,
+            borderRadius,
+          },
+        ]}
+      >
+        <Image
+          source={require('../../assets/application.png')}
+          style={[
+            styles.image,
+            {
+              width: size,
+              height: size,
+              borderRadius,
+            },
+          ]}
+          resizeMode="cover"
+          accessibilityRole="image"
+          accessibilityLabel="Family TV Guardian Modern Light Emblem"
+        />
       </View>
     </View>
   );
@@ -42,63 +49,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  tile: {
-    width: 80,
-    height: 80,
-    borderRadius: 22,
-    backgroundColor: Colors.tintBlue,
-    borderWidth: 1.5,
-    borderColor: Colors.tintBlueStrong,
-    flexDirection: 'row',
+  tileShadow: {
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 14,
-    elevation: 4,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0F172A',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.08,
+        shadowRadius: 14,
+      },
+      android: {
+        elevation: 3,
+      },
+      default: {
+        shadowColor: '#0F172A',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.08,
+        shadowRadius: 14,
+      },
+    }),
   },
-  leftHalf: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 3,
-  },
-  dotRow: {
-    flexDirection: 'row',
-    gap: 3,
-    justifyContent: 'center',
-  },
-  dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: Colors.primary,
-  },
-  divider: {
-    width: 2,
-    height: '80%',
-    backgroundColor: Colors.accentLavender,
-    marginHorizontal: 4,
-    transform: [{ rotate: '12deg' }],
-  },
-  rightHalf: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    height: '75%',
-  },
-  waveBar: {
-    width: 3.5,
+  image: {
+    width: '100%',
     height: '100%',
-    borderRadius: 2,
-    backgroundColor: Colors.primaryLight,
-  },
-  waveBarTilted: {
-    height: '85%',
-    backgroundColor: Colors.accentLavender,
-    transform: [{ scaleY: 0.95 }],
   },
 });

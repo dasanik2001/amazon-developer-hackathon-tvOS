@@ -281,13 +281,14 @@ app.get('/health', (_req, res) => {
 });
 
 // Start server and preheat catalog
-server.listen(PORT, async () => {
+server.listen(Number(PORT), '0.0.0.0', async () => {
   console.log(`=================================================`);
   console.log(`🛡️  Family TV Guardian Backend is running on port ${PORT}`);
-  console.log(`📡  API: http://localhost:${PORT}/api`);
-  console.log(`🔐  Auth API: http://localhost:${PORT}/api/auth`);
+  console.log(`📡  Local:   http://localhost:${PORT}/api`);
+  console.log(`📶  Network: http://192.168.0.100:${PORT}/api`);
+  console.log(`🔐  Auth API: http://192.168.0.100:${PORT}/api/auth`);
   console.log(`💻  Parent Dashboard: http://localhost:${PORT}/dashboard`);
-  console.log(`📱  Mobile App API: http://localhost:${PORT}/api/auth/*`);
+  console.log(`📱  Mobile App API: http://192.168.0.100:${PORT}/api/auth/*`);
   console.log(`=================================================`);
 
   try {

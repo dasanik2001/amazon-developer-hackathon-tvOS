@@ -10,11 +10,13 @@ import {
   ScrollView,
   ActivityIndicator,
   Animated,
+  Modal,
 } from 'react-native';
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import BrandEmblem from '../../components/BrandEmblem';
 import Icon, { IconName } from '../../components/Icon';
+import { getBaseUrl, setCustomServerUrl, testServerConnection } from '../../api/client';
 
 interface RegisterScreenProps {
   onNavigateLogin: () => void;
@@ -33,12 +35,51 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
+  // Server Host Config State
+  const [serverUrl, setServerUrl] = useState('');
+  const [showServerModal, setShowServerModal] = useState(false);
+  const [serverStatus, setServerStatus] = useState<'idle' | 'checking' | 'connected' | 'error'>('idle');
+  const [serverLatency, setServerLatency] = useState<number | undefined>();
+  const [serverErrorMsg, setServerErrorMsg] = useState('');
+
   useEffect(() => {
+    loadServerConfig();
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
     ]).start();
   }, []);
+
+  const loadServerConfig = async () => {
+    const url = await getBaseUrl();
+    setServerUrl(url);
+    const check = await testServerConnection(url);
+    if (check.success) {
+      setServerStatus('connected');
+      setServerLatency(check.latencyMs);
+    } else {
+      setServerStatus('error');
+    }
+  };
+
+  const handleTestPing = async () => {
+    setServerStatus('checking');
+    setServerErrorMsg('');
+    const res = await testServerConnection(serverUrl);
+    if (res.success) {
+      setServerStatus('connected');
+      setServerLatency(res.latencyMs);
+    } else {
+      setServerStatus('error');
+      setServerErrorMsg(res.error || 'Failed to connect');
+    }
+  };
+
+  const handleSaveServer = async () => {
+    await setCustomServerUrl(serverUrl);
+    setShowServerModal(false);
+    handleTestPing();
+  };
 
   const getPasswordStrength = (pw: string) => {
     let score = 0;
@@ -69,7 +110,7 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
         setError(result.error || 'Registration failed');
       }
     } catch {
-      setError('Network error. Please check your connection.');
+      setError(`Cannot reach backend server. Tap the server settings pill above to verify connection.`);
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +128,28 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Dynamic Server Host Pill */}
+        <TouchableOpacity
+          style={styles.serverPill}
+          onPress={() => setShowServerModal(true)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Backend host settings"
+        >
+          <View
+            style={[
+              styles.statusDot,
+              serverStatus === 'connected' && styles.statusDotGreen,
+              serverStatus === 'error' && styles.statusDotRed,
+            ]}
+          />
+          <Text style={styles.serverPillText} numberOfLines={1}>
+            {serverUrl ? serverUrl.replace(/^https?:\/\//, '') : 'Set Server Host'}
+            {serverLatency ? ` (${serverLatency}ms)` : ''}
+          </Text>
+          <Icon name="settings" size={13} color={Colors.textMuted} />
+        </TouchableOpacity>
+
         {/* Header Hero */}
         <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <BrandEmblem size={72} />
@@ -217,7 +280,7 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
           )}
 
           {error ? (
-            <View style={styles.errorBox}>
+            <View style={styles.errorBox} accessible accessibilityLiveRegion="polite" accessibilityRole="alert">
               <Icon name="alert-circle" size={17} color={Colors.danger} />
               <Text style={styles.errorText}>{error}</Text>
             </View>
@@ -247,6 +310,86 @@ export default function RegisterScreen({ onNavigateLogin }: RegisterScreenProps)
           </View>
         </View>
       </ScrollView>
+
+      {/* ─── Server Configuration Modal ─────────────────────────────────── */}
+      <Modal
+        visible={showServerModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowServerModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalTitleRow}>
+              <View style={styles.modalTitleIcon}>
+                <Icon name="globe-outline" size={18} color={Colors.primary} />
+              </View>
+              <Text style={styles.modalTitle}>Backend Host Settings</Text>
+            </View>
+            <Text style={styles.modalSubtitle}>
+              Connect over local Wi-Fi or cloud tunnel.
+            </Text>
+
+            <TextInput
+              style={styles.modalInput}
+              value={serverUrl}
+              onChangeText={setServerUrl}
+              placeholder="http://192.168.0.100:3001"
+              placeholderTextColor={Colors.textPlaceholder}
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Backend host URL"
+            />
+
+            <TouchableOpacity
+              style={styles.testBtn}
+              onPress={handleTestPing}
+              disabled={serverStatus === 'checking'}
+              accessibilityRole="button"
+            >
+              {serverStatus === 'checking' ? (
+                <ActivityIndicator color={Colors.primary} size="small" />
+              ) : (
+                <View style={styles.inlineCenter}>
+                  <Icon
+                    name={serverStatus === 'connected' ? 'checkmark-circle' : 'radio-button-off'}
+                    size={15}
+                    color={serverStatus === 'connected' ? Colors.success : Colors.primary}
+                  />
+                  <Text style={[styles.testBtnText, serverStatus === 'connected' && { color: Colors.success }]}>
+                    {serverStatus === 'connected' ? `Connected (${serverLatency}ms)` : 'Ping Backend Host'}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {serverErrorMsg ? (
+              <View style={styles.modalErrorRow}>
+                <Icon name="close-circle" size={14} color={Colors.danger} />
+                <Text style={styles.modalErrorText}>{serverErrorMsg}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.modalBtnRow}>
+              <TouchableOpacity
+                style={styles.modalSecondaryBtn}
+                onPress={() => setShowServerModal(false)}
+                accessibilityRole="button"
+              >
+                <Text style={styles.modalSecondaryBtnText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.modalPrimaryBtn}
+                onPress={handleSaveServer}
+                accessibilityRole="button"
+              >
+                <Text style={styles.modalPrimaryBtnText}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -261,6 +404,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xl,
+  },
+  serverPill: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 7,
+    borderRadius: BorderRadius.full,
+    marginBottom: Spacing.lg,
+    gap: 8,
+    ...Shadows.card,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.warning,
+  },
+  statusDotGreen: {
+    backgroundColor: Colors.success,
+  },
+  statusDotRed: {
+    backgroundColor: Colors.danger,
+  },
+  serverPillText: {
+    color: Colors.textSecondary,
+    fontSize: FontSizes.caption,
+    fontWeight: '600',
+    maxWidth: 220,
+  },
+  inlineCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
   },
   header: {
     alignItems: 'center',
@@ -324,8 +504,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
     borderRadius: BorderRadius.full,
-    minHeight: 40,
-    justifyContent: 'center',
   },
   segmentBtnActive: {
     backgroundColor: '#FFFFFF',
@@ -344,36 +522,32 @@ const styles = StyleSheet.create({
   strengthContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: -8,
+    gap: 10,
     marginBottom: Spacing.md,
-    gap: 8,
     paddingHorizontal: Spacing.xs,
   },
   strengthBarBg: {
     flex: 1,
-    height: 6,
+    height: 4,
     backgroundColor: Colors.bgSurface,
-    borderRadius: 3,
+    borderRadius: 2,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   strengthBarFill: {
-    height: 6,
-    borderRadius: 3,
+    height: '100%',
+    borderRadius: 2,
   },
   strengthLabel: {
-    fontSize: FontSizes.caption,
+    fontSize: FontSizes.caption - 1,
     fontWeight: '700',
-    minWidth: 68,
+    minWidth: 60,
     textAlign: 'right',
   },
   mismatchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: -8,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
     paddingHorizontal: Spacing.xs,
   },
   mismatchText: {
@@ -430,5 +604,122 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: FontSizes.body,
     fontWeight: '800',
+  },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.lg,
+  },
+  modalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    width: '100%',
+    maxWidth: 400,
+    ...Shadows.raised,
+  },
+  modalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: Spacing.xs,
+  },
+  modalTitleIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: Colors.tintBlue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    fontSize: FontSizes.subtitle,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+  },
+  modalSubtitle: {
+    fontSize: FontSizes.caption,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
+    lineHeight: 18,
+  },
+  modalInput: {
+    backgroundColor: Colors.bgSurface,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm + 4,
+    fontSize: FontSizes.body,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: Spacing.sm,
+  },
+  testBtn: {
+    minHeight: 44,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.tintBlue,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: Colors.tintBlueStrong,
+    marginBottom: Spacing.sm,
+  },
+  testBtnText: {
+    color: Colors.primary,
+    fontSize: FontSizes.caption,
+    fontWeight: '700',
+  },
+  modalErrorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: Spacing.sm,
+  },
+  modalErrorText: {
+    color: Colors.danger,
+    fontSize: FontSizes.caption,
+  },
+  modalBtnRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  modalSecondaryBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.bgSurface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  modalSecondaryBtnText: {
+    color: Colors.textSecondary,
+    fontSize: FontSizes.body,
+    fontWeight: '600',
+  },
+  modalPrimaryBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+  },
+  modalPrimaryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });

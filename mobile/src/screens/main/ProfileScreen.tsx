@@ -7,12 +7,14 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSizes, BorderRadius, Shadows } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import Icon, { IconName } from '../../components/Icon';
 
 export default function ProfileScreen() {
   const { user, logout, selectedChildId, setSelectedChildId } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const handleLogout = () => {
     Alert.alert(
@@ -26,13 +28,17 @@ export default function ProfileScreen() {
   };
 
   const securityRows: Array<{ label: string; desc: string; status: string; ok: boolean }> = [
-    { label: 'Two-Factor Authentication', desc: 'OTP verification on every login', status: 'Enabled', ok: true },
+    { label: 'Encrypted Credentials', desc: 'Passwords hashed with bcrypt on the server', status: 'Active', ok: true },
+    { label: 'Auto Sign-Out', desc: 'Refresh-token rotation ends stale sessions', status: 'Active', ok: true },
     { label: 'Biometric Unlock', desc: 'FaceID / fingerprint quick access', status: 'Coming Soon', ok: false },
-    { label: 'Session Timeout', desc: 'Auto-logout after 1 hour of inactivity', status: 'Active', ok: true },
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 96 }]}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Parent Profile Card */}
       <View style={styles.profileCard}>
         <View style={styles.avatarCircle}>
@@ -47,7 +53,7 @@ export default function ProfileScreen() {
         <View style={styles.badgeRow}>
           <View style={styles.badge}>
             <Icon name="shield-checkmark" size={12} color={Colors.primary} />
-            <Text style={styles.badgeText}>2FA Active</Text>
+            <Text style={styles.badgeText}>Verified Parent</Text>
           </View>
           <View style={styles.badge}>
             <Icon name="home" size={12} color={Colors.primary} />
@@ -66,33 +72,43 @@ export default function ProfileScreen() {
         </View>
         <Text style={styles.cardDesc}>Switch between children to view their individual data</Text>
 
-        {user?.linked_children?.map((child: any) => (
-          <TouchableOpacity
-            key={child.id}
-            style={[styles.childRow, selectedChildId === child.id && styles.childRowActive]}
-            onPress={() => setSelectedChildId(child.id)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: selectedChildId === child.id }}
-          >
-            <View style={[styles.childAvatar, selectedChildId === child.id && styles.childAvatarActive]}>
-              <Text style={[styles.childAvatarText, selectedChildId === child.id && styles.childAvatarTextActive]}>
-                {(child.display_name || '?').charAt(0).toUpperCase()}
-              </Text>
-            </View>
-            <View style={styles.childInfo}>
-              <Text style={styles.childName}>{child.display_name}</Text>
-              <Text style={styles.childMeta}>Age {child.age_band} • {child.settings?.daily_limit_minutes || 60} min/day</Text>
-            </View>
-            {selectedChildId === child.id ? (
-              <View style={styles.activePill}>
-                <Icon name="checkmark" size={11} color={Colors.primary} />
-                <Text style={styles.activePillText}>Active</Text>
+        {user?.linked_children?.map((child: any, index: number) => {
+          const childId = typeof child === 'string' ? child : (child?.id || `child_${index}`);
+          const childName = typeof child === 'string'
+            ? (child === 'child_aarav' ? 'Aarav' : child === 'child_meera' ? 'Meera' : child)
+            : (child?.display_name || childId);
+          const ageBand = typeof child === 'object' && child?.age_band ? child.age_band : '7-9';
+          const dailyLimit = typeof child === 'object' && child?.settings?.daily_limit_minutes ? child.settings.daily_limit_minutes : 60;
+          const isActive = selectedChildId === childId;
+
+          return (
+            <TouchableOpacity
+              key={childId}
+              style={[styles.childRow, isActive && styles.childRowActive]}
+              onPress={() => setSelectedChildId(childId)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isActive }}
+            >
+              <View style={[styles.childAvatar, isActive && styles.childAvatarActive]}>
+                <Text style={[styles.childAvatarText, isActive && styles.childAvatarTextActive]}>
+                  {childName.charAt(0).toUpperCase()}
+                </Text>
               </View>
-            ) : (
-              <Icon name="chevron-forward" size={16} color={Colors.textMuted} />
-            )}
-          </TouchableOpacity>
-        ))}
+              <View style={styles.childInfo}>
+                <Text style={styles.childName}>{childName}</Text>
+                <Text style={styles.childMeta}>Age {ageBand} • {dailyLimit} min/day</Text>
+              </View>
+              {isActive ? (
+                <View style={styles.activePill}>
+                  <Icon name="checkmark" size={11} color={Colors.primary} />
+                  <Text style={styles.activePillText}>Active</Text>
+                </View>
+              ) : (
+                <Icon name="chevron-forward" size={16} color={Colors.textMuted} />
+              )}
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* Security Settings */}
@@ -104,8 +120,11 @@ export default function ProfileScreen() {
           <Text style={styles.cardTitle}>Security</Text>
         </View>
 
-        {securityRows.map((row) => (
-          <View key={row.label} style={styles.settingRow}>
+        {securityRows.map((row, index) => (
+          <View
+            key={row.label}
+            style={[styles.settingRow, index === securityRows.length - 1 && styles.settingRowLast]}
+          >
             <View style={styles.settingText}>
               <Text style={styles.settingLabel}>{row.label}</Text>
               <Text style={styles.settingDesc}>{row.desc}</Text>
@@ -133,12 +152,16 @@ export default function ProfileScreen() {
       </View>
 
       {/* Logout */}
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} accessibilityRole="button">
+      <TouchableOpacity
+        style={styles.logoutBtn}
+        onPress={handleLogout}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="Sign out of Family TV Guardian"
+      >
         <Icon name="log-out-outline" size={18} color={Colors.danger} />
         <Text style={styles.logoutText}>Sign Out</Text>
       </TouchableOpacity>
-
-      <View style={{ height: 100 }} />
     </ScrollView>
   );
 }
@@ -256,6 +279,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
+  settingRowLast: { borderBottomWidth: 0, paddingBottom: 2 },
   settingText: { flex: 1 },
   settingLabel: { fontSize: FontSizes.body, fontWeight: '600', color: Colors.textPrimary },
   settingDesc: { fontSize: FontSizes.caption, color: Colors.textMuted, marginTop: 3 },

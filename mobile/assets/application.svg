@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background Gradient (Crisp Light Theme) -->
+    <linearGradient id="canvasBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+
+    <!-- Remote Body Gradient: High-end Royal Blue to Deep Indigo -->
+    <linearGradient id="remoteGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+
+    <!-- Subtle Button Gradient -->
+    <linearGradient id="btnGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F8FAFC" />
+    </linearGradient>
+
+    <!-- Ambient Glow behind the remote -->
+    <radialGradient id="ambientGlow" cx="50%" cy="48%" r="42%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Remote Drop Shadow -->
+    <filter id="remoteShadow" x="-20%" y="-10%" width="140%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#1D4ED8" flood-opacity="0.25" />
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.08" />
+    </filter>
+
+    <!-- D-Pad Shadow -->
+    <filter id="dpadShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+
+    <!-- Signal Arc Subtle Glow -->
+    <filter id="arcGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#2563EB" flood-opacity="0.2" />
+    </filter>
+  </defs>
+
+  <!-- Canvas Squircle (Clean, Light, iOS/Android Professional Spec) -->
+  <rect x="24" y="24" width="976" height="976" rx="224" fill="url(#canvasBg)" stroke="#E2E8F0" stroke-width="4" />
+
+  <!-- Ambient Light Diffusion Behind Icon -->
+  <circle cx="512" cy="520" r="360" fill="url(#ambientGlow)" />
+
+  <!-- ─── BROADCAST / GUARDIAN INTELLIGENCE WAVES ─── -->
+  <!-- Outer Arc -->
+  <path d="M 320 200 A 240 240 0 0 1 704 200" 
+        fill="none" stroke="#60A5FA" stroke-width="22" stroke-linecap="round" opacity="0.65" filter="url(#arcGlow)" />
+
+  <!-- Middle Arc -->
+  <path d="M 380 255 A 170 170 0 0 1 644 255" 
+        fill="none" stroke="#3B82F6" stroke-width="22" stroke-linecap="round" opacity="0.85" filter="url(#arcGlow)" />
+
+  <!-- Inner Arc -->
+  <path d="M 440 310 A 100 100 0 0 1 584 310" 
+        fill="none" stroke="#2563EB" stroke-width="22" stroke-linecap="round" filter="url(#arcGlow)" />
+
+  <!-- ─── SMART REMOTE CONTROLLER ─── -->
+  <g filter="url(#remoteShadow)">
+    <!-- Remote Body Capsule -->
+    <rect x="368" y="365" width="288" height="525" rx="76" fill="url(#remoteGrad)" stroke="rgba(255,255,255,0.25)" stroke-width="3" />
+
+    <!-- Top Mic / Optical Sensor Slot -->
+    <rect x="452" y="402" width="120" height="18" rx="9" fill="rgba(255, 255, 255, 0.28)" />
+    <circle cx="512" cy="411" r="4.5" fill="#93C5FD" />
+
+    <!-- D-Pad Navigation Outer Disc -->
+    <circle cx="512" cy="555" r="82" fill="url(#btnGrad)" filter="url(#dpadShadow)" />
+
+    <!-- D-Pad Directional Indicators -->
+    <!-- Up -->
+    <path d="M 512 492 L 504 504 L 520 504 Z" fill="#2563EB" />
+    <!-- Down -->
+    <path d="M 512 618 L 504 606 L 520 606 Z" fill="#2563EB" />
+    <!-- Left -->
+    <path d="M 449 555 L 461 547 L 461 563 Z" fill="#2563EB" />
+    <!-- Right -->
+    <path d="M 575 555 L 563 547 L 563 563 Z" fill="#2563EB" />
+
+    <!-- Center Select Button -->
+    <circle cx="512" cy="555" r="34" fill="#EFF6FF" stroke="#DBEAFE" stroke-width="3" />
+    <circle cx="512" cy="555" r="12" fill="#2563EB" />
+
+    <!-- Action Pills Row 1 -->
+    <rect x="418" y="675" width="82" height="38" rx="19" fill="rgba(255, 255, 255, 0.22)" />
+    <!-- Back arrow -->
+    <path d="M 464 694 L 454 694 M 459 689 L 454 694 L 459 699" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+    <rect x="524" y="675" width="82" height="38" rx="19" fill="rgba(255, 255, 255, 0.22)" />
+    <!-- Home icon -->
+    <path d="M 565 687 L 557 694 L 559 694 L 559 702 L 571 702 L 571 694 L 573 694 Z" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" />
+
+    <!-- Guardian Shield Badge Pill (Lower Row) -->
+    <rect x="442" y="742" width="140" height="46" rx="23" fill="#FFFFFF" filter="url(#dpadShadow)" />
+    <!-- Shield Check Icon -->
+    <path d="M 496 756 L 509 750 L 522 756 C 522 769 509 778 509 778 C 509 778 496 769 496 756 Z" fill="#2563EB" />
+    <path d="M 505 764 L 508 767 L 514 761" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="528" y="771" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#1E40AF" letter-spacing="1">AI</text>
+  </g>
+</svg>

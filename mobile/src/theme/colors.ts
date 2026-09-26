@@ -59,6 +59,12 @@ export const Colors = {
   overlay: 'rgba(15, 23, 42, 0.45)',
   glassBg: '#FFFFFF',
 
+  // Toast / snackbar chrome (inverse surface for high-contrast feedback)
+  bgToast: '#0F172A',
+  bgToastError: '#7F1D1D',
+  textOnToast: '#F8FAFC',
+  textOnToastMuted: '#CBD5E1',
+
   // Dark chrome reserved for camera viewfinder only
   cameraChrome: '#0B1220',
   cameraOverlay: 'rgba(11, 18, 32, 0.72)',

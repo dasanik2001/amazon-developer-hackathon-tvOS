@@ -4,7 +4,7 @@
     "slug": "family-tv-guardian",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/application.png",
     "userInterfaceStyle": "light",
     "scheme": "guardian",
     "ios": {
@@ -13,16 +13,16 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#F5F8FC",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "monochromeImage": "./assets/android-icon-foreground.png"
       },
       "package": "com.guardian.familytv",
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/application.png"
     },
     "extra": {
       "description": "AI-Powered Viewing Intelligence Layer for Fire TV - Parent Mobile Companion"
