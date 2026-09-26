@@ -26,9 +26,10 @@ import Icon, { IconName } from '../../components/Icon';
 interface LoginScreenProps {
   onNavigateRegister: () => void;
   onNavigateForgot: () => void;
+  onNavigateOtp?: (data: { challengeId: string; otpHint?: string; identifier: string }) => void;
 }
 
-export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: LoginScreenProps) {
+export default function LoginScreen({ onNavigateRegister, onNavigateForgot, onNavigateOtp }: LoginScreenProps) {
   const { login, demoLogin } = useAuth();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -91,6 +92,14 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     try {
       const result = await login(identifier.trim(), password);
       if (result.success) {
+        if (result.requires_2fa && result.challenge_id && onNavigateOtp) {
+          onNavigateOtp({
+            challengeId: result.challenge_id,
+            otpHint: result.otp_hint,
+            identifier: identifier.trim(),
+          });
+          return;
+        }
         setSuccessMsg('Welcome back. Signing you in.');
       } else {
         setError(result.error || 'Login failed');
@@ -109,7 +118,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     setSuccessMsg('');
     setIsBypassing(true);
     try {
-      const result = await demoLogin(targetId || identifier.trim() || undefined);
+      const result = await demoLogin(targetId || 'parent.test@guardian.family');
       if (result.success) {
         setSuccessMsg('Instant access granted.');
       } else {
@@ -122,22 +131,6 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
     } finally {
       setIsBypassing(false);
     }
-  };
-
-  const handleFillTestEmail = () => {
-    setIsPhoneMode(false);
-    setIdentifier('parent.test@guardian.family');
-    setPassword('Password123!');
-    setError('');
-    setSuccessMsg('');
-  };
-
-  const handleFillTestPhone = () => {
-    setIsPhoneMode(true);
-    setIdentifier('+15551234567');
-    setPassword('Password123!');
-    setError('');
-    setSuccessMsg('');
   };
 
   const handleTestPing = async () => {
@@ -199,55 +192,6 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
           <Text style={styles.brandTitle}>GUARDIAN</Text>
           <Text style={styles.brandSubtitle}>AI Parental Intelligence for Fire TV</Text>
         </Animated.View>
-
-        {/* Quick Test & Demo Hub */}
-        <View style={styles.demoCard}>
-          <View style={styles.demoHeader}>
-            <View style={styles.demoTitleWrap}>
-              <Icon name="flash" size={13} color={Colors.primary} />
-              <Text style={styles.demoTitle}>QUICK TEST & BYPASS</Text>
-            </View>
-            <View style={styles.demoBadge}>
-              <Text style={styles.demoBadgeText}>DEMO</Text>
-            </View>
-          </View>
-
-          <View style={styles.pillRow}>
-            <TouchableOpacity
-              style={styles.outlinePill}
-              onPress={handleFillTestEmail}
-              activeOpacity={0.7}
-            >
-              <Icon name="mail-outline" size={15} color={Colors.primary} />
-              <Text style={styles.outlinePillText}>Email Demo</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.outlinePill}
-              onPress={handleFillTestPhone}
-              activeOpacity={0.7}
-            >
-              <Icon name="phone-portrait-outline" size={15} color={Colors.primary} />
-              <Text style={styles.outlinePillText}>Phone Demo</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.instantBypassPill, isBypassing && styles.btnDisabled]}
-            onPress={() => handleInstantBypass()}
-            disabled={isBypassing || isLoading}
-            activeOpacity={0.8}
-          >
-            {isBypassing ? (
-              <ActivityIndicator color={Colors.primary} size="small" />
-            ) : (
-              <View style={styles.inlineCenter}>
-                <Icon name="flash" size={15} color={Colors.primary} />
-                <Text style={styles.instantBypassText}>1-Tap Instant Sign-In</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
 
         {/* Form Container */}
         <Animated.View style={[styles.formContainer, { transform: [{ translateX: shakeAnim }] }]}>
@@ -349,6 +293,25 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
             )}
           </TouchableOpacity>
 
+          {/* Clean 1-Tap Bypass Button */}
+          <TouchableOpacity
+            style={[styles.smallBypassBtn, isBypassing && styles.btnDisabled]}
+            onPress={() => handleInstantBypass('parent.test@guardian.family')}
+            disabled={isBypassing || isLoading}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="1-tap sign in bypass with test account"
+          >
+            {isBypassing ? (
+              <ActivityIndicator color={Colors.primary} size="small" />
+            ) : (
+              <View style={styles.inlineCenter}>
+                <Icon name="flash" size={14} color={Colors.primary} />
+                <Text style={styles.smallBypassText}>1-Tap Sign-In with Demo Email</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
           {/* Demo credentials hint */}
           <Text style={styles.demoHint}>
             Test: <Text style={styles.codeText}>parent.test@guardian.family</Text> / <Text style={styles.codeText}>Password123!</Text>
@@ -393,7 +356,7 @@ export default function LoginScreen({ onNavigateRegister, onNavigateForgot }: Lo
               style={styles.modalInput}
               value={serverUrl}
               onChangeText={setServerUrl}
-              placeholder="http://192.168.0.100:3001"
+              placeholder="http://192.168.0.4:3001"
               placeholderTextColor={Colors.textPlaceholder}
               autoCapitalize="none"
               autoCorrect={false}
@@ -522,84 +485,23 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
 
-  // Quick Test & Demo Hub
-  demoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: Spacing.lg,
-    ...Shadows.card,
-  },
-  demoHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  demoTitleWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  demoTitle: {
-    fontSize: FontSizes.caption,
-    fontWeight: '800',
-    color: Colors.textSecondary,
-    letterSpacing: 1,
-  },
-  demoBadge: {
-    backgroundColor: Colors.tintBlue,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: Colors.tintBlueStrong,
-  },
-  demoBadgeText: {
-    color: Colors.primary,
-    fontSize: 9,
-    fontWeight: '900',
-    letterSpacing: 0.8,
-  },
-  pillRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginBottom: Spacing.sm,
-  },
-  outlinePill: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.tintBlue,
-    borderWidth: 1,
-    borderColor: Colors.tintBlueStrong,
-    paddingVertical: 11,
-    borderRadius: BorderRadius.full,
-    gap: 6,
-    minHeight: 44,
-  },
-  outlinePillText: {
-    color: Colors.primary,
-    fontSize: FontSizes.caption,
-    fontWeight: '700',
-  },
-  instantBypassPill: {
-    minHeight: 46,
+  smallBypassBtn: {
+    minHeight: 40,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.tintBlue,
+    borderWidth: 1,
+    borderColor: Colors.tintBlueStrong,
     borderRadius: BorderRadius.full,
-    paddingVertical: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    marginBottom: Spacing.sm,
+    alignSelf: 'center',
   },
-  instantBypassText: {
+  smallBypassText: {
     color: Colors.primary,
-    fontSize: FontSizes.body,
+    fontSize: FontSizes.caption,
     fontWeight: '800',
     letterSpacing: 0.2,
   },

@@ -14,6 +14,7 @@ import BrandEmblem from './src/components/BrandEmblem';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/auth/ForgotPasswordScreen';
+import OtpVerificationScreen from './src/screens/auth/OtpVerificationScreen';
 
 // Main Screens
 import DashboardScreen from './src/screens/main/DashboardScreen';
@@ -23,10 +24,17 @@ import ProfileScreen from './src/screens/main/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-// ─── Auth Flow Navigator (No OTP Screen) ────────────────────────────────
+// ─── Auth Flow Navigator ────────────────────────────────────────────────
+
+interface OtpState {
+  challengeId: string;
+  otpHint?: string;
+  identifier: string;
+}
 
 function AuthNavigator() {
-  const [screen, setScreen] = useState<'login' | 'register' | 'forgot'>('login');
+  const [screen, setScreen] = useState<'login' | 'register' | 'forgot' | 'otp'>('login');
+  const [otpData, setOtpData] = useState<OtpState | null>(null);
 
   switch (screen) {
     case 'login':
@@ -34,6 +42,31 @@ function AuthNavigator() {
         <LoginScreen
           onNavigateRegister={() => setScreen('register')}
           onNavigateForgot={() => setScreen('forgot')}
+          onNavigateOtp={(data) => {
+            setOtpData(data);
+            setScreen('otp');
+          }}
+        />
+      );
+    case 'otp':
+      return otpData ? (
+        <OtpVerificationScreen
+          challengeId={otpData.challengeId}
+          otpHint={otpData.otpHint}
+          identifier={otpData.identifier}
+          onVerified={() => {
+            // Context will automatically transition to MainNavigator upon token store
+          }}
+          onBack={() => setScreen('login')}
+        />
+      ) : (
+        <LoginScreen
+          onNavigateRegister={() => setScreen('register')}
+          onNavigateForgot={() => setScreen('forgot')}
+          onNavigateOtp={(data) => {
+            setOtpData(data);
+            setScreen('otp');
+          }}
         />
       );
     case 'register':

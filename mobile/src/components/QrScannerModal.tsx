@@ -74,32 +74,77 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
     try {
       let pairToken: string | undefined;
       let shortCode: string | undefined;
+      let sessionId: string | undefined;
 
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.pair_token) pairToken = parsed.pair_token;
-        if (parsed.short_code) shortCode = parsed.short_code;
-      } catch {
-        if (data.includes('tv_pair_')) {
-          pairToken = data;
-        } else if (data.toUpperCase().startsWith('GARD-') || data.length === 8) {
-          shortCode = data.toUpperCase();
-        } else {
-          shortCode = data.trim().toUpperCase();
+      // 1. Check if the scanned QR is a Guardian TV pairing URL (e.g. http://192.168.0.4:3001/pair?session=...&code=...)
+      if (typeof data === 'string' && (data.includes('/pair') || data.includes('session=') || data.includes('code='))) {
+        try {
+          const matchSession = data.match(/[?&]session=([^&#]+)/);
+          const matchCode = data.match(/[?&]code=([^&#]+)/);
+          if (matchSession) sessionId = decodeURIComponent(matchSession[1]);
+          if (matchCode) shortCode = decodeURIComponent(matchCode[1]).toUpperCase();
+        } catch (e) {
+          console.warn('[QR Scanner] URL parsing error:', e);
         }
       }
 
-      console.log('[QR Scanner] Pairing with token:', pairToken, 'code:', shortCode);
-      const result = await pairingApi.approve(pairToken, shortCode);
+      // 2. If not parsed from URL, check JSON
+      if (!sessionId && !pairToken && !shortCode) {
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.session_id || parsed.sessionId) sessionId = parsed.session_id || parsed.sessionId;
+          if (parsed.pair_token) pairToken = parsed.pair_token;
+          if (parsed.short_code || parsed.code || parsed.pairingCode) {
+            shortCode = (parsed.short_code || parsed.code || parsed.pairingCode).toUpperCase();
+          }
+        } catch {
+          if (data.includes('tv_pair_')) {
+            pairToken = data;
+          } else if (data.toUpperCase().startsWith('TV-')) {
+            shortCode = data.toUpperCase();
+          } else if (data.toUpperCase().startsWith('GARD-') || data.length === 8) {
+            shortCode = data.toUpperCase();
+          } else {
+            shortCode = data.trim().toUpperCase();
+          }
+        }
+      }
 
-      if (result.success) {
-        setSuccessInfo(result.data);
+      console.log('[QR Scanner] Pairing with token:', pairToken, 'code:', shortCode, 'session:', sessionId);
+
+      const targetEmail = user?.email || (user as any)?.identifier || 'parent.test@guardian.family';
+      const targetUserId = user?.id;
+
+      let result: any = null;
+
+      // If we have sessionId or shortCode in TV format (TV-XXXX)
+      if (sessionId || (shortCode && shortCode.startsWith('TV-'))) {
+        result = await pairingApi.confirmPairingSession(sessionId, shortCode, targetEmail, targetUserId);
+      }
+
+      // If that didn't succeed or wasn't applicable, try the tv-pair approve endpoint
+      if (!result?.success) {
+        const approveRes = await pairingApi.approve(pairToken, shortCode);
+        if (approveRes?.success) {
+          result = approveRes;
+        } else if (!result) {
+          result = approveRes;
+        }
+      }
+
+      if (result && result.success) {
+        const payloadData = result.data || {
+          linked_tv: result.data?.deviceName || 'Fire TV Device',
+          household_id: user?.household_id || 'hsh_fire_guardian',
+          email: targetEmail,
+        };
+        setSuccessInfo(payloadData);
         setTimeout(() => {
-          onSuccess(result.data);
+          onSuccess(payloadData);
           onClose();
         }, 1800);
       } else {
-        setErrorMessage(result.error || 'Failed to link Fire TV. Please try again.');
+        setErrorMessage(result?.error || 'Failed to link Fire TV. Please try again.');
         setScanned(false);
       }
     } catch (err: any) {
@@ -113,7 +158,7 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
 
   const handleManualSubmit = async () => {
     if (!manualCode.trim()) {
-      Alert.alert('Enter Code', 'Please enter the 6-character code shown on your Fire TV screen.');
+      Alert.alert('Enter Code', 'Please enter the code shown on your Fire TV screen.');
       return;
     }
 
@@ -121,16 +166,36 @@ export default function QrScannerModal({ visible, onClose, onSuccess }: QrScanne
     setErrorMessage('');
     try {
       const code = manualCode.trim().toUpperCase();
-      const result = await pairingApi.approve(undefined, code);
+      const targetEmail = user?.email || (user as any)?.identifier || 'parent.test@guardian.family';
+      const targetUserId = user?.id;
 
-      if (result.success) {
-        setSuccessInfo(result.data);
+      let result: any = null;
+      if (code.startsWith('TV-')) {
+        result = await pairingApi.confirmPairingSession(undefined, code, targetEmail, targetUserId);
+      }
+
+      if (!result?.success) {
+        const approveRes = await pairingApi.approve(undefined, code);
+        if (approveRes?.success) {
+          result = approveRes;
+        } else if (!result) {
+          result = approveRes;
+        }
+      }
+
+      if (result && result.success) {
+        const payloadData = result.data || {
+          linked_tv: result.data?.deviceName || 'Fire TV Device',
+          household_id: user?.household_id || 'hsh_fire_guardian',
+          email: targetEmail,
+        };
+        setSuccessInfo(payloadData);
         setTimeout(() => {
-          onSuccess(result.data);
+          onSuccess(payloadData);
           onClose();
         }, 1800);
       } else {
-        setErrorMessage(result.error || 'Invalid or expired TV code. Check screen and retry.');
+        setErrorMessage(result?.error || 'Invalid or expired TV code. Check screen and retry.');
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to connect. Check network connection.');

@@ -31,7 +31,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   selectedChildId: string;
   setSelectedChildId: (id: string) => void;
-  login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (identifier: string, password: string) => Promise<{ success: boolean; requires_2fa?: boolean; challenge_id?: string; otp_hint?: string; error?: string }>;
   demoLogin: (identifier?: string) => Promise<{ success: boolean; error?: string }>;
   register: (identifier: string, password: string, displayName: string) => Promise<{ success: boolean; error?: string }>;
   verify2FA: (challengeId: string, otpCode: string) => Promise<{ success: boolean; error?: string }>;
@@ -147,20 +147,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  // ─── Direct Login (No 2FA Required) ───────────────────────────────────
+  // ─── Login with Optional OTP Verification ─────────────────────────────
   const login = useCallback(async (identifier: string, password: string) => {
     try {
       const result = await authApi.login(identifier, password);
-      if (result.success && result.access_token) {
-        const cleanUser = normalizeUser(result.user);
-        await storeTokens(result.access_token, result.refresh_token);
-        await storeCachedUser(cleanUser);
-        setUser(cleanUser);
-        if (cleanUser && cleanUser.linked_children && cleanUser.linked_children.length > 0) {
-          const first = cleanUser.linked_children[0];
-          setSelectedChildId(typeof first === 'string' ? first : first.id);
+      if (result.success) {
+        if (result.requires_2fa) {
+          return {
+            success: true,
+            requires_2fa: true,
+            challenge_id: result.challenge_id,
+            otp_hint: result.otp_hint,
+          };
         }
-        return { success: true };
+
+        if (result.access_token) {
+          const cleanUser = normalizeUser(result.user);
+          await storeTokens(result.access_token, result.refresh_token);
+          await storeCachedUser(cleanUser);
+          setUser(cleanUser);
+          if (cleanUser && cleanUser.linked_children && cleanUser.linked_children.length > 0) {
+            const first = cleanUser.linked_children[0];
+            setSelectedChildId(typeof first === 'string' ? first : first.id);
+          }
+          return { success: true };
+        }
       }
       return { success: false, error: result.error || 'Login failed' };
     } catch (err: any) {
